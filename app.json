@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "tdxapps",
+    "slug": "tdxapps",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.tdxapps.aggregator",
+      "googleServicesFile": "./google-services.json"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "64e48aa6-47c9-481e-88c9-7f5f76311ada"
+      }
+    },
+    "owner": "tdxapp",
+    "plugins": [
+      "expo-router"
+    ]
+  }
+}
