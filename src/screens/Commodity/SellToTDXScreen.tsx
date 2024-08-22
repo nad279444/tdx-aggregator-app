@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useRef, useMemo } from "react";
+import React, { useEffect, useState, useRef, useMemo,useContext } from "react";
+import { DataContext } from "../../../DataProvider";
 import {
   View,
   Text,
@@ -18,24 +19,28 @@ import { green } from "react-native-reanimated/lib/typescript/reanimated2/Colors
 const SellToTDXScreen = ({ route, navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedCommodity, setSelectedCommodity] = useState({});
-  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false); 
-  const [bags,setBags] = useState(0)
-  const [weight,setWeight] = useState(0)
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+  const [bags, setBags] = useState(0);
+  const [weight, setWeight] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
   const bottomSheetRef = useRef(null);
   const snapPoints = useMemo(() => ["25%", "50%", "75%"], []);
-  
+  const {data,updateData} = useContext(DataContext)
+  console.log(data)
 
   useEffect(() => {
     navigation.setOptions({
       title: "Sell To TDX",
       headerTitleAlign: "center",
+
+      headerLeft: () => null,
+
       headerRight: () => (
         <TouchableOpacity
           onPress={() => navigation.openDrawer()}
           style={{ marginRight: 16 }}
         >
-          <Ionicons name="menu" size={24} color="white" />
+          <Ionicons name="menu" size={24} color="black" />
         </TouchableOpacity>
       ),
     });
@@ -46,9 +51,6 @@ const SellToTDXScreen = ({ route, navigation }) => {
       setTotalPrice(weight * selectedCommodity.price);
     }
   }, [weight, selectedCommodity]);
-
-
-  
 
   const commodities = [
     { name: "Maize", icon: require("../../../assets/Maize.jpg"), price: 20 },
@@ -83,6 +85,15 @@ const SellToTDXScreen = ({ route, navigation }) => {
     setIsBottomSheetOpen(false);
     bottomSheetRef.current?.close(); // Closes the BottomSheet
   };
+
+  const handleNext = () => {
+    updateData('commodity', selectedCommodity);
+    updateData('weight', weight);
+    updateData('bags',bags)
+    updateData('totalPrice',totalPrice)
+    navigation.navigate("FarmerDetailScreen");
+  };
+
 
   const renderMarketPrices = () => (
     <ScrollView contentContainerStyle={styles.bottomSheetContent}>
@@ -190,24 +201,40 @@ const SellToTDXScreen = ({ route, navigation }) => {
           borderRadius: 10,
           marginHorizontal: 12,
           marginTop: 20,
-          padding:10,
-          
+          padding: 10,
         }}
       >
-        <View style={{flexDirection:'row',justifyContent:'space-between',paddingBottom:10}}>
-          <Text style={{fontSize:16}}>Price Per KG</Text>
-          <Text style={{fontSize:16}}>{selectedCommodity.price}₵/KG</Text>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            paddingBottom: 10,
+          }}
+        >
+          <Text style={{ fontSize: 16 }}>Price Per KG</Text>
+          <Text style={{ fontSize: 16 }}>{selectedCommodity.price}₵/KG</Text>
         </View>
         <Divider />
-        <View style={{flexDirection:'row',justifyContent:'space-between',paddingVertical:10}}>
-          <Text style={{fontSize:16}}>Total Price</Text>
-          <Text style={{fontSize:16}}>{totalPrice}₵</Text>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            paddingVertical: 10,
+          }}
+        >
+          <Text style={{ fontSize: 16 }}>Total Price</Text>
+          <Text style={{ fontSize: 16 }}>{totalPrice}₵</Text>
         </View>
       </View>
 
-      <TouchableOpacity style={totalPrice? styles.greenButton:styles.button }>
-      <Text style={{ fontSize: 18, color: totalPrice ? "white" : "#969696" }}>Continue</Text>
-
+      <TouchableOpacity
+        style={totalPrice ? styles.greenButton : styles.button}
+        onPress={handleNext}
+        disabled={!totalPrice}
+      >
+        <Text style={{ fontSize: 18, color: totalPrice ? "white" : "#969696" }}>
+          Continue
+        </Text>
       </TouchableOpacity>
 
       <View style={{ position: "relative" }}>
@@ -305,8 +332,8 @@ const styles = StyleSheet.create({
     flex: 1,
     position: "relative",
   },
-  greenButton:{
-    backgroundColor:'#21893E', 
+  greenButton: {
+    backgroundColor: "#21893E",
 
     marginTop: 30,
     height: 50,

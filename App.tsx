@@ -5,6 +5,7 @@ import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import { AuthProvider } from './AuthContext';
+import { DataProvider } from './DataProvider';
 import AppNavigator from './AppNavigator';
 import AuthTokenStore from './AuthTokenStore';
 import PushTokenController from './src/controllers/push/PushTokenController';
@@ -160,7 +161,10 @@ export default function App() {
   return (
     <GestureHandlerRootView>
        <AuthProvider>
-      <AppNavigator />
+        <DataProvider>
+         <AppNavigator />
+        </DataProvider>
+     
     </AuthProvider>
     </GestureHandlerRootView>
    
