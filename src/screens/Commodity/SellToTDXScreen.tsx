@@ -26,7 +26,7 @@ const SellToTDXScreen = ({ route, navigation }) => {
   const bottomSheetRef = useRef(null);
   const snapPoints = useMemo(() => ["25%", "50%", "75%"], []);
   const {data,updateData} = useContext(DataContext)
-  console.log(data)
+  
 
   useEffect(() => {
     navigation.setOptions({
@@ -87,11 +87,15 @@ const SellToTDXScreen = ({ route, navigation }) => {
   };
 
   const handleNext = () => {
-    updateData('commodity', selectedCommodity);
+    updateData('commodity', selectedCommodity?.name);
     updateData('weight', weight);
     updateData('bags',bags)
     updateData('totalPrice',totalPrice)
     navigation.navigate("FarmerDetailScreen");
+    setSelectedCommodity('');
+    setBags(0);
+    setWeight(0)
+    setTotalPrice(0);
   };
 
 
@@ -188,7 +192,7 @@ const SellToTDXScreen = ({ route, navigation }) => {
             textAlign="left"
             placeholder="0"
             keyboardType="numeric"
-            onChangeText={(text) => setWeight(parseFloat(text) || 0)}
+            onChangeText={(text) => setBags(parseFloat(text) || 0)}
           />
           <Text style={styles.bagsLabel}>Bags</Text>
         </View>

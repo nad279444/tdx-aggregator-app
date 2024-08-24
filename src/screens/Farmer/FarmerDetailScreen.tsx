@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useContext, useEffect } from "react";
 import {
   View,
   StyleSheet,
@@ -7,14 +7,21 @@ import {
   Image,
   TextInput,
 } from "react-native";
-import { useState, useEffect } from "react";
 import { Ionicons } from "@expo/vector-icons";
+import * as FileSystem from 'expo-file-system';
+import * as ImagePicker from 'expo-image-picker';
+import { DataContext } from "../../../DataProvider";
 
 export default function FarmerDetailScreen({ navigation }) {
   const [name, setName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [isVerified,setIsVerified] = useState(true)
-  
+  const [idCardPhoto, setIdCardPhoto] = useState<string | null>(null);
+  const [isVerified, setIsVerified] = useState(true);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  const { data, updateData } = useContext(DataContext);
+  console.log({data,idCardPhoto})
+
   useEffect(() => {
     navigation.setOptions({
       title: "Sell Direct",
@@ -37,6 +44,72 @@ export default function FarmerDetailScreen({ navigation }) {
       ),
     });
   }, [navigation]);
+
+  useEffect(() => {
+    if (name && phoneNumber && idCardPhoto) {
+      saveDataToDB();
+    }
+  }, [name, phoneNumber,idCardPhoto]);
+
+  const saveDataToDB = () => {
+    updateData('farmerName', name);
+    updateData('phoneNumber', phoneNumber);
+    updateData('idCardPhoto', idCardPhoto)
+  };
+
+ 
+  const imgToBase64 = async (photoUrl) => {
+    if (photoUrl) {
+      try {
+        const base64 = await FileSystem.readAsStringAsync(photoUrl, { encoding: 'base64' });
+        return base64;
+      } catch (error) {
+        console.error('Error converting image to base64:', error);
+        return null;
+      }
+    }
+    return null;
+  };
+
+  const handleNext = async () => {
+    if (imagePreview) {
+      // Handle navigation and data update
+      //updateData('idCardPhoto', imagePreview);
+
+      navigation.navigate('QualityControlScreen')
+      setName('')
+      setPhoneNumber('')
+      setImagePreview('')
+
+    } else {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        alert('Sorry, we need camera permissions to make this work!');
+        return;
+      }
+
+      try {
+        const result = await ImagePicker.launchCameraAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          aspect: [4, 3],
+          quality: 0.5,
+        });
+
+        if (!result.canceled && result.assets && result.assets.length > 0) {
+          const uri = result.assets[0].uri;
+          setIdCardPhoto(uri);
+
+          // Convert image to base64
+          const idCardBase64 = await imgToBase64(uri);
+          setImagePreview(idCardBase64);
+        }
+      } catch (error) {
+        console.error('Error capturing image:', error);
+      }
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.blackBox}>
@@ -71,14 +144,14 @@ export default function FarmerDetailScreen({ navigation }) {
             textAlign="left"
             placeholder="Enter Full Name"
             onChangeText={(text) => setName(text)}
+            value={name}
           />
-          {isVerified &&  <Ionicons
+          {isVerified && <Ionicons
             name="checkmark-outline"
             size={20}
             color="#21893E"
             style={styles.checked}
           />}
-          
         </View>
       </View>
       <View style={styles.inputContainer}>
@@ -90,14 +163,14 @@ export default function FarmerDetailScreen({ navigation }) {
             placeholder="Enter Your Phone Number"
             onChangeText={(text) => setPhoneNumber(text)}
             keyboardType="numeric"
+            value={phoneNumber}
           />
-          {isVerified &&  <Ionicons
+          {isVerified && <Ionicons
             name="checkmark-outline"
             size={20}
             color="#21893E"
             style={styles.checked}
           />}
-         
         </View>
       </View>
       <View
@@ -108,19 +181,25 @@ export default function FarmerDetailScreen({ navigation }) {
           marginRight: 20,
         }}
       >
-       { isVerified ? <Text style={{ color: "green" }}>Farmer details verified</Text> : <Text style={{ color: "red" }}>Farmer could not be found</Text> }
+        {isVerified ? <Text style={{ color: "green" }}>Farmer details verified</Text> : <Text style={{ color: "red" }}>Farmer could not be found</Text>}
       </View>
+      {imagePreview && (
+        <View style={styles.imagePreviewContainer}>
+          <Image
+            source={{ uri: `data:image/jpeg;base64,${imagePreview}` }}
+            style={styles.imagePreview}
+          />
+        </View>
+      )}
       <TouchableOpacity
-        style={isVerified?styles.greenButton:styles.disabledButton}
-        onPress={() => navigation.navigate("")}
+        style={isVerified ? styles.greenButton : styles.disabledButton}
+        onPress={handleNext}
         disabled={!isVerified}
-        
       >
-        <Text style={{ fontSize: 18, color:  "white"  }}>
-          Continue
+        <Text style={{ fontSize: 18, color: "white" }}>
+          {imagePreview ? "Confirm and Continue" : "Continue"}
         </Text>
       </TouchableOpacity>
-
     </View>
   );
 }
@@ -199,5 +278,15 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     backgroundColor: "#D5D8DE",
     alignItems: "center",
+  },
+  imagePreviewContainer: {
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  imagePreview: {
+    width: 100,
+    height: 100,
+    borderRadius: 8,
+    backgroundColor: '#ddd',
   },
 });
