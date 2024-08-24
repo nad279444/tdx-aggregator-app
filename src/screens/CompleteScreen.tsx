@@ -1,33 +1,39 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { FontAwesome5 } from '@expo/vector-icons';
+import {useEffect}from 'react';
+import { View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import { FontAwesome5,Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CompleteScreen = ({ route, navigation }) => {
-    const { message, assignmentId, accessToken } = route.params; // Access the message passed from navigation
-    const handleAssignNextFMR = () => {
-    // Here you can set the token and log the user in
-    // For example, you can save the token to AsyncStorage and navigate to the home screen
-    // console.log('Logging in with token:', accessToken);
-    // AsyncStorage.setItem('userToken', accessToken);
-        navigation.navigate('CommodityListScreen');
-    };
+  useEffect(() => {
+    navigation.setOptions({
+      title: "Sell To Direct",
+      headerTitleAlign: "center",
+      headerLeft: () => null,
+      headerRight: () => (
+        <TouchableOpacity onPress={() => navigation.openDrawer()} style={{ marginRight: 16 }}>
+          <Ionicons name="menu" size={24} color="black" />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
 
-    const handleClose=()=>{
-      navigation.navigate('CommodityListScreen');
-    };
+    
   
     return(
     <View style={styles.container}>
-      <FontAwesome5 name="check-circle" size={60} color="#006400" />
-      <Text style={styles.title}> Congratulations !! </Text>
-      <Text style={styles.message}>{message}</Text>
-      <TouchableOpacity style={styles.nxtButton} onPress={handleAssignNextFMR}>
-      <Text style={styles.buttonText}> Continue Aggregation </Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.nxtButton2} onPress={handleClose}>
-      <Text style={styles.buttonText2}>Close </Text>
-      </TouchableOpacity>
+      <FontAwesome5 name="heart" size={60} color="#21893E" solid/>
+      <Text style={styles.title}> Thank you for Selling to TDX ! </Text>
+      <Text style={styles.message}>We'll process your sales order as soon as possible. We will keep you updated on the progress through the app.</Text>
+      <View style={{width:'100%',position:'absolute',bottom:50}} >
+      <TouchableOpacity
+          style={styles.greenButton }
+          onPress={() => {}}
+        >
+          <Text style={{ fontSize: 18, color: 'white' }}>View Order Status</Text>
+       </TouchableOpacity>
+      </View>
+      
+
     </View>
   );
 };
@@ -38,11 +44,14 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       alignItems: 'center',
       backgroundColor: '#fff',
+      position:'relative'
     },
     title: {
       fontSize: 24,
       fontWeight: 'bold',
       marginVertical: 20,
+      textAlign: 'center',
+      marginHorizontal:70
     },
     message: {
       fontSize: 18,
@@ -83,6 +92,17 @@ const styles = StyleSheet.create({
         color: '#fff', // Green text
         fontSize: 16,
         fontWeight: 'bold',
+      },
+      greenButton: {
+        backgroundColor: "#21893E",
+        marginTop: 5,
+        height: 50,
+        marginHorizontal: 20,
+        borderWidth: 1,
+        borderColor: "#D5D8DE",
+        borderRadius: 4,
+        paddingVertical: 10,
+        alignItems: "center",
       },
   });
   

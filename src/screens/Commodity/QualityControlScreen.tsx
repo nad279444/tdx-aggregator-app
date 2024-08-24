@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState ,useContext} from "react";
 import { StyleSheet, View, TouchableOpacity, Text, Image, ScrollView } from "react-native";
 import { Ionicons,FontAwesome5 } from "@expo/vector-icons";
+import { DataContext } from "../../../DataProvider";
 import CheckBox from "react-native-elements/dist/checkbox/CheckBox";
 import { Divider } from "react-native-elements/dist/divider/Divider";
 
@@ -13,11 +14,20 @@ export default function QualityControlScreen({ navigation }) {
   const [moistureContent, setMoistureContent] = useState(false);
   const [disclaimer, setDisclaimer] = useState(false);
 
+  const { data, updateData } = useContext(DataContext);
+
   useEffect(() => {
     navigation.setOptions({
       title: "Sell To Direct",
       headerTitleAlign: "center",
-      headerLeft: () => null,
+      headerLeft: () => (
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={{ marginLeft: 16 }}
+        >
+          <Ionicons name="arrow-back-outline" size={24} color="black" />
+        </TouchableOpacity>
+      ),
       headerRight: () => (
         <TouchableOpacity
           onPress={() => navigation.openDrawer()}
@@ -43,31 +53,33 @@ export default function QualityControlScreen({ navigation }) {
     },
     {
       iconName: "spider",
-      title: "Moisture Content",
-      subtitle: "below 14%",
-      stateSetter: setMoistureContent,
-      stateValue: moistureContent
+      title: "No live infestation",
+      subtitle: "eg. weevils",
+      stateSetter: setLevelOfInfestation,
+      stateValue: levelOfInfestation
+      
     },
     {
       iconName: "bacterium",
       title: "No Insect Damage",
-      subtitle: "consistent color",
+      subtitle: "eg.weevil holes",
       stateSetter: setLevelOfinsectDamage,
       stateValue: levelOfinsectDamage
     },
     {
-      iconName: "flask",
-      title: "No Chemical Residue",
-      subtitle: "safe for consumption",
-      stateSetter: setWeightCheck,
-      stateValue: weightCheck
+      iconName: "tint",
+      title: "Moisture Content Checked",
+      subtitle: " completed",
+      stateSetter: setMoistureContent,
+      stateValue: moistureContent
+      
     },
     {
-      iconName: "leaf",
-      title: "No Pest Infestation",
-      subtitle: "free from pests",
-      stateSetter: setLevelOfInfestation,
-      stateValue: levelOfInfestation
+      iconName: "weight-hanging",
+      title: "Weight Checked",
+      subtitle: "check completed",
+      stateSetter: setWeightCheck,
+      stateValue: weightCheck
     },
   ];
 
@@ -82,15 +94,15 @@ export default function QualityControlScreen({ navigation }) {
           />
           <View style={{ marginLeft: 20 }}>
             <Text style={{ color: "white", fontSize: 18, fontWeight: "500" }}>
-              Yellow Maize
+              {data.commodity}
             </Text>
             <Text style={{ color: "#94E081", fontSize: 14, fontWeight: "500" }}>
-              24 bags, 2400KG
+              {data.bags} bags, {data.weight} KG
             </Text>
           </View>
         </View>
         <Text style={{ color: "white", fontSize: 18, fontWeight: "500" }}>
-          64,000 ₵
+          {data.totalPrice} ₵
         </Text>
       </View>
       <View style={styles.greenBox}>
@@ -98,7 +110,7 @@ export default function QualityControlScreen({ navigation }) {
           Quality control for{" "}
         </Text>
         <Text style={{ textAlign: "center", fontSize: 16, fontWeight: "bold" }}>
-          Ebo Taylor
+          {data.farmerName}
         </Text>
       </View>
       <Text
@@ -127,8 +139,9 @@ export default function QualityControlScreen({ navigation }) {
                   <FontAwesome5 name={control.iconName} size={24} color="black" />
                 </View>
                 <View style={{ marginLeft: 15 }}>
-                  <Text>{control.title}</Text>
-                  <Text>{control.subtitle}</Text>
+                  <Text style={{fontWeight:'500'}}>{control.title}</Text>
+                  <Text  style={{fontSize:14,color:'#808080'}}>{control.subtitle}</Text> 
+
                 </View>
               </View>
               <CheckBox
@@ -173,7 +186,7 @@ export default function QualityControlScreen({ navigation }) {
       </View>
       <TouchableOpacity
         style={disclaimer?styles.greenButton:styles.button}
-        onPress={() => {}}
+        onPress={() => navigation.navigate('FarmerPaymentScreen')}
         disabled={!disclaimer}
       >
         <Text style={{ fontSize: 18, color: 'white' }}>
@@ -214,7 +227,8 @@ const styles = StyleSheet.create({
   },
   greenButton: {
     backgroundColor: "#21893E",
-    marginTop: 5,
+    marginTop: 10,
+    marginBottom:35,
     height: 50,
     marginHorizontal: 12,
     borderWidth: 1,
@@ -224,7 +238,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   button: {
-    marginTop: 5,
+    marginTop: 10,
+    marginBottom:35,
     height: 50,
     marginHorizontal: 12,
     borderWidth: 1,

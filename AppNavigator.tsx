@@ -41,6 +41,7 @@ import DashboardScreen from './src/screens/Aggregator/DashboardScreen';
 import SellToTDXScreen from './src/screens/Commodity/SellToTDXScreen';
 import FarmerDetailScreen from './src/screens/Farmer/FarmerDetailScreen';
 import QualityControlScreen from './src/screens/Commodity/QualityControlScreen';
+import FarmerPaymentScreen from './src/screens/Farmer/FarmerPaymentScreen';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -71,6 +72,7 @@ export default function AppNavigator() {
           <Stack.Screen name="SellToTDXScreen" component={DrawerNavigator} options={{ headerShown: false }} />
           <Stack.Screen name="FarmerDetailScreen" component={FarmerDetailScreen} options={{ headerShown: false }} />
           <Stack.Screen name="QualityControlScreen" component={QualityControlScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="FarmerPaymenetScreen" component={FarmerPaymentScreen} options={{ headerShown: false }} />
           <Stack.Screen name="CommodityDisplayScreen" component={CommodityDisplayScreen} options={{ title: 'Commodity' }} />
           <Stack.Screen name="PriceTableScreen" component={PriceTableScreen} options={{ title: 'Community Prices' }} />
           <Stack.Screen name="HomeScreen" component={DrawerNavigator} options={{ headerShown: false }} />
@@ -98,6 +100,7 @@ function DrawerNavigator() {
       <Drawer.Screen name="SellToTDXScreen" component={SellToTDXScreen}  />
       <Stack.Screen name="FarmerDetailScreen" component={FarmerDetailScreen} />
       <Stack.Screen name="QualityControlScreen" component={QualityControlScreen} />
+      <Stack.Screen name="FarmerPaymentScreen" component={FarmerPaymentScreen} />
       <Drawer.Screen name="StarScreen" component={StartScreen} />
       <Drawer.Screen name="Profile" component={AggregatorProfileScreen}  />
       <Drawer.Screen name="EditProfile" component={EditAggregatorProfileScreen}  />

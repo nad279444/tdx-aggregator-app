@@ -20,7 +20,7 @@ export default function FarmerDetailScreen({ navigation }) {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const { data, updateData } = useContext(DataContext);
-  console.log({data,idCardPhoto})
+  
 
   useEffect(() => {
     navigation.setOptions({
@@ -120,15 +120,15 @@ export default function FarmerDetailScreen({ navigation }) {
           />
           <View style={{ marginLeft: 20 }}>
             <Text style={{ color: "white", fontSize: 18, fontWeight: "500" }}>
-              Yellow Maize
+              {data.commodity}
             </Text>
             <Text style={{ color: "#94E081", fontSize: 14, fontWeight: "500" }}>
-              24 bags, 2400KG
+              {data.bags} bags, {data.weight} KG
             </Text>
           </View>
         </View>
         <Text style={{ color: "white", fontSize: 18, fontWeight: "500" }}>
-          64,000 ₵
+          {data.totalPrice} ₵
         </Text>
       </View>
       <View style={{ marginLeft: 20, marginTop: 20 }}>

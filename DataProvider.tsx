@@ -13,7 +13,9 @@ export const DataProvider = ({ children }) => {
     totalPrice: 0,
     farmerName:'',
     phoneNumber:'',
-    idCardPhoto:''
+    idCardPhoto:'',
+    momoName:'',
+    momoNumber:'',
   });
 
   useEffect(() => {
