@@ -23,7 +23,7 @@ export const DataProvider = ({ children }) => {
       try {
         const db = await SQLite.openDatabaseAsync('appData.db');
 
-        // Create table if it doesn't exist
+        // Create the existing formData table if it doesn't exist
         await db.execAsync(`
           CREATE TABLE IF NOT EXISTS formData (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -32,7 +32,17 @@ export const DataProvider = ({ children }) => {
           );
         `);
 
-        // Load initial data from SQLite
+        // Create the new farmers table
+        await db.execAsync(`
+          CREATE TABLE IF NOT EXISTS farmers (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            phoneNumber TEXT,
+            imageUri TEXT
+          );
+        `);
+
+        // Load initial data from SQLite (for formData)
         loadDataFromDB(db);
       } catch (error) {
         console.error('Error initializing database', error);
@@ -81,8 +91,43 @@ export const DataProvider = ({ children }) => {
     });
   };
 
+  // Add a new farmer to the database
+  const addFarmer = async (name, phoneNumber, imageUri) => {
+    try {
+      const db = await SQLite.openDatabaseAsync('appData.db');
+      await db.runAsync(
+        'INSERT INTO farmers (name, phoneNumber, imageUri) VALUES (?, ?, ?);',
+        name,
+        phoneNumber,
+        imageUri
+      );
+      console.log('Farmer added successfully');
+    } catch (error) {
+      console.error('Error adding farmer to database', error);
+    }
+  };
+
+  // Fetch all farmers from the database
+  const getFarmers = async () => {
+    try {
+      const db = await SQLite.openDatabaseAsync('appData.db');
+      const result = await db.getAllAsync('SELECT * FROM farmers;');
+      const farmers = [];
+
+    // Use for await...of to iterate over the results
+    for await (const row of result) {
+      farmers.push(row);
+    }
+
+    return farmers
+    } catch (error) {
+      console.error('Error fetching farmers from database', error);
+      return [];
+    }
+  };
+
   return (
-    <DataContext.Provider value={{ data, updateData }}>
+    <DataContext.Provider value={{ data, updateData, addFarmer, getFarmers }}>
       {children}
     </DataContext.Provider>
   );

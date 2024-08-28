@@ -53,10 +53,10 @@ const Sidebar = ({ navigation }) => {
   // Array of menu items
   const menuItems = [
     { name: 'Sell To TDX', icon: 'arrow-right', onPress: () => navigation.navigate('SellToTDXScreen') },
-    { name: 'My aggregates', icon: 'chart-bar', onPress: () => navigation.navigate('NotificationScreen') },
+    { name: 'My aggregates', icon: 'chart-bar', onPress: () => navigation.navigate('FarmerAssignmentscreen') },
     { name: 'Farmers', icon: 'user-alt', onPress: () => navigation.navigate('ManageFarmersScreen') },
-    { name: 'Community Prices', icon: 'wallet', onPress: () => navigation.navigate('FarmerAssignmentscreen') },
-    { name: 'Settings', icon: 'cog', onPress: () => navigation.navigate('DashboardScreen') },
+    { name: 'Community Prices', icon: 'wallet', onPress: () => navigation.navigate('DashboardScreen') },
+    { name: 'Notifications', icon: 'cog', onPress: () => navigation.navigate('NotificationScreen') },
   ];
 
   return (

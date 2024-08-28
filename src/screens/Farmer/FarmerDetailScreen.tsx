@@ -45,11 +45,11 @@ export default function FarmerDetailScreen({ navigation }) {
     });
   }, [navigation]);
 
-  useEffect(() => {
-    if (name && phoneNumber && idCardPhoto) {
-      saveDataToDB();
-    }
-  }, [name, phoneNumber,idCardPhoto]);
+  // useEffect(() => {
+  //   if (name && phoneNumber && idCardPhoto) {
+  //     saveDataToDB();
+  //   }
+  // }, [name, phoneNumber,idCardPhoto]);
 
   const saveDataToDB = () => {
     updateData('farmerName', name);
@@ -73,14 +73,11 @@ export default function FarmerDetailScreen({ navigation }) {
 
   const handleNext = async () => {
     if (imagePreview) {
-      // Handle navigation and data update
-      //updateData('idCardPhoto', imagePreview);
-
-      navigation.navigate('QualityControlScreen')
-      setName('')
-      setPhoneNumber('')
-      setImagePreview('')
-
+      saveDataToDB();
+      navigation.navigate('QualityControlScreen');
+      setName('');
+      setPhoneNumber('');
+      setImagePreview('');
     } else {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
       if (status !== 'granted') {
@@ -110,6 +107,7 @@ export default function FarmerDetailScreen({ navigation }) {
     }
   };
 
+ 
   return (
     <View style={styles.container}>
       <View style={styles.blackBox}>

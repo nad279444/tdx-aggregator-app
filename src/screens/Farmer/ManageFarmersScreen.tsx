@@ -1,241 +1,12 @@
-// import React, { useState, useEffect } from 'react';
-// import { View, Text, RefreshControl, StyleSheet, ScrollView, TextInput, FlatList, TouchableOpacity } from 'react-native';
-// import { FontAwesome5 } from '@expo/vector-icons';
-// import { ProgressBar } from 'react-native-paper';
-// import { Avatar, Button } from 'react-native-elements';
-// import { useNavigation, useFocusEffect } from '@react-navigation/native';
-// import FarmerController from '../../controllers/api/FarmerContoller';
-// import AuthTokenStore from '../../../AuthTokenStore';
-
-// const ManageFarmersScreen = ({ route, navigation }) => {
-//   const [farmers, setFarmers] = useState([]);
-//   const [searchQuery, setSearchQuery] = useState('');
-//   const [filteredFarmers, setFilteredFarmers] = useState([]);
-//   const [page, setPage] = useState(1);
-//   const [loading, setLoading] = useState(false);
-//   const [refreshing, setRefreshing] = useState(false);
-//   const [hasMore, setHasMore] = useState(true);
-
-//   const fetchFarmers = async () => {
-//     try {
-//       setLoading(true);
-//       const userID = await AuthTokenStore.getUserID();
-//       const data = await FarmerController.specify(page,userID);
-      
-//       console.log(data);
-      
-//       if (data) {
-//         if (page === 1) {
-//           setFarmers(data.data.data);
-//           setFilteredFarmers(data.data.data);
-//         } else {
-//           setFarmers(prevFarmers => [...prevFarmers, ...data.data.data]);
-//           setFilteredFarmers(prevFarmers => [...prevFarmers, ...data.data.data]);
-//         }
-//         setHasMore(data.data.next_page_url !== null);
-//       } else {
-//         console.error('Error fetching farmers: No data received');
-//       }
-//     } catch (error) {
-//       console.error('Error fetching farmers:', error);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
- 
-//   useFocusEffect(
-//     React.useCallback(() => {
-//       navigation.setOptions({ title: 'Manage Farmers' });
-//       fetchFarmers(); // Call your function to fetch data
-//     }, [page])
-//   );
-
-//   const onRefresh = () => {
-//     setRefreshing(true);
-//     setPage(1);
-//     fetchFarmers();
-//     setRefreshing(false);
-//   };
-
-//   const handleSearch = (text) => {
-//     setSearchQuery(text);
-//     const filteredData = farmers.filter((farmer) =>
-//       farmer.first_name.toLowerCase().includes(text.toLowerCase()) ||
-//       farmer.last_name.toLowerCase().includes(text.toLowerCase())
-//     );
-//     setFilteredFarmers(filteredData);
-//   };
-
-//   const handleFarmerSelect = (farmer) => {
-//     navigation.navigate('FarmerProfileScreen', { farmerData: farmer });
-//   };
-
-//   const handleAddFarmer = () => {
-//     navigation.navigate('AddFarmerScreen');
-//   };
-
-//   const renderAvatar = (item) => {
-//     if (item.profile_photo_path) {
-//       return <Avatar rounded source={{ uri: item.profile_photo_path }} size="medium" containerStyle={styles.avatar} />;
-//     } else {
-//       const initials = `${item.first_name.charAt(0)}${item.last_name.charAt(0)}`;
-//       return (
-//         <Avatar
-//           rounded
-//           title={initials}
-//           size="medium"
-//           containerStyle={[styles.avatar, { backgroundColor: 'green' }]}
-//           titleStyle={{ color: 'white', fontSize: 20, textTransform: "uppercase" }}
-//         />
-//       );
-//     }
-//   };
-
-//   const renderItem = ({ item }) => (
-//     <TouchableOpacity onPress={() => handleFarmerSelect(item)}>
-//       <View style={styles.notificationContent}>
-//         <View style={styles.leftContent}>
-//           {renderAvatar(item)}
-//           <View style={styles.textContainer}>
-//             <Text style={styles.notificationText}>{item.first_name} {item.last_name}</Text>
-//             <Text style={styles.farmerInfo}>Ranking: {item.ranking} 4.5 </Text>
-//             <Text style={styles.farmerInfo}>Verification: {item.verification_status}</Text>
-//           </View>
-//         </View>
-//         <View style={styles.rightContent}>
-//           <TouchableOpacity style={styles.selectButton} onPress={() => handleFarmerSelect(item)} >
-//             <Text style={{ color: "green" }}> Details  </Text>
-//           </TouchableOpacity>
-//         </View>
-//       </View>
-//     </TouchableOpacity>
-//   );
-
-//   return (
-//     <View style={styles.container}>
-//       <TextInput
-//         style={styles.searchInput}
-//         onChangeText={handleSearch}
-//         value={searchQuery}
-//         placeholder="Search for farmer..."
-//         placeholderTextColor="gray"
-//       />
-//       <FlatList
-//         data={filteredFarmers}
-//         keyExtractor={(item, index) => item.id.toString() + index.toString()} // Ensure unique keys
-//         renderItem={renderItem}
-//         refreshControl={
-//           <RefreshControl
-//             refreshing={refreshing}
-//             onRefresh={onRefresh}
-//           />
-//         }
-//         onEndReached={() => {
-//           if (!loading && hasMore) {
-//             setPage(page + 1);
-//           }
-//         }}
-//         onEndReachedThreshold={0.1}
-//       />
-//       <TouchableOpacity
-//         style={{
-//           borderWidth: 1,
-//           borderColor: 'rgba(0,0,0,0.2)',
-//           alignItems: 'center',
-//           justifyContent: 'center',
-//           width: 140,
-//           position: 'absolute',
-//           bottom: 40,
-//           right: 10,
-//           height: 40,
-//           backgroundColor: '#000',
-//           borderRadius: 100,
-//         }} onPress={handleAddFarmer}
-//       >
-//         <Text style={{ color: "#fff" }}> + Add Farmer </Text>
-//       </TouchableOpacity>
-//     </View>
-//   );
-// };
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: '#fff',
-//     paddingHorizontal: 10,
-//     paddingBottom: 10,
-//     paddingTop: 0,
-//   },
-//   notificationContent: {
-//     paddingVertical: 15,
-//     paddingHorizontal: 10,
-//     borderBottomWidth: 1,
-//     borderBottomColor: '#ccc',
-//     flexDirection: 'row',
-//     justifyContent: 'space-between',
-//     alignItems: 'center',
-//   },
-//   leftContent: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//   },
-//   rightContent: {
-//     alignItems: 'flex-end',
-//   },
-//   avatar: {
-//     marginRight: 10,
-//   },
-//   textContainer: {
-//     flexDirection: 'column',
-//     justifyContent: 'center',
-//   },
-//   notificationText: {
-//     fontSize: 18,
-//     fontWeight: 'bold',
-//     textTransform: "capitalize"
-//   },
-//   farmerInfo: {
-//     fontSize: 14,
-//     color: 'gray',
-
-//   },
-//   selectButton: {
-//     backgroundColor: '#eff',
-//     color: "green",
-//     paddingHorizontal: 20,
-//     paddingVertical: 5,
-//     borderRadius: 30,
-//   },
-//   searchInput: {
-//     height: 40,
-//     borderColor: 'gray',
-//     borderWidth: 1,
-//     borderRadius: 5,
-//     marginTop: 10,
-//     paddingHorizontal: 10,
-//   },
-// });
-
-// export default ManageFarmersScreen;
-
-
-
-
-
-
-
-
-
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, RefreshControl, StyleSheet, TextInput, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Avatar } from 'react-native-elements';
-import { useFocusEffect } from '@react-navigation/native';
-import FarmerController from '../../controllers/api/FarmerContoller';
-import AuthTokenStore from '../../../AuthTokenStore';
+import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
+import { DataContext } from '../../../DataProvider';
 
-const ManageFarmersScreen = ({ route, navigation }) => {
+const ManageFarmersScreen = ({ navigation }) => {
   const [farmers, setFarmers] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredFarmers, setFilteredFarmers] = useState([]);
@@ -243,109 +14,124 @@ const ManageFarmersScreen = ({ route, navigation }) => {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const { getFarmers } = useContext(DataContext);
 
-  const fetchFarmers = async () => {
-    try {
-      setLoading(true);
-      const userID = await AuthTokenStore.getUserID();
-      const data = await FarmerController.specify(page, userID);
-      
-      if (data) {
-        if (page === 1) {
-          setFarmers(data.data.data);
-          setFilteredFarmers(data.data.data);
-        } else {
-          setFarmers(prevFarmers => [...prevFarmers, ...data.data.data]);
-          setFilteredFarmers(prevFarmers => [...prevFarmers, ...data.data.data]);
-        }
-        setHasMore(data.data.next_page_url !== null);
-      } else {
-        console.error('Error fetching farmers: No data received');
+  useEffect(() => {
+    navigation.setOptions({
+      title: "Farmers",
+      headerTitleAlign: "center",
+      headerLeft: () => (
+        <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 16 }}>
+          <Ionicons name="arrow-back-outline" size={24} color="black" />
+        </TouchableOpacity>
+      ),
+      headerRight: () => (
+        <TouchableOpacity onPress={() => navigation.openDrawer()} style={{ marginRight: 16 }}>
+          <Ionicons name="menu" size={24} color="black" />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
+
+  useEffect(() => {
+    const fetchFarmers = async () => {
+      try {
+        const farmersData = await getFarmers();
+        setFarmers(farmersData);
+        setFilteredFarmers(farmersData); // Update filteredFarmers initially
+      } catch (error) {
+        console.error('Error fetching farmers:', error);
       }
-    } catch (error) {
-      console.error('Error fetching farmers:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-  useFocusEffect(
-    React.useCallback(() => {
-      navigation.setOptions({ title: 'Manage Farmers' });
-      fetchFarmers();
-    }, [page])
-  );
-
-  const onRefresh = () => {
-    setRefreshing(true);
-    setPage(1);
     fetchFarmers();
-    setRefreshing(false);
-  };
+  }, []);
 
   const handleSearch = (text) => {
     setSearchQuery(text);
     const filteredData = farmers.filter((farmer) =>
-      farmer.first_name.toLowerCase().includes(text.toLowerCase()) ||
-      farmer.last_name.toLowerCase().includes(text.toLowerCase())
+      farmer.name.toLowerCase().includes(text.toLowerCase()) ||
+      farmer.phoneNumber.toLowerCase().includes(text.toLowerCase())
     );
     setFilteredFarmers(filteredData);
   };
 
-  const handleFarmerSelect = (farmer) => {
-    navigation.navigate('FarmerProfileScreen', { farmerData: farmer });
-  };
+  const handleAddFarmer = async () => {
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
 
-  const handleAddFarmer = () => {
-    navigation.navigate('AddFarmerScreen');
+    if (permissionResult.granted === false) {
+      alert("You've refused to allow this app to access your camera!");
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+      base64: false,
+    });
+
+    if (!result.canceled) {
+      const imageUri = result.assets[0].uri;
+      const filename = imageUri.split('/').pop();
+
+      const newPath = FileSystem.documentDirectory + filename;
+      await FileSystem.moveAsync({
+        from: imageUri,
+        to: newPath,
+      });
+
+      navigation.navigate('AddFarmerScreen', { imageUri: newPath });
+    }
   };
 
   const renderAvatar = (item) => {
     if (item.profile_photo_path) {
       return <Avatar rounded source={{ uri: item.profile_photo_path }} size="medium" containerStyle={styles.avatar} />;
     } else {
-      const initials = `${item.first_name.charAt(0)}${item.last_name.charAt(0)}`;
       return (
-        <Avatar
-          rounded
-          title={initials}
-          size="medium"
-          containerStyle={[styles.avatar, { backgroundColor: 'green' }]}
-          titleStyle={{ color: 'white', fontSize: 20, textTransform: "uppercase" }}
-        />
+        <View style={styles.placeholderIcon}>
+          <Ionicons name="person" size={30} color="white" />
+        </View>
       );
     }
   };
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity onPress={() => handleFarmerSelect(item)}>
-      <View style={styles.notificationContent}>
-        <View style={styles.leftContent}>
-          {renderAvatar(item)}
-          <View style={styles.textContainer}>
-            <Text style={styles.notificationText}>{item.first_name} {item.last_name}</Text>
-            <Text style={styles.farmerInfo}>Ranking: {item.ranking} 4.5 </Text>
-            <Text style={styles.farmerInfo}>Verification: {item.verification_status}</Text>
-          </View>
-        </View>
-        <View style={styles.rightContent}>
-          <TouchableOpacity style={styles.selectButton} onPress={() => handleFarmerSelect(item)} >
-            <Text style={{ color: "green" }}> Details  </Text>
-          </TouchableOpacity>
+    <View style={styles.farmerListContainer}>
+      <View style={styles.leftContent}>
+        {renderAvatar(item)}
+        <View style={styles.textContainer}>
+          <Text style={styles.notificationText}>{item.name}</Text>
+          <Text style={styles.farmerInfo}>{item.phoneNumber}</Text>
         </View>
       </View>
-    </TouchableOpacity>
+      <FontAwesome5 name="chevron-right" size={18} color="gray" style={styles.chevronIcon} />
+    </View>
   );
 
   return (
     <View style={styles.container}>
-      <TextInput
-        style={styles.searchInput}
-        onChangeText={handleSearch}
-        value={searchQuery}
-        placeholder="Search for farmer..."
-        placeholderTextColor="gray"
-      />
+      <View style={styles.titleContainer}>
+        <Text style={{ fontSize: 18, fontWeight: 'bold' }}>All Farmers</Text>
+        <View style={{ flexDirection: 'row', gap: 10, marginTop: 5 }}>
+          <Text style={{ fontWeight: 'bold' }}>Filter</Text>
+          <Ionicons name="filter" size={24} />
+        </View>
+      </View>
+      <View style={styles.inputContainer}>
+        <View style={styles.inputGroup}>
+          <TextInput
+            style={styles.searchInput}
+            onChangeText={handleSearch}
+            value={searchQuery}
+            placeholder="Search for Farmer..."
+            placeholderTextColor="gray"
+          />
+          <Ionicons name="search" size={26} color='grey' style={{ position: 'absolute', right: 25, bottom: 15 }} />
+        </View>
+      </View>
+
       {loading ? (
         <ActivityIndicator size="large" color="green" style={{ marginTop: 20 }} />
       ) : (
@@ -355,12 +141,14 @@ const ManageFarmersScreen = ({ route, navigation }) => {
           ) : (
             <FlatList
               data={filteredFarmers}
-              keyExtractor={(item, index) => item.id.toString() + index.toString()} // Ensure unique keys
+              keyExtractor={(item) => item.id.toString()}
               renderItem={renderItem}
               refreshControl={
                 <RefreshControl
                   refreshing={refreshing}
-                  onRefresh={onRefresh}
+                  onRefresh={() => {
+                    // Implement refresh functionality here
+                  }}
                 />
               }
               onEndReached={() => {
@@ -373,11 +161,9 @@ const ManageFarmersScreen = ({ route, navigation }) => {
           )}
         </>
       )}
-      <TouchableOpacity
-        style={styles.addButton}
-        onPress={handleAddFarmer}
-      >
-        <Text style={styles.addButtonText}> + Add Farmer </Text>
+      <TouchableOpacity style={styles.addButton} onPress={handleAddFarmer}>
+        <Text style={styles.addButtonText}> Add New Farmer </Text>
+        <Ionicons name='add' size={20} color='white' />
       </TouchableOpacity>
     </View>
   );
@@ -386,12 +172,11 @@ const ManageFarmersScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#F9FAFF',
     paddingHorizontal: 10,
     paddingBottom: 10,
-    paddingTop: 0,
   },
-  notificationContent: {
+  farmerListContainer: {
     paddingVertical: 15,
     paddingHorizontal: 10,
     borderBottomWidth: 1,
@@ -404,15 +189,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  rightContent: {
-    alignItems: 'flex-end',
-  },
   avatar: {
     marginRight: 10,
+    width: 50,
+    height: 50,
+    borderRadius: 5, // Square avatar with rounded corners
+  },
+  placeholderIcon: {
+    marginRight: 10,
+    width: 50,
+    height: 50,
+    borderRadius: 5,
+    backgroundColor: '#E6E6E6',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   textContainer: {
     flexDirection: 'column',
     justifyContent: 'center',
+    marginLeft: 10,
   },
   notificationText: {
     fontSize: 18,
@@ -423,20 +218,15 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'gray',
   },
-  selectButton: {
-    backgroundColor: '#eff',
-    color: "green",
-    paddingHorizontal: 20,
-    paddingVertical: 5,
-    borderRadius: 30,
-  },
   searchInput: {
-    height: 40,
+    height: 60,
     borderColor: 'gray',
     borderWidth: 1,
-    borderRadius: 5,
+    borderRadius: 4,
     marginTop: 10,
-    paddingHorizontal: 10,
+    marginHorizontal: 10,
+    paddingLeft: 10,
+    backgroundColor: '#FFFFFF'
   },
   noItemsText: {
     textAlign: 'center',
@@ -449,16 +239,39 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(0,0,0,0.2)',
     alignItems: 'center',
     justifyContent: 'center',
-    width: 140,
+    minWidth: 140,
     position: 'absolute',
     bottom: 40,
-    right: 10,
-    height: 40,
+    right: 20,
+    height: 50,
     backgroundColor: '#000',
     borderRadius: 100,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    flexDirection: 'row',
   },
   addButtonText: {
     color: "#fff",
+    textAlign: 'center'
+  },
+  chevronIcon: {
+    alignSelf: 'flex-end',
+    marginBottom: 18,
+    marginRight: 2
+  },
+  inputContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  inputGroup: {
+    flex: 1,
+    position: "relative",
+  },
+  titleContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 10,
+    marginTop: 10,
   },
 });
 
