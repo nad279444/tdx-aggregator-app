@@ -22,7 +22,7 @@ import OnBoardingScreen from './src/screens/Onboarding/OnBoardingScreen';
 import FarmerSelectionScreen from './src/screens/Farmer/FarmerSelectionScreen';
 import FarmersCommodityAssignmentScreen from './src/screens/Farmer/FarmersCommodityAssignmentScreen';
 import CompleteScreen from './src/screens/CompleteScreen';
-import FarmerAssignmentScreen from './src/screens/Farmer/FarmerAssignmentScreen';
+import MyAggregatesScreen from './src/screens/Farmer/MyAggregatesScreen';
 import ManageFarmersScreen from './src/screens/Farmer/ManageFarmersScreen';
 import AddFarmerScreen from './src/screens/Farmer/AddFarmerScreen';
 import FarmerProfileScreen from './src/screens/Farmer/FarmerProfileScreen';
@@ -105,7 +105,7 @@ function DrawerNavigator() {
       <Drawer.Screen name="Profile" component={AggregatorProfileScreen}  />
       <Drawer.Screen name="EditProfile" component={EditAggregatorProfileScreen}  />
       <Drawer.Screen name="AssignmentDetailScreen" component={AssignmentDetailScreen }  />
-      <Stack.Screen name="FarmerAssignmentscreen" component={FarmerAssignmentScreen}  />
+      <Stack.Screen name="MyAggregatesScreen" component={MyAggregatesScreen}  />
       <Stack.Screen name="ManageFarmersScreen" component={ManageFarmersScreen}  />
       <Stack.Screen name="ManageCommodityScreen" component={ManageCommodityScreen}  />
       <Stack.Screen name="AddCommodityScreen" component={AddCommodityScreen}  />
