@@ -1,12 +1,22 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
+import { useNavigation } from '@react-navigation/native';
 
-export default function CommodityAggregatesCard({ commodityName, quantity, price, image }) {
+export default function CommodityAggregatesCard({ commodityName, quantity, price,image, date}) {
   const [isPending, setIsPending] = useState(true);
-
+  const navigation = useNavigation();
+  function handleNavigation() {
+    navigation.navigate('AggregationDetailScreen',{
+      commodityName,
+      quantity,
+     price,
+     date 
+    });
+  }
+  
   return (
-    <TouchableOpacity style={styles.whiteCard}>
+    <TouchableOpacity style={styles.whiteCard} onPress = {handleNavigation}  >
       <View style={styles.commodityContainer}>
         <Image source={image} style={styles.commodityImage} />
         <View style={{ marginLeft: 20 }}>

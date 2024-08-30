@@ -7,7 +7,7 @@ import CommodityAggregatesCard from "./CommodityAggregatesCard";
 export default function Aggregates() {
   const data = [
     {
-      title: "2024-08-28",
+      date: "2024-08-28",
       data: [
         {
           id: "1",
@@ -26,7 +26,7 @@ export default function Aggregates() {
       ],
     },
     {
-      title: "2024-08-29",
+      date: "2024-08-29",
       data: [
         {
           id: "3",
@@ -46,7 +46,9 @@ export default function Aggregates() {
   return (
     <View style={styles.container}>
       <View style={styles.sectionContainer}>
-        <Text style={{ fontSize: 18, fontWeight: "bold" }}>All Aggregations</Text>
+        <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+          All Aggregations
+        </Text>
         <View style={{ flexDirection: "row", gap: 10 }}>
           <Text style={{ fontWeight: "bold", fontSize: 16 }}>Filter</Text>
           <Ionicons name="filter" size={24} />
@@ -56,17 +58,18 @@ export default function Aggregates() {
       <SectionList
         sections={data}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
+        renderItem={({ item,section}) => (
           <CommodityAggregatesCard
             commodityName={item.commodityName}
             quantity={item.quantity}
             price={item.price}
             image={item.image}
+            date={section.date}
           />
         )}
-        renderSectionHeader={({ section: { title, data } }) => (
+        renderSectionHeader={({ section: { date, data } }) => (
           <View style={styles.sectionHeader}>
-            <Text style={styles.groupText}>{title}</Text>
+            <Text style={styles.groupText}>{date}</Text>
             <Divider style={styles.divider} />
             <Text style={styles.groupText}>{totalPrice(data)} ₵</Text>
           </View>
