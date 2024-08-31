@@ -36,7 +36,7 @@ import NotificationDetailScreen from './src/screens/Notification/NotificationDet
 import VerifyEmailPage from './src/screens/Auth/VerifyEmailPage';
 
 import CommodityDisplayScreen from './src/screens/Commodity/CommodityDisplayScreen';
-import PriceTableScreen from './src/screens/Community/PriceTableScreen';
+import CommunityPricesScreen from './src/screens/Community/CommunityPricesScreen';
 import DashboardScreen from './src/screens/Aggregator/DashboardScreen';
 import SellToTDXScreen from './src/screens/Commodity/SellToTDXScreen';
 import FarmerDetailScreen from './src/screens/Farmer/FarmerDetailScreen';
@@ -76,7 +76,7 @@ export default function AppNavigator() {
           <Stack.Screen name="FarmerPaymenetScreen" component={FarmerPaymentScreen} options={{ headerShown: false }} />
           <Stack.Screen name="CommodityAggregatesComponent" component={CommodityAggregatesCard} options={{ headerShown: false }} />
           <Stack.Screen name="CommodityDisplayScreen" component={CommodityDisplayScreen} options={{ title: 'Commodity' }} />
-          <Stack.Screen name="PriceTableScreen" component={PriceTableScreen} options={{ title: 'Community Prices' }} />
+          <Stack.Screen name="CommunityPricesScreen" component={CommunityPricesScreen} options={{ title: 'Community Prices' }} />
           <Stack.Screen name="HomeScreen" component={DrawerNavigator} options={{ headerShown: false }} />
           <Stack.Screen name="DashboardScreen" component={DashboardScreen} options={{ headerShown: false }} />
           <Stack.Screen name="AssignmentDetailScreen" component={AssignmentDetailScreen }  />
@@ -103,6 +103,7 @@ function DrawerNavigator() {
       <Stack.Screen name="FarmerDetailScreen" component={FarmerDetailScreen} />
       <Stack.Screen name="QualityControlScreen" component={QualityControlScreen} />
       <Stack.Screen name="FarmerPaymentScreen" component={FarmerPaymentScreen} />
+      <Drawer.Screen name="CommunityPricesScreen" component={CommunityPricesScreen} />
       <Drawer.Screen name="StartScreen" component={StartScreen} />
       <Drawer.Screen name="Profile" component={AggregatorProfileScreen}  />
       <Drawer.Screen name="EditProfile" component={EditAggregatorProfileScreen}  />

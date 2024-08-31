@@ -22,7 +22,7 @@ const CommodityDisplayScreen = ({ route, navigation }) => {
 
 
   const handlePriceTablePress = () => {
-    navigation.navigate('PriceTableScreen', {
+    navigation.navigate('', {
       assignment_id: 0,
       item_id: item.id,
       item_name: item.name,

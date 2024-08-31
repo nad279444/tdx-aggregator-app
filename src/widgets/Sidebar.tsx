@@ -55,7 +55,7 @@ const Sidebar = ({ navigation }) => {
     { name: 'Sell To TDX', icon: 'arrow-right', onPress: () => navigation.navigate('SellToTDXScreen') },
     { name: 'My aggregates', icon: 'chart-bar', onPress: () => navigation.navigate('MyAggregatesScreen') },
     { name: 'Farmers', icon: 'user-alt', onPress: () => navigation.navigate('ManageFarmersScreen') },
-    { name: 'Community Prices', icon: 'wallet', onPress: () => navigation.navigate('DashboardScreen') },
+    { name: 'Community Prices', icon: 'wallet', onPress: () => navigation.navigate('CommunityPricesScreen') },
     { name: 'Notifications', icon: 'cog', onPress: () => navigation.navigate('NotificationScreen') },
   ];
 
