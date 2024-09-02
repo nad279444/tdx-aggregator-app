@@ -108,12 +108,13 @@ function DrawerNavigator() {
       <Drawer.Screen name="Profile" component={AggregatorProfileScreen}  />
       <Drawer.Screen name="EditProfile" component={EditAggregatorProfileScreen}  />
       <Drawer.Screen name="AssignmentDetailScreen" component={AssignmentDetailScreen }  />
-      <Stack.Screen name="MyAggregatesScreen" component={MyAggregatesScreen}  />
-      <Stack.Screen name="ManageFarmersScreen" component={ManageFarmersScreen}  />
+      <Drawer.Screen name="MyAggregatesScreen" component={MyAggregatesScreen}  />
+      <Drawer.Screen name="ManageFarmersScreen" component={ManageFarmersScreen}  />
       <Stack.Screen name="ManageCommodityScreen" component={ManageCommodityScreen}  />
       <Stack.Screen name="AddCommodityScreen" component={AddCommodityScreen}  />
       <Stack.Screen name="CommodityDetailScreen" component={CommodityDetailScreen}  />
-      <Stack.Screen name="NotificationScreen" component={NotificationScreen}  />
+      <Drawer.Screen name="NotificationScreen" component={NotificationScreen}  />
+      <Stack.Screen name="NotificationDetailScreen" component={NotificationDetailScreen}  />
     </Drawer.Navigator>
   );
 }
