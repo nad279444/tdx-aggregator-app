@@ -50,7 +50,7 @@ const auth = {
     await SecureStore.deleteItemAsync("userToken");
   },
 
-  resetPassword: async (data) => {
+  forgotPassword: async (data) => {
     return auth.postRequest("resetPassword", data);
   },
 

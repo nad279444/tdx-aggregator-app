@@ -5,11 +5,11 @@ import auth from '../../controllers/auth/auth';
 import { AuthContext } from '../../../AuthContext';
 import {Ionicons} from '@expo/vector-icons'
 
-export default function SignIn({ navigation }) {
+export default function ForgotPassword({ navigation }) {
 
   useEffect(() => {
     navigation.setOptions({
-      title: 'Log In',
+      title: 'Forgot Password',
       headerTitleAlign: 'center',
       headerLeft: () => (
         <TouchableOpacity
@@ -23,8 +23,6 @@ export default function SignIn({ navigation }) {
   }, [navigation]);
 
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [phoneError, setPhoneError] = useState('');
   const [isLoading,setIsLoading] = useState(false)
   const {authContext} = useContext(AuthContext)
@@ -36,16 +34,15 @@ export default function SignIn({ navigation }) {
   };
   
 
-  async function handleSignIn() {
-    //phone number is the username credential
+  async function handleReset() {
     setIsLoading(true)
     try {
-      const response = await auth.signIn({
-        username:phoneNumber,
-        password,
+      const response = await auth.forgotPassword({
+        mobile:phoneNumber,
+    
 
     });
-     await authContext.signIn(response)
+    console.log(response)
       if (!response.error) {
         ToastAndroid.showWithGravityAndOffset(
           response.challenge,
@@ -73,10 +70,8 @@ export default function SignIn({ navigation }) {
     }finally{
       setIsLoading(false)
     }
-    navigation.navigate('SignIn');
+    navigation.navigate('');
     setPhoneNumber('');
-    setPassword('');
-    setConfirmPassword('')
     
   }
 
@@ -93,7 +88,7 @@ export default function SignIn({ navigation }) {
     <ScrollView>
       <View style={styles.container}>
     
-        <Text style={styles.title}>Kindly Log in Your Credentials</Text>
+        <Text style={styles.title}>Kindly Provide Your Mobile Number</Text>
          <View style={styles.inputContainer}>
         <View style={styles.inputGroup}>
           <Text style={styles.inputTitle}>Phone Number</Text>
@@ -109,28 +104,16 @@ export default function SignIn({ navigation }) {
       </View>
         
         {phoneError ? <Text style={styles.errorText}>{phoneError}</Text> : null}
-        <PasswordInput
-          password={password}
-          setPassword={setPassword}
-          confirmPassword={confirmPassword}
-          setConfirmPassword={setConfirmPassword}
-          styles={styles}
-        />
-        <TouchableOpacity style={{alignItems:'flex-end'}} onPress={() => navigation.navigate('ForgotPassword')}>
-          <Text style={{color:'green',marginRight: 20}}>Forgot Password</Text>
-        </TouchableOpacity>
+    
         <TouchableOpacity
-        style={phoneNumber && password ? styles.greenButton : styles.disabledButton}
-        onPress={handleSignIn}
-        disabled={ !phoneNumber || !password  || isLoading}
+        style={phoneNumber ? styles.greenButton : styles.disabledButton}
+        onPress={handleReset}
+        disabled={ !phoneNumber || isLoading}
       >
         <Text style={{ fontSize: 18, color: "white" }}>
-          Login
+          Send
         </Text>
         {isLoading &&   <ActivityIndicator style={{position: 'absolute',top: 15, right: 40}} size="small" color="#fff" />}
-      </TouchableOpacity>
-      <TouchableOpacity style={{alignItems: 'flex-end',marginRight:20}} onPress={()=> navigation.navigate('Registration')}>
-        <Text>Already have an account? <Text style={{color: 'green'}}>Sign Up</Text></Text>
       </TouchableOpacity>
       </View>
     </ScrollView>
@@ -202,7 +185,7 @@ const styles = StyleSheet.create({
     },
     greenButton: {
       backgroundColor: "#21893E",
-      marginVertical: 20,
+      marginVertical: 50,
       height: 50,
       marginHorizontal: 25,
       borderWidth: 1,
@@ -212,7 +195,7 @@ const styles = StyleSheet.create({
       alignItems: "center",
     },
     disabledButton: {
-      marginVertical: 20,
+      marginVertical: 50,
       height: 50,
       marginHorizontal: 10,
       borderWidth: 1,

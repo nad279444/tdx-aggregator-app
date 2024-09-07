@@ -24,6 +24,7 @@ import AddFarmerScreen from "./src/screens/Farmer/AddFarmerScreen";
 import AggregationDetailScreen from "./src/screens/Aggregator/AggregationDetailScreen";
 import NotificationScreen from "./src/screens/Notification/NotificationScreen";
 import NotificationDetailScreen from "./src/screens/Notification/NotificationDetailScreen";
+import ForgotPassword from "./src/screens/Auth/ForgotPassword";
 
 import CommunityPricesScreen from "./src/screens/Community/CommunityPricesScreen";
 import SellToTDXScreen from "./src/screens/Commodity/SellToTDXScreen";
@@ -58,7 +59,12 @@ export default function AppNavigator() {
              <Stack.Screen
               name="SignIn"
               component={SignIn}
-              options={{ headerShown: false }}
+              options={{ headerShown: true }}
+            />
+             <Stack.Screen
+              name="ForgotPassword"
+              component={ForgotPassword}
+              options={{ headerShown: true }}
             />
             
             <Stack.Screen
