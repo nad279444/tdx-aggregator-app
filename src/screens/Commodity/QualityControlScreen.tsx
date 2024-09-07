@@ -22,7 +22,7 @@ export default function QualityControlScreen({ navigation }) {
       headerTitleAlign: "center",
       headerLeft: () => (
         <TouchableOpacity
-          onPress={() => navigation.goBack()}
+          onPress={() => navigation.navigate("FarmerDetailScreen")}
           style={{ marginLeft: 16 }}
         >
           <Ionicons name="arrow-back-outline" size={24} color="black" />

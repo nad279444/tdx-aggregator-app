@@ -1,109 +1,71 @@
-import LoginController from './src/controllers/auth/LoginController';
-import React, {createContext, useState, useEffect, useReducer, useMemo} from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ToastAndroid } from 'react-native';
-const AuthContext = createContext();
+// contexts/AuthContext.js
+import React, { createContext, useMemo, useReducer, useEffect } from 'react';
+import * as SecureStore from 'expo-secure-store';
+import auth from './src/controllers/auth/auth';
+
+import { authReducer, initialState } from './src/controllers/auth/authReducer';
+
+export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [state, dispatch] = useReducer(
-    (prevState, action) => {
-      switch (action.type) {
-        case 'RESTORE_TOKEN':
-          return {
-            ...prevState,
-            userToken: action.token,
-            isLoading: false,
-          };
-        case 'SIGN_IN':
-          return {
-            ...prevState,
-            isSignout: false,
-            userToken: action.token,
-          };
-        case 'SIGN_OUT':
-          return {
-            ...prevState,
-            isSignout: true,
-            userToken: null,
-          };
-          
-      }
-    },
-    {
-      isLoading: true,
-      isSignout: false,
-      userToken: null,
-    }
-  );
-
-  const authContext = useMemo(
-    () => ({
-      signIn: async (email, password) => {
-        try {
-          let error_msg;
-          if(email=="" || password ==""){
-            error_msg = "Please enter email or password";
-            ToastAndroid.showWithGravity(error_msg, ToastAndroid.SHORT, ToastAndroid.CENTER);
-        }else{
-          
-          const { success, accessToken, message,udata,user_id } = await LoginController(email, password);
-          if (success) {
-            // If login succeeds, dispatch SIGN_IN action with the token
-            dispatch({ type: 'SIGN_IN', token: accessToken });
-            // Persist the token using AsyncStorage or any other storage mechanism
-            await AsyncStorage.setItem('userToken', accessToken);
-            await AsyncStorage.setItem('user_id', JSON.stringify(user_id));
-            await AsyncStorage.setItem('user_data', JSON.stringify(udata));
-            
-          } else {
-            // If login fails, display the error message
-            console.error('Login failed:', message);
-            ToastAndroid.showWithGravityAndOffset(
-              message,
-              ToastAndroid.LONG,
-              ToastAndroid.TOP,
-              0,
-              200,
-            );
-          }
-        }
-        } catch (error) {
-          console.error('Error during login:');
-        }
-      },
-      signOut: async () => {
-        // Remove the token from AsyncStorage or any other storage mechanism
-        await AsyncStorage.removeItem('userToken');
-        // Dispatch SIGN_OUT action
-        dispatch({ type: 'SIGN_OUT' });
-      },
-    }),
-    []
-  );
+  const [state, dispatch] = useReducer(authReducer, initialState);
 
   useEffect(() => {
-    // Function to load token from storage and update the context
     const bootstrapAsync = async () => {
       let userToken;
 
       try {
-        userToken = await AsyncStorage.getItem('userToken');
+        userToken = await SecureStore.getItemAsync('userToken');
       } catch (e) {
-        console.error('Error retrieving token:', e);
+        // Handle error
       }
 
-      // Dispatch RESTORE_TOKEN action with the retrieved token
       dispatch({ type: 'RESTORE_TOKEN', token: userToken });
     };
 
     bootstrapAsync();
   }, []);
 
+  const authContext = useMemo(
+    () => ({
+      signIn: async (authResponse) => {
+        console.log(authResponse.message)
+        if (authResponse.token) {
+          await SecureStore.setItemAsync('userToken', authResponse.token);
+          dispatch({ type: 'SIGN_IN', token: authResponse.token });
+          
+        } else {
+          console.error(authResponse.message); // Handle error appropriately
+        }
+      },
+      signOut: async () => {
+         await auth.signOut()
+        dispatch({ type: 'SIGN_OUT' });
+      },
+      resetPassword: async (email) => {
+        const { data, error } = await auth.resetPassword(email);
+        if (error) {
+          console.error(error); // Handle error appropriately
+        } else {
+          console.log(data); // Handle success appropriately
+        }
+      },
+      confirmOTP: async (otp,phone) => {
+        const { data, error } = await auth.confirmOTP(otp,phone);
+        if (error) {
+          console.error(error); // Handle error appropriately
+        } else {
+          console.log(data); // Handle success appropriately
+        }
+      },
+     
+    }),
+    []
+  );
+
   return (
-    <AuthContext.Provider value={{ ...authContext, state }}>
+    <AuthContext.Provider value={{ state, authContext }}>
       {children}
     </AuthContext.Provider>
   );
 }
-
-export default AuthContext;

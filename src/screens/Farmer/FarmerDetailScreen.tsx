@@ -21,7 +21,6 @@ export default function FarmerDetailScreen({ navigation }) {
 
   const { data, updateData } = useContext(DataContext);
   
-
   useEffect(() => {
     navigation.setOptions({
       title: "Sell Direct",
@@ -45,19 +44,12 @@ export default function FarmerDetailScreen({ navigation }) {
     });
   }, [navigation]);
 
-  // useEffect(() => {
-  //   if (name && phoneNumber && idCardPhoto) {
-  //     saveDataToDB();
-  //   }
-  // }, [name, phoneNumber,idCardPhoto]);
-
   const saveDataToDB = () => {
     updateData('farmerName', name);
     updateData('phoneNumber', phoneNumber);
-    updateData('idCardPhoto', idCardPhoto)
+    updateData('idCardPhoto', idCardPhoto);
   };
-
- 
+  
   const imgToBase64 = async (photoUrl) => {
     if (photoUrl) {
       try {
@@ -71,43 +63,53 @@ export default function FarmerDetailScreen({ navigation }) {
     return null;
   };
 
+  const pickImage = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      alert('Sorry, we need camera permissions to make this work!');
+      return;
+    }
+
+    try {
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.5,
+      });
+
+      console.log("ImagePicker Result:", result);
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const uri = result.assets[0].uri;
+        setIdCardPhoto(uri);
+
+        // Convert image to base64
+        const idCardBase64 = await imgToBase64(uri);
+        setImagePreview(idCardBase64);
+
+        console.log("ID Card Photo:", uri);
+        console.log("Image Preview (Base64):", idCardBase64);
+      } else {
+        console.log("ImagePicker was canceled or returned no assets");
+      }
+    } catch (error) {
+      console.error('Error capturing image:', error);
+    }
+  };
+
   const handleNext = async () => {
     if (imagePreview) {
       saveDataToDB();
       navigation.navigate('QualityControlScreen');
       setName('');
       setPhoneNumber('');
-      setImagePreview('');
+      setImagePreview(null);
     } else {
-      const { status } = await ImagePicker.requestCameraPermissionsAsync();
-      if (status !== 'granted') {
-        alert('Sorry, we need camera permissions to make this work!');
-        return;
-      }
-
-      try {
-        const result = await ImagePicker.launchCameraAsync({
-          mediaTypes: ImagePicker.MediaTypeOptions.Images,
-          allowsEditing: true,
-          aspect: [4, 3],
-          quality: 0.5,
-        });
-
-        if (!result.canceled && result.assets && result.assets.length > 0) {
-          const uri = result.assets[0].uri;
-          setIdCardPhoto(uri);
-
-          // Convert image to base64
-          const idCardBase64 = await imgToBase64(uri);
-          setImagePreview(idCardBase64);
-        }
-      } catch (error) {
-        console.error('Error capturing image:', error);
-      }
+      await pickImage();
     }
   };
-
- 
+  
   return (
     <View style={styles.container}>
       <View style={styles.blackBox}>
@@ -144,12 +146,14 @@ export default function FarmerDetailScreen({ navigation }) {
             onChangeText={(text) => setName(text)}
             value={name}
           />
-          {isVerified && <Ionicons
-            name="checkmark-outline"
-            size={20}
-            color="#21893E"
-            style={styles.checked}
-          />}
+          {isVerified && (
+            <Ionicons
+              name="checkmark-outline"
+              size={20}
+              color="#21893E"
+              style={styles.checked}
+            />
+          )}
         </View>
       </View>
       <View style={styles.inputContainer}>
@@ -163,12 +167,14 @@ export default function FarmerDetailScreen({ navigation }) {
             keyboardType="numeric"
             value={phoneNumber}
           />
-          {isVerified && <Ionicons
-            name="checkmark-outline"
-            size={20}
-            color="#21893E"
-            style={styles.checked}
-          />}
+          {isVerified && (
+            <Ionicons
+              name="checkmark-outline"
+              size={20}
+              color="#21893E"
+              style={styles.checked}
+            />
+          )}
         </View>
       </View>
       <View
@@ -179,7 +185,11 @@ export default function FarmerDetailScreen({ navigation }) {
           marginRight: 20,
         }}
       >
-        {isVerified ? <Text style={{ color: "green" }}>Farmer details verified</Text> : <Text style={{ color: "red" }}>Farmer could not be found</Text>}
+        {isVerified ? (
+          <Text style={{ color: "green" }}>Farmer details verified</Text>
+        ) : (
+          <Text style={{ color: "red" }}>Farmer could not be found</Text>
+        )}
       </View>
       {imagePreview && (
         <View style={styles.imagePreviewContainer}>
@@ -284,7 +294,9 @@ const styles = StyleSheet.create({
   imagePreview: {
     width: 100,
     height: 100,
-    borderRadius: 8,
-    backgroundColor: '#ddd',
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: "#ddd",
   },
 });
+

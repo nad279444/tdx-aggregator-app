@@ -181,6 +181,7 @@ const SellToTDXScreen = ({ route, navigation }) => {
             textAlign="left"
             placeholder="0"
             keyboardType="numeric"
+            value={String(weight)}
             onChangeText={(text) => setWeight(parseFloat(text) || 0)}
           />
           <Text style={styles.weightLabel}>KG</Text>
@@ -192,6 +193,7 @@ const SellToTDXScreen = ({ route, navigation }) => {
             textAlign="left"
             placeholder="0"
             keyboardType="numeric"
+            value={String(bags)}
             onChangeText={(text) => setBags(parseFloat(text) || 0)}
           />
           <Text style={styles.bagsLabel}>Bags</Text>

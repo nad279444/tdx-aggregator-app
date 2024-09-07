@@ -2,43 +2,28 @@ import React, { useContext, useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal, ImageBackground } from 'react-native';
 import { FontAwesome5, Ionicons } from '@expo/vector-icons';
 import { Divider } from 'react-native-elements';
-import AuthContext from '../../AuthContext';
+import { AuthContext } from '../../AuthContext';
 import AuthTokenStore from '../../AuthTokenStore';
 import AggregatorController from '../controllers/api/AggregatorController';
 
 const Sidebar = ({ navigation }) => {
-  const { signOut } = useContext(AuthContext);
+  const { authContext } = useContext(AuthContext);
   const [aggregator, setAggregator] = useState(null);
   const [proFirstName, setProFirstName] = useState("");
   const [proLastName, setProLastName] = useState("");
   const [proAccountType, setProAccountType] = useState("");
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  useEffect(() => {
-    fetchAggregatorProfile();
-  }, []);
 
-  const fetchAggregatorProfile = async () => {
-    try {
-      const aggregator_id = await AuthTokenStore.getUserID();
-      const response = await AggregatorController.show(aggregator_id);
-      if (response && response.data) {
-        setAggregator(response.data);
-        setProFirstName(response.data.first_name);
-        setProLastName(response.data.last_name);
-        setProAccountType(response.data.utype);
-      }
-    } catch (error) {
-      console.error('Error fetching aggregator profile:', error);
-    }
-  };
+
+ 
 
   const handleSignOut = () => {
     setShowLogoutModal(true);
   };
 
   const confirmLogout = () => {
-    signOut();
+    authContext.signOut();
     setShowLogoutModal(false);
   };
 

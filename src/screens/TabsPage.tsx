@@ -7,7 +7,7 @@ const Tab = createMaterialBottomTabNavigator();
 function TabsPage() {
   return (
     <Tab.Navigator>
-      <Tab.Screen name="StarScreen" component={StartScreen} />
+      <Tab.Screen name="StartScreen" component={StartScreen} />
     </Tab.Navigator>
   );
 }

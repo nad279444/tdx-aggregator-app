@@ -282,7 +282,7 @@ const StartScreen = ({ navigation }) => {
   };
 
   const handleAssignmentPress = (assignment_id,assignment_assigned_date,assignment_expected_fulfillment_date,completionPercentage,currentDate,daysLeft) => {
-    navigation.navigate('AssignmentDetailScreen', { assignment_id,assignment_assigned_date,assignment_expected_fulfillment_date,completionPercentage,currentDate,daysLeft });
+    navigation.navigate('', { assignment_id,assignment_assigned_date,assignment_expected_fulfillment_date,completionPercentage,currentDate,daysLeft });
   };
 
   const renderAssignmentItem = ({ item }) => (
