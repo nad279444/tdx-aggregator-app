@@ -1,127 +1,110 @@
-import React, { createContext, useState, useEffect } from 'react';
-import * as SQLite from 'expo-sqlite';
+import React, { useState, useEffect, createContext, useContext } from 'react';
+import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
 
-// Create a Context
+// Create DataContext for providing access to data throughout the app
 export const DataContext = createContext();
 
-// Create a Provider component with SQLite integration
+// Custom hook to use the DataContext easily
+export const useDataContext = () => useContext(DataContext);
+
+// DataProvider Component with SQLiteProvider and context management
 export const DataProvider = ({ children }) => {
   const [data, setData] = useState({
     commodity: '',
     weight: '',
     bags: '',
     totalPrice: 0,
-    farmerName:'',
-    phoneNumber:'',
-    idCardPhoto:'',
-    momoName:'',
-    momoNumber:'',
+    farmerName: '',
+    phoneNumber: '',
+    idCardPhoto: '',
+    momoName: '',
+    momoNumber: '',
   });
 
+  // Get database context from SQLiteProvider
+  const db = useSQLiteContext();
+
   useEffect(() => {
-    const initializeDB = async () => {
-      try {
-        const db = await SQLite.openDatabaseAsync('appData.db');
-
-        // Create the existing formData table if it doesn't exist
-        await db.execAsync(`
-          CREATE TABLE IF NOT EXISTS formData (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            key TEXT UNIQUE,
-            value TEXT
-          );
-        `);
-
-        // Create the new farmers table
-        await db.execAsync(`
-          CREATE TABLE IF NOT EXISTS farmers (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT,
-            phoneNumber TEXT,
-            imageUri TEXT
-          );
-        `);
-
-        // Load initial data from SQLite (for formData)
-        loadDataFromDB(db);
-      } catch (error) {
-        console.error('Error initializing database', error);
-      }
-    };
-
-    initializeDB();
+    initializeDatabase();
   }, []);
 
-  // Load data from SQLite and update the context state
-  const loadDataFromDB = async (db) => {
+  // Initialize Database and Tables
+  const initializeDatabase = async () => {
     try {
-      const rows = await db.getAllAsync('SELECT * FROM formData;');
+      await db.execAsync(`
+        CREATE TABLE IF NOT EXISTS formData (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          key TEXT UNIQUE,
+          value TEXT
+        );
+      `);
+
+      await db.execAsync(`
+        CREATE TABLE IF NOT EXISTS farmers (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT,
+          phoneNumber TEXT,
+          imageUri TEXT
+        );
+      `);
+
+      // Load initial data from the formData table
+      loadDataFromDB();
+    } catch (error) {
+      console.error('Error initializing database:', error);
+    }
+  };
+
+  // Load formData from the database
+  const loadDataFromDB = async () => {
+    try {
+      const rows = await db.getAllAsync('SELECT * FROM formData');
       const loadedData = {};
       rows.forEach(item => {
         loadedData[item.key] = item.value;
       });
       setData(loadedData);
     } catch (error) {
-      console.error('Error loading data from database', error);
+      console.error('Error loading data from database:', error);
     }
   };
 
-  // Update the form data and save it to SQLite
+  // Update formData and save changes to the database
   const updateData = async (key, value) => {
-    setData(prevState => {
-      const newData = { ...prevState, [key]: value };
+    try {
+      setData(prevState => ({ ...prevState, [key]: value }));
 
-      const saveData = async () => {
-        try {
-          const db = await SQLite.openDatabaseAsync('appData.db');
-          await db.runAsync(
-            'INSERT OR REPLACE INTO formData (key, value) VALUES (?, ?);',
-            key,
-            value
-          );
-          console.log('Data updated successfully');
-        } catch (error) {
-          console.error('Error updating data in database', error);
-        }
-      };
-
-      saveData();
-
-      return newData;
-    });
+      await db.runAsync(
+        'INSERT OR REPLACE INTO formData (key, value) VALUES (?, ?)',
+        [key, value]
+      );
+      console.log('Data updated successfully');
+    } catch (error) {
+      console.error('Error updating data in database:', error);
+    }
   };
 
-  // Add a new farmer to the database
+  // Add a new farmer to the farmers table
   const addFarmer = async (name, phoneNumber, imageUri) => {
     try {
-      const db = await SQLite.openDatabaseAsync('appData.db');
       await db.runAsync(
-        'INSERT INTO farmers (name, phoneNumber, imageUri) VALUES (?, ?, ?);',
-        name,
-        phoneNumber,
-        imageUri
+        'INSERT INTO farmers (name, phoneNumber, imageUri) VALUES (?, ?, ?)',
+        [name, phoneNumber, imageUri]
       );
       console.log('Farmer added successfully');
+      return await getFarmers()
     } catch (error) {
-      console.error('Error adding farmer to database', error);
+      console.error('Error adding farmer:', error);
     }
   };
 
   // Fetch all farmers from the database
   const getFarmers = async () => {
     try {
-      const db = await SQLite.openDatabaseAsync('appData.db');
-      const result = await db.getAllAsync('SELECT * FROM farmers;');
-      const farmers = [];
-
-    // Use for await...of to iterate over the results
-    for await (const row of result) {
-      farmers.push(row);
-    }
-
-    return farmers
+      const result = await db.getAllAsync('SELECT * FROM farmers');
+      return result;
     } catch (error) {
-      console.error('Error fetching farmers from database', error);
+      console.error('Error fetching farmers:', error);
       return [];
     }
   };
@@ -132,3 +115,4 @@ export const DataProvider = ({ children }) => {
     </DataContext.Provider>
   );
 };
+

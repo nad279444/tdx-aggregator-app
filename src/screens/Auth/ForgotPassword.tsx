@@ -70,7 +70,7 @@ export default function ForgotPassword({ navigation }) {
     }finally{
       setIsLoading(false)
     }
-    navigation.navigate('');
+    navigation.navigate('OTPScreen',{mobile:phoneNumber});
     setPhoneNumber('');
     
   }

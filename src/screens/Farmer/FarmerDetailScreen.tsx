@@ -17,7 +17,7 @@ export default function FarmerDetailScreen({ navigation }) {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [idCardPhoto, setIdCardPhoto] = useState<string | null>(null);
   const [isVerified, setIsVerified] = useState(true);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [phoneError,setPhoneError] = useState('')
 
   const { data, updateData } = useContext(DataContext);
   
@@ -50,19 +50,31 @@ export default function FarmerDetailScreen({ navigation }) {
     updateData('idCardPhoto', idCardPhoto);
   };
   
-  const imgToBase64 = async (photoUrl) => {
-    if (photoUrl) {
-      try {
-        const base64 = await FileSystem.readAsStringAsync(photoUrl, { encoding: 'base64' });
-        return base64;
-      } catch (error) {
-        console.error('Error converting image to base64:', error);
-        return null;
-      }
-    }
-    return null;
+  // const imgToBase64 = async (photoUrl) => {
+  //   if (photoUrl) {
+  //     try {
+  //       const base64 = await FileSystem.readAsStringAsync(photoUrl, { encoding: 'base64' });
+  //       return base64;
+  //     } catch (error) {
+  //       console.error('Error converting image to base64:', error);
+  //       return null;
+  //     }
+  //   }
+  //   return null;
+  // };
+   
+  const validatePhone = (input) => {
+    const phoneRegex = /^\d{10}$/; // Exactly 10 digits
+    return phoneRegex.test(input);
   };
-
+  const handlePhoneChange = (input) => {
+    setPhoneNumber(input);
+    if (validatePhone(input)) {
+      setPhoneError('');
+    } else {
+      setPhoneError('✗ Invalid phone number.');
+    }
+  };
   const pickImage = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== 'granted') {
@@ -78,18 +90,16 @@ export default function FarmerDetailScreen({ navigation }) {
         quality: 0.5,
       });
 
-      console.log("ImagePicker Result:", result);
 
       if (!result.canceled && result.assets && result.assets.length > 0) {
         const uri = result.assets[0].uri;
         setIdCardPhoto(uri);
 
-        // Convert image to base64
-        const idCardBase64 = await imgToBase64(uri);
-        setImagePreview(idCardBase64);
+        
+       
 
-        console.log("ID Card Photo:", uri);
-        console.log("Image Preview (Base64):", idCardBase64);
+      
+  
       } else {
         console.log("ImagePicker was canceled or returned no assets");
       }
@@ -99,12 +109,12 @@ export default function FarmerDetailScreen({ navigation }) {
   };
 
   const handleNext = async () => {
-    if (imagePreview) {
+    if (idCardPhoto) {
       saveDataToDB();
       navigation.navigate('QualityControlScreen');
       setName('');
       setPhoneNumber('');
-      setImagePreview(null);
+      setIdCardPhoto(null);
     } else {
       await pickImage();
     }
@@ -163,7 +173,7 @@ export default function FarmerDetailScreen({ navigation }) {
             style={styles.nameInput}
             textAlign="left"
             placeholder="Enter Your Phone Number"
-            onChangeText={(text) => setPhoneNumber(text)}
+            onChangeText={handlePhoneChange}
             keyboardType="numeric"
             value={phoneNumber}
           />
@@ -176,6 +186,7 @@ export default function FarmerDetailScreen({ navigation }) {
             />
           )}
         </View>
+
       </View>
       <View
         style={{
@@ -184,17 +195,19 @@ export default function FarmerDetailScreen({ navigation }) {
           marginTop: 10,
           marginRight: 20,
         }}
-      >
+      >  
+      {phoneError ? <Text style={{color: 'red', marginRight: 40}}>{phoneError}</Text> : null}
         {isVerified ? (
           <Text style={{ color: "green" }}>Farmer details verified</Text>
         ) : (
           <Text style={{ color: "red" }}>Farmer could not be found</Text>
         )}
       </View>
-      {imagePreview && (
+      
+      {idCardPhoto && (
         <View style={styles.imagePreviewContainer}>
           <Image
-            source={{ uri: `data:image/jpeg;base64,${imagePreview}` }}
+            source={{ uri: idCardPhoto }}
             style={styles.imagePreview}
           />
         </View>
@@ -205,7 +218,7 @@ export default function FarmerDetailScreen({ navigation }) {
         disabled={!isVerified}
       >
         <Text style={{ fontSize: 18, color: "white" }}>
-          {imagePreview ? "Confirm and Continue" : "Continue"}
+          {idCardPhoto ? "Confirm and Continue" : "ID Card Image"}
         </Text>
       </TouchableOpacity>
     </View>

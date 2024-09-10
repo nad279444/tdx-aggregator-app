@@ -25,6 +25,7 @@ import AggregationDetailScreen from "./src/screens/Aggregator/AggregationDetailS
 import NotificationScreen from "./src/screens/Notification/NotificationScreen";
 import NotificationDetailScreen from "./src/screens/Notification/NotificationDetailScreen";
 import ForgotPassword from "./src/screens/Auth/ForgotPassword";
+import OTPScreen from "./src/screens/Auth/OTPScreen";
 
 import CommunityPricesScreen from "./src/screens/Community/CommunityPricesScreen";
 import SellToTDXScreen from "./src/screens/Commodity/SellToTDXScreen";
@@ -64,6 +65,11 @@ export default function AppNavigator() {
              <Stack.Screen
               name="ForgotPassword"
               component={ForgotPassword}
+              options={{ headerShown: true }}
+            />
+             <Stack.Screen
+              name="OTPScreen"
+              component={OTPScreen}
               options={{ headerShown: true }}
             />
             
@@ -158,6 +164,7 @@ function DrawerNavigator() {
         name="CommunityPricesScreen"
         component={CommunityPricesScreen}
       />
+      <Stack.Screen name="AddFarmerScreen" component={AddFarmerScreen} />
       <Drawer.Screen name="StartScreen" component={StartScreen} />
       <Drawer.Screen name="Profile" component={AggregatorProfileScreen} />
       <Drawer.Screen

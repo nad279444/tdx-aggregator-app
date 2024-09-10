@@ -141,7 +141,7 @@ export default function Registration ({navigation}) {
         {isLoading &&   <ActivityIndicator style={{position: 'absolute',top: 15, right: 30}} size="small" color="#fff" />}
       </TouchableOpacity>
       <TouchableOpacity style={{alignItems: 'flex-end',marginRight:20}} onPress={()=> navigation.navigate('SignIn')}>
-        <Text>Already have an account? <Text style={{color: 'green'}}>Login</Text></Text>
+        <Text style={{marginBottom:50}}>Already have an account? <Text style={{color: 'green'}}>Login</Text></Text>
       </TouchableOpacity>
     </ScrollView>
   )

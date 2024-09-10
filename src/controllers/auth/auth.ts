@@ -51,11 +51,12 @@ const auth = {
   },
 
   forgotPassword: async (data) => {
-    return auth.postRequest("resetPassword", data);
+    return auth.postRequest("resetpassword", data);
   },
 
-  confirmOTP: async (otp, data) => {
-    return auth.postRequest(`resetPassword/${otp}`, data);
+  confirmOTP: async ({otp,mobile}) => {
+    console.log({otp,mobile})
+    return auth.postRequest(`resetpassword/${otp}`,mobile);
   },
 
   getChallenge: async (username) => {

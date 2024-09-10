@@ -6,10 +6,12 @@ import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import { AuthProvider } from './AuthContext';
 import { DataProvider } from './DataProvider';
+import { SQLiteProvider } from 'expo-sqlite';
 import AppNavigator from './AppNavigator';
 import AuthTokenStore from './AuthTokenStore';
 import PushTokenController from './src/controllers/push/PushTokenController';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -161,10 +163,11 @@ export default function App() {
   return (
     <GestureHandlerRootView>
        <AuthProvider>
+        <SQLiteProvider databaseName='appData.db' >
         <DataProvider>
          <AppNavigator />
         </DataProvider>
-     
+     </SQLiteProvider>
     </AuthProvider>
     </GestureHandlerRootView>
    

@@ -14,7 +14,8 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { Divider } from "react-native-elements";
 import BottomSheet from "@gorhom/bottom-sheet";
-import { green } from "react-native-reanimated/lib/typescript/reanimated2/Colors";
+import { green } from "react-native-reanimated/lib/typescript/reanimated2/Colors"
+import { useDataContext } from "../../../DataProvider";
 
 const SellToTDXScreen = ({ route, navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -25,7 +26,7 @@ const SellToTDXScreen = ({ route, navigation }) => {
   const [totalPrice, setTotalPrice] = useState(0);
   const bottomSheetRef = useRef(null);
   const snapPoints = useMemo(() => ["25%", "50%", "75%"], []);
-  const {data,updateData} = useContext(DataContext)
+  const {data,updateData} = useDataContext()
   
 
   useEffect(() => {

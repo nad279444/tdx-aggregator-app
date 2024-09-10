@@ -6,6 +6,7 @@ import { DataContext } from '../../../DataProvider';
 const AddFarmerScreen = ({ route,navigation }) => {
   const [name, setName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [phoneError,setPhoneError] = useState('')
   const {imageUri} = route.params
 
   const {addFarmer} = useContext(DataContext)
@@ -34,13 +35,25 @@ const AddFarmerScreen = ({ route,navigation }) => {
   }, [navigation]);
 
   const validatePhone = (input) => {
-    const phonePattern = /^\+?[0-9]{10,13}$/;
-    return phonePattern.test(input);
+    const phoneRegex = /^\d{10}$/; // Exactly 10 digits
+    return phoneRegex.test(input);
+  };
+  const handlePhoneChange = (input) => {
+    setPhoneNumber(input);
+    if (validatePhone(input)) {
+      setPhoneError('');
+    } else {
+      setPhoneError('✗ Invalid phone number.');
+    }
   };
 
   const handleFarmer =  async() => {
    await addFarmer(name,phoneNumber,imageUri)
-    navigation.goBack()
+   navigation.navigate('ManageFarmersScreen')
+   setName('')
+   setPhoneNumber('')
+  
+   
   }
 
   return (
@@ -64,12 +77,13 @@ const AddFarmerScreen = ({ route,navigation }) => {
             style={styles.nameInput}
             textAlign="left"
             placeholder="Enter Your Phone Number"
-            onChangeText={(text) => setPhoneNumber(text)}
+            onChangeText={handlePhoneChange}
             keyboardType="numeric"
             value={phoneNumber}
           />
         </View>
       </View>
+      {phoneError ? <Text style={{color: 'red', marginLeft: 10}}>{phoneError}</Text> : null}
       {imageUri && (
         <View style={styles.imagePreviewContainer}>
           <Image
