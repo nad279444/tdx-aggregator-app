@@ -53,7 +53,7 @@ const Sidebar = ({ navigation }) => {
             <Ionicons name="close" size={24} color="white" />
           </View>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.profileBtn} onPress={() => navigation.navigate('Profile')}> 
+        <TouchableOpacity style={styles.profileBtn} onPress={() => navigation.navigate('')}> 
           <Text style={{color:'white'}} > <FontAwesome5 name="user" color='white'/> | Profile</Text>
         </TouchableOpacity>
       </View>

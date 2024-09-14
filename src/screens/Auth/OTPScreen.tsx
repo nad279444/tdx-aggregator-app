@@ -36,41 +36,9 @@ export default function OTPScreen({ navigation,route }) {
   
   
 
-  async function handleReset() {
-    setIsLoading(true);
-    try {
-      console.log(mobile)
-      const response = await auth.confirmOTP({otp,mobile});
-    
-
-      if (!response.error) {
-        ToastAndroid.showWithGravityAndOffset(
-          response.challenge,
-          ToastAndroid.LONG,
-          ToastAndroid.TOP,
-          25,
-          50
-        );
-      }
-      ToastAndroid.showWithGravityAndOffset(
-        response.message,
-        ToastAndroid.LONG,
-        ToastAndroid.TOP,
-        25,
-        50
-      );
-    } catch (error) {
-      ToastAndroid.showWithGravityAndOffset(
-        error.message,
-        ToastAndroid.LONG,
-        ToastAndroid.TOP,
-        25,
-        50
-      );
-    } finally {
-      setIsLoading(false);
-    }
-    navigation.navigate("");
+  async function handleOTP() {
+    navigation.navigate("ResetPassword",{otp,mobile});
+    setOtp("")
   }
 
   return (
@@ -82,7 +50,6 @@ export default function OTPScreen({ navigation,route }) {
           pinCount={4}
           code={otp} // set OTP if needed
           onCodeChanged={(code) => setOtp(code)} // updates OTP on change
-          autoFocusOnLoad
           codeInputFieldStyle={styles.underlineStyleBase}
           codeInputHighlightStyle={styles.underlineStyleHighlighted}
           onCodeFilled={(code) => {
@@ -93,7 +60,7 @@ export default function OTPScreen({ navigation,route }) {
 
       <TouchableOpacity
         style={otp ? styles.greenButton : styles.disabledButton}
-        onPress={handleReset}
+        onPress={handleOTP}
         disabled={!otp || isLoading}
       >
         <Text style={{ fontSize: 18, color: "white" }}>Send</Text>

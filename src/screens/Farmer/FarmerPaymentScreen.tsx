@@ -3,7 +3,7 @@ import { StyleSheet, View, TouchableOpacity, Text, Image, ScrollView, TextInput,
 import { Ionicons } from "@expo/vector-icons";
 import { Divider } from "react-native-elements";
 import CheckBox from "react-native-elements/dist/checkbox/CheckBox";
-import { DataContext } from "../../../DataProvider";
+import { DataContext } from "../../../DBContext";
 
 
 export default function FarmerPaymentScreen({ navigation }) {

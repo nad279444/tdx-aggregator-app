@@ -1,7 +1,7 @@
 import React, { useState, useEffect,useContext } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity,Image } from 'react-native';
 import { Ionicons } from "@expo/vector-icons"
-import { DataContext } from '../../../DataProvider';
+import { DataContext } from '../../../DBContext';
 
 const AddFarmerScreen = ({ route,navigation }) => {
   const [name, setName] = useState("");

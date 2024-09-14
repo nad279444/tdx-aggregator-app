@@ -4,9 +4,23 @@ import { Avatar } from 'react-native-elements';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
-import { DataContext } from '../../../DataProvider';
+import { DataContext } from '../../../DBContext';
+import { useApiContext } from '../../../ApiContext';
+import {farmers as farmersApi} from '../../controllers/api/farmerList';
 
 const ManageFarmersScreen = ({ navigation }) => {
+
+  interface PaymentNumbers {
+    main: string;
+    altrnumber: string;
+  }
+  
+  interface Farmer {
+    token: string;
+    first_name: string;
+    last_name: string;
+    paymentnumbers: PaymentNumbers;
+  }
   const [farmers, setFarmers] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredFarmers, setFilteredFarmers] = useState([]);
@@ -15,6 +29,13 @@ const ManageFarmersScreen = ({ navigation }) => {
   const [refreshing, setRefreshing] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const { getFarmers } = useContext(DataContext);
+  
+
+  
+  
+  
+  
+  
 
   useEffect(() => {
     navigation.setOptions({
@@ -37,8 +58,20 @@ const ManageFarmersScreen = ({ navigation }) => {
     const fetchFarmers = async () => {
       try {
         const farmersData = await getFarmers();
-        setFarmers(farmersData);
-        setFilteredFarmers(farmersData); // Update filteredFarmers initially
+        const farmerList = await farmersApi.get() 
+        if(farmerList){
+          setFarmers(farmerList.data);
+          setFilteredFarmers(farmerList.data);
+        } else {
+          setFarmers(farmersData);
+          setFilteredFarmers(farmersData);
+        }
+       
+         
+        console.log(farmerList.data)
+        
+  
+    
       } catch (error) {
         console.error('Error fetching farmers:', error);
       }
@@ -46,6 +79,10 @@ const ManageFarmersScreen = ({ navigation }) => {
 
     fetchFarmers();
   }, []);
+   
+  
+
+  
 
   const handleSearch = (text) => {
     setSearchQuery(text);
@@ -102,8 +139,8 @@ const ManageFarmersScreen = ({ navigation }) => {
       <View style={styles.leftContent}>
         {renderAvatar(item)}
         <View style={styles.textContainer}>
-          <Text style={styles.notificationText}>{item.name}</Text>
-          <Text style={styles.farmerInfo}>{item.phoneNumber}</Text>
+          <Text style={styles.notificationText}>{item.first_name} {item.last_name}</Text>
+          <Text style={styles.farmerInfo}>{item.paymentnumbers.main}</Text>
         </View>
       </View>
       <FontAwesome5 name="chevron-right" size={18} color="gray" style={styles.chevronIcon} />
@@ -141,7 +178,7 @@ const ManageFarmersScreen = ({ navigation }) => {
           ) : (
             <FlatList
               data={filteredFarmers}
-              keyExtractor={(item) => item.id.toString()}
+              keyExtractor={(item) => item.token.toString()}
               renderItem={renderItem}
               refreshControl={
                 <RefreshControl

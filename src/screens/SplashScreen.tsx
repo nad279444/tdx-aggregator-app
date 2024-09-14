@@ -16,7 +16,7 @@ const SplashScreen = (props) => {
         if (userToken) {
           // User is authenticated, navigate to home page
           // props.navigation.push('StartScreen');
-          navigation.navigate('StartScreen');
+          navigation.navigate('');
         } else {
           // User is not authenticated, navigate to authentication page
           // navigation.navigate('AuthPage');

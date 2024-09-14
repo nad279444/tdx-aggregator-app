@@ -10,14 +10,18 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import * as FileSystem from 'expo-file-system';
 import * as ImagePicker from 'expo-image-picker';
-import { DataContext } from "../../../DataProvider";
+import { DataContext } from "../../../DBContext";
+import { farmers } from "../../controllers/api/farmerList";
 
 export default function FarmerDetailScreen({ navigation }) {
-  const [name, setName] = useState("");
+  const [fullName, setFullName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [idCardPhoto, setIdCardPhoto] = useState<string | null>(null);
-  const [isVerified, setIsVerified] = useState(true);
+  const [isVerified, setIsVerified] = useState(false);
   const [phoneError,setPhoneError] = useState('')
+  const [nameError, setNameError] = useState('');
+  const [firstName,setFirstName] = useState('')
+  const [lastName,setlastName] = useState('')
 
   const { data, updateData } = useContext(DataContext);
   
@@ -44,10 +48,22 @@ export default function FarmerDetailScreen({ navigation }) {
     });
   }, [navigation]);
 
+  useEffect(() => {
+    const verifyFarmer = async() => {
+      const {mobile} = await farmers.getOne(phoneNumber)
+      if(mobile == phoneNumber){
+        setIsVerified(true)
+      }else{
+        setIsVerified(false)
+      }
+    }
+    verifyFarmer()
+  },[phoneNumber])
+
   const saveDataToDB = () => {
-    updateData('farmerName', name);
-    updateData('phoneNumber', phoneNumber);
-    updateData('idCardPhoto', idCardPhoto);
+      updateData('farmerName', fullName);
+      updateData('phoneNumber', phoneNumber);
+      updateData('idCardPhoto', idCardPhoto);
   };
   
   // const imgToBase64 = async (photoUrl) => {
@@ -62,7 +78,29 @@ export default function FarmerDetailScreen({ navigation }) {
   //   }
   //   return null;
   // };
-   
+
+  const validateFullName = (input) => {
+    const nameParts = input.trim().split(" ");
+    if (nameParts.length >= 2){
+      const lastName =  nameParts.pop()
+      const firstName = nameParts.join(' ')
+      setFirstName(firstName)
+      setlastName(lastName)
+      return `${firstName} ${lastName}`
+    }else{
+      setNameError('✗ Please enter both first and last name.');
+    }
+  };
+  const handleFullNameChange = (input) => {
+    setFullName(input);
+    if (validateFullName(input)) {
+      setNameError('');
+    } else {
+      setNameError('✗ Please enter both first and last name.');
+    }
+  };
+ 
+
   const validatePhone = (input) => {
     const phoneRegex = /^\d{10}$/; // Exactly 10 digits
     return phoneRegex.test(input);
@@ -72,7 +110,7 @@ export default function FarmerDetailScreen({ navigation }) {
     if (validatePhone(input)) {
       setPhoneError('');
     } else {
-      setPhoneError('✗ Invalid phone number.');
+      setPhoneError('✗ Invalid number.');
     }
   };
   const pickImage = async () => {
@@ -112,7 +150,7 @@ export default function FarmerDetailScreen({ navigation }) {
     if (idCardPhoto) {
       saveDataToDB();
       navigation.navigate('QualityControlScreen');
-      setName('');
+      setFullName('');
       setPhoneNumber('');
       setIdCardPhoto(null);
     } else {
@@ -124,10 +162,7 @@ export default function FarmerDetailScreen({ navigation }) {
     <View style={styles.container}>
       <View style={styles.blackBox}>
         <View style={styles.commodityContainer}>
-          <Image
-            source={require("../../../assets/Maize.jpg")}
-            style={styles.commodityImage}
-          />
+
           <View style={{ marginLeft: 20 }}>
             <Text style={{ color: "white", fontSize: 18, fontWeight: "500" }}>
               {data.commodity}
@@ -148,13 +183,13 @@ export default function FarmerDetailScreen({ navigation }) {
       </View>
       <View style={styles.inputContainer}>
         <View style={styles.inputGroup}>
-          <Text style={styles.inputTitle}>Name</Text>
+          <Text style={styles.inputTitle}>Full Name</Text>
           <TextInput
             style={styles.nameInput}
             textAlign="left"
             placeholder="Enter Full Name"
-            onChangeText={(text) => setName(text)}
-            value={name}
+            onChangeText={handleFullNameChange}
+            value={fullName}
           />
           {isVerified && (
             <Ionicons
@@ -166,6 +201,7 @@ export default function FarmerDetailScreen({ navigation }) {
           )}
         </View>
       </View>
+      {nameError ? <Text style={{ color: 'red', marginLeft: 20 }}>{nameError}</Text> : null}
       <View style={styles.inputContainer}>
         <View style={styles.inputGroup}>
           <Text style={styles.inputTitle}>Phone Number</Text>
@@ -196,7 +232,7 @@ export default function FarmerDetailScreen({ navigation }) {
           marginRight: 20,
         }}
       >  
-      {phoneError ? <Text style={{color: 'red', marginRight: 40}}>{phoneError}</Text> : null}
+      {phoneError ? <Text style={{color: 'red', marginRight: 60}}>{phoneError}</Text> : null}
         {isVerified ? (
           <Text style={{ color: "green" }}>Farmer details verified</Text>
         ) : (
@@ -251,6 +287,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 20,
+    marginBottom:5,
   },
   inputGroup: {
     flex: 1,

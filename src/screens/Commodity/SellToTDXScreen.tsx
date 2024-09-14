@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useMemo,useContext } from "react";
-import { DataContext } from "../../../DataProvider";
+import { DataContext } from "../../../DBContext";
 import {
   View,
   Text,
@@ -14,16 +14,22 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { Divider } from "react-native-elements";
 import BottomSheet from "@gorhom/bottom-sheet";
-import { green } from "react-native-reanimated/lib/typescript/reanimated2/Colors"
-import { useDataContext } from "../../../DataProvider";
+import { useDataContext } from "../../../DBContext";
+import { commodities } from "../../controllers/api/commodities";
+import { autoCalculator } from "../../controllers/api/priceCalculator";
 
 const SellToTDXScreen = ({ route, navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedCommodity, setSelectedCommodity] = useState({});
+  const [selectedCommodity, setSelectedCommodity] = useState('');
+  const [selectedCommodityId, setSelectedCommodityId] = useState('');
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
-  const [bags, setBags] = useState(0);
-  const [weight, setWeight] = useState(0);
-  const [totalPrice, setTotalPrice] = useState(0);
+  const [commodityRates, setCommodityRates] = useState([]);
+  const [bags, setBags] = useState("");
+  const [bagsRate, setBagsRate] = useState("");
+  const [surplusKg, setSurplusKg] = useState("");
+  const [weight, setWeight] = useState('');
+  const [totalCost, setTotalCost] = useState('');
+  const [loading, setLoading] = useState(false); // 
   const bottomSheetRef = useRef(null);
   const snapPoints = useMemo(() => ["25%", "50%", "75%"], []);
   const {data,updateData} = useDataContext()
@@ -47,33 +53,40 @@ const SellToTDXScreen = ({ route, navigation }) => {
     });
   }, [navigation]);
 
-  useEffect(() => {
-    if (selectedCommodity.price && weight > 0) {
-      setTotalPrice(weight * selectedCommodity.price);
+
+useEffect(() => {
+  const fetchCommodities = async () => {
+    try {
+      const data = await commodities.getRates();  // Await the commodities API call
+      setCommodityRates(data);            // Store the response in state
+    } catch (error) {
+      console.error("Error fetching commodities: ", error);
     }
-  }, [weight, selectedCommodity]);
+  };
 
-  const commodities = [
-    { name: "Maize", icon: require("../../../assets/Maize.jpg"), price: 20 },
-    {
-      name: "Soybean",
-      icon: require("../../../assets/Soybean.jpg"),
-      price: 60,
-    },
-    {
-      name: "Sesame Seeds",
-      icon: require("../../../assets/SesemeSeeds.jpg"),
-      price: 70,
-    },
-    {
-      name: "GroundNut",
-      icon: require("../../../assets/GroundNut.jpg"),
-      price: 80,
-    },
-  ];
+  fetchCommodities();
+}, []);
 
-  const handleSelectCommodity = (commodity) => {
+useEffect(() => {
+  const fetchAutoCalculatedData = async () => {
+    try {
+     const {bags,totalcost,message,bagsrate,remainingkg} =  await autoCalculator.get(weight, selectedCommodityId);
+     setBags(bags)
+     setBagsRate(bagsrate)
+     setSurplusKg(remainingkg)
+     setTotalCost(totalcost)
+    } catch (error) {
+      console.error("Error fetching auto-calculated data: ", error);
+    }
+  };
+
+  fetchAutoCalculatedData(); // Call the async function
+}, [weight, selectedCommodityId]); // Add dependencies if necessary
+
+
+  const handleSelectCommodity = (commodity,commodityId) => {
     setSelectedCommodity(commodity);
+    setSelectedCommodityId(commodityId);
     setModalVisible(false);
   };
 
@@ -88,15 +101,15 @@ const SellToTDXScreen = ({ route, navigation }) => {
   };
 
   const handleNext = () => {
-    updateData('commodity', selectedCommodity?.name);
+    updateData('commodity', selectedCommodity);
     updateData('weight', weight);
     updateData('bags',bags)
-    updateData('totalPrice',totalPrice)
+    updateData('totalPrice',totalCost)
     navigation.navigate("FarmerDetailScreen");
     setSelectedCommodity('');
-    setBags(0);
-    setWeight(0)
-    setTotalPrice(0);
+    setBags('');
+    setWeight('')
+    setTotalCost('')
   };
 
 
@@ -118,9 +131,8 @@ const SellToTDXScreen = ({ route, navigation }) => {
       >
         Prices
       </Text>
-      {commodities.map((item) => (
+      {commodityRates.map((item) => (
         <View key={item.name} style={styles.marketItem}>
-          <Image source={item.icon} style={styles.marketImage} />
 
           <View>
             <Text style={styles.marketItemText}>{item.name}</Text>
@@ -129,18 +141,35 @@ const SellToTDXScreen = ({ route, navigation }) => {
             </Text>
           </View>
           <View style={{ alignItems: "center" }}>
-            <Text style={styles.marketItemPrice}>{item.price}₵/KG</Text>
-
+            <View style={{flexDirection:'row',gap:6}}>
+            <Text style={styles.marketItemPrice}>High</Text>
             <View
               style={{
-                width: 35,
+                width: 45,
+                height: 25,
+                backgroundColor: "green",
+                borderRadius: 5,
+                padding: 2,
+              }}
+            >
+              <Text style={{ color: "white" }}>{item.purchaseprice_high}₵</Text>
+            </View>
+            </View>
+          
+
+            <View style={{flexDirection:'row',gap:6}}>
+            <Text style={styles.marketItemPrice}>Low </Text>
+            <View
+              style={{
+                width: 45,
                 height: 25,
                 backgroundColor: "#ECC63E",
                 borderRadius: 5,
                 padding: 2,
               }}
             >
-              <Text style={{ color: "white" }}>+4₵</Text>
+              <Text style={{ color: "white" }}>{item.purchaseprice_low}₵</Text>
+            </View>
             </View>
           </View>
         </View>
@@ -164,7 +193,7 @@ const SellToTDXScreen = ({ route, navigation }) => {
           placeholderTextColor="grey"
           textAlign="left"
           editable={false}
-          value={selectedCommodity?.name}
+          value={selectedCommodity}
         />
         <Ionicons
           name="chevron-down"
@@ -182,28 +211,17 @@ const SellToTDXScreen = ({ route, navigation }) => {
             textAlign="left"
             placeholder="0"
             keyboardType="numeric"
-            value={String(weight)}
-            onChangeText={(text) => setWeight(parseFloat(text) || 0)}
+            value={weight}
+            onChangeText={(text) => setWeight(text)}
           />
           <Text style={styles.weightLabel}>KG</Text>
         </View>
-        <View style={styles.inputGroup}>
-          <Text style={styles.commodityLabel}>Bags</Text>
-          <TextInput
-            style={styles.bags}
-            textAlign="left"
-            placeholder="0"
-            keyboardType="numeric"
-            value={String(bags)}
-            onChangeText={(text) => setBags(parseFloat(text) || 0)}
-          />
-          <Text style={styles.bagsLabel}>Bags</Text>
-        </View>
+       
       </View>
 
       <View
         style={{
-          height: 100,
+          height: 200,
           backgroundColor: "#E1EFFF",
           borderRadius: 10,
           marginHorizontal: 12,
@@ -215,11 +233,12 @@ const SellToTDXScreen = ({ route, navigation }) => {
           style={{
             flexDirection: "row",
             justifyContent: "space-between",
-            paddingBottom: 10,
+            paddingVertical: 10,
+
           }}
         >
-          <Text style={{ fontSize: 16 }}>Price Per KG</Text>
-          <Text style={{ fontSize: 16 }}>{selectedCommodity.price}₵/KG</Text>
+          <Text style={{ fontSize: 16 }}>Number of Bags</Text>
+          <Text style={{ fontSize: 16 }}>{bags}</Text>
         </View>
         <Divider />
         <View
@@ -229,17 +248,40 @@ const SellToTDXScreen = ({ route, navigation }) => {
             paddingVertical: 10,
           }}
         >
-          <Text style={{ fontSize: 16 }}>Total Price</Text>
-          <Text style={{ fontSize: 16 }}>{totalPrice}₵</Text>
+          <Text style={{ fontSize: 16 }}>Price Per Bag</Text>
+          <Text style={{ fontSize: 16 }}>{bagsRate}₵</Text>
+        </View>
+        <Divider />
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            paddingVertical: 10,
+          }}
+        >
+          <Text style={{ fontSize: 16 }}>Commodity Suplus</Text>
+          <Text style={{ fontSize: 16 }}>{surplusKg}KG</Text>
+        </View>
+        <Divider />
+        
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            paddingVertical: 10,
+          }}
+        >
+          <Text style={{ fontSize: 16 }}>Total Cost</Text>
+          <Text style={{ fontSize: 16 }}>{totalCost}₵</Text>
         </View>
       </View>
 
       <TouchableOpacity
-        style={totalPrice ? styles.greenButton : styles.button}
+        style={totalCost ? styles.greenButton : styles.button}
         onPress={handleNext}
-        disabled={!totalPrice}
+        disabled={!totalCost}
       >
-        <Text style={{ fontSize: 18, color: totalPrice ? "white" : "#969696" }}>
+        <Text style={{ fontSize: 18, color: totalCost ? "white" : "#969696" }}>
           Continue
         </Text>
       </TouchableOpacity>
@@ -272,18 +314,16 @@ const SellToTDXScreen = ({ route, navigation }) => {
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <FlatList
-              data={commodities}
-              keyExtractor={(item) => item.name}
+              data={commodityRates}
+              keyExtractor={(item) => item.commodityId}
               renderItem={({ item }) => (
                 <TouchableOpacity
                   style={{ width: 500 }}
-                  onPress={() => handleSelectCommodity(item)}
+                  onPress={() => handleSelectCommodity(item.name,item.commodityId)}
                 >
                   <View style={styles.modalItems}>
-                    <Image source={item.icon} style={styles.modalImage} />
                     <View>
                       <Text style={styles.modalItem}>{item.name}</Text>
-                      <Text>{item.price}₵/KG</Text>
                     </View>
                   </View>
                   <Divider style={styles.divider} />
@@ -395,7 +435,7 @@ const styles = StyleSheet.create({
   showPricesButton: {
     position: "absolute",
     left: 110,
-    top: 250,
+    top: 120,
     marginTop: 20,
     height: 50,
     marginHorizontal: 12,

@@ -1,4 +1,4 @@
-import {useEffect}from 'react';
+import React,{useEffect} from 'react';
 import { View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import { FontAwesome5,Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -6,17 +6,26 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const CompleteScreen = ({ route, navigation }) => {
   useEffect(() => {
     navigation.setOptions({
-      title: "Sell To Direct",
+      title: "",
       headerTitleAlign: "center",
-      headerLeft: () => null,
+      headerLeft: () => (
+        <TouchableOpacity
+          onPress={() => navigation.navigate("FarmerPaymentScreen")}
+          style={{ marginLeft: 16 }}
+        >
+          <Ionicons name="arrow-back-outline" size={24} color="black" />
+        </TouchableOpacity>
+      ),
       headerRight: () => (
-        <TouchableOpacity onPress={() => navigation.openDrawer()} style={{ marginRight: 16 }}>
+        <TouchableOpacity
+          onPress={() => navigation.openDrawer()}
+          style={{ marginRight: 16 }}
+        >
           <Ionicons name="menu" size={24} color="black" />
         </TouchableOpacity>
       ),
     });
   }, [navigation]);
-
     
   
     return(

@@ -5,9 +5,6 @@ import { createDrawerNavigator } from "@react-navigation/drawer";
 import { StatusBar } from "react-native";
 import SplashScreen from "./src/screens/SplashScreen";
 
-import StartScreen from "./src/screens/StartScreen";
-import EditAggregatorProfileScreen from "./src/screens/Aggregator/EditAggregatorProfileScreen";
-import AggregatorProfileScreen from "./src/screens/Aggregator/AggregatorProfileScreen";
 import{ AuthContext } from "./AuthContext";
 import Sidebar from "./src/widgets/Sidebar"; // Import the Sidebar component
 
@@ -16,7 +13,6 @@ import SignIn from "./src/screens/Auth/SignIn";
 
 
 import SuccessScreen from "./src/screens/SuccessScreen";
-import OnBoardingScreen from "./src/screens/Onboarding/OnBoardingScreen";
 import CompleteScreen from "./src/screens/CompleteScreen";
 import MyAggregatesScreen from "./src/screens/Farmer/MyAggregatesScreen";
 import ManageFarmersScreen from "./src/screens/Farmer/ManageFarmersScreen";
@@ -26,6 +22,8 @@ import NotificationScreen from "./src/screens/Notification/NotificationScreen";
 import NotificationDetailScreen from "./src/screens/Notification/NotificationDetailScreen";
 import ForgotPassword from "./src/screens/Auth/ForgotPassword";
 import OTPScreen from "./src/screens/Auth/OTPScreen";
+import ResetPassword from "./src/screens/Auth/ResetPassword";
+
 
 import CommunityPricesScreen from "./src/screens/Community/CommunityPricesScreen";
 import SellToTDXScreen from "./src/screens/Commodity/SellToTDXScreen";
@@ -72,14 +70,12 @@ export default function AppNavigator() {
               component={OTPScreen}
               options={{ headerShown: true }}
             />
-            
             <Stack.Screen
-              name="OnBoardingScreen"
-              component={OnBoardingScreen}
-              options={{ headerShown: false }}
+              name="ResetPassword"
+              component={ResetPassword}
+              options={{ headerShown: true }}
             />
-           
-           
+             
             <Stack.Screen
               name="SuccessScreen"
               component={SuccessScreen}
@@ -128,7 +124,7 @@ export default function AppNavigator() {
             <Stack.Screen
               name="CompleteScreen"
               component={CompleteScreen}
-              options={{ headerShown: false }}
+              options={{ headerShown: true }}
             />
             <Stack.Screen name="AddFarmerScreen" component={AddFarmerScreen} />
 
@@ -165,12 +161,8 @@ function DrawerNavigator() {
         component={CommunityPricesScreen}
       />
       <Stack.Screen name="AddFarmerScreen" component={AddFarmerScreen} />
-      <Drawer.Screen name="StartScreen" component={StartScreen} />
-      <Drawer.Screen name="Profile" component={AggregatorProfileScreen} />
-      <Drawer.Screen
-        name="EditProfile"
-        component={EditAggregatorProfileScreen}
-      />
+  
+
 
       <Drawer.Screen name="MyAggregatesScreen" component={MyAggregatesScreen} />
       <Drawer.Screen
@@ -187,6 +179,11 @@ function DrawerNavigator() {
         name="AggregationDetailScreen"
         component={AggregationDetailScreen}
       />
+      <Stack.Screen
+              name="CompleteScreen"
+              component={CompleteScreen}
+        
+            />
     </Drawer.Navigator>
   );
 }

@@ -1,7 +1,7 @@
 import React, { useEffect, useState ,useContext} from "react";
 import { StyleSheet, View, TouchableOpacity, Text, Image, ScrollView } from "react-native";
 import { Ionicons,FontAwesome5 } from "@expo/vector-icons";
-import { DataContext } from "../../../DataProvider";
+import { DataContext } from "../../../DBContext";
 import CheckBox from "react-native-elements/dist/checkbox/CheckBox";
 import { Divider } from "react-native-elements/dist/divider/Divider";
 
@@ -88,10 +88,6 @@ export default function QualityControlScreen({ navigation }) {
     <View style={styles.container}>
       <View style={styles.blackBox}>
         <View style={styles.commodityContainer}>
-          <Image
-            source={require("../../../assets/Maize.jpg")}
-            style={styles.commodityImage}
-          />
           <View style={{ marginLeft: 20 }}>
             <Text style={{ color: "white", fontSize: 18, fontWeight: "500" }}>
               {data.commodity}

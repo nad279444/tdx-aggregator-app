@@ -1,13 +1,13 @@
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import { JSHash, JSHmac, CONSTANTS } from 'react-native-hash';
+import { BASE_URL } from '../../constants/Constants';
 
 const auth = {
-  BASE_URL: "https://torux.app/api",
-
+  
   postRequest: async (endpoint, data) => {
     try {
-      const response = await axios.post(`${auth.BASE_URL}/${endpoint}`, data);
+      const response = await axios.post(`${BASE_URL}/${endpoint}`, data);
       return response.data;
     } catch (error) {
       console.error(`Error in ${endpoint}`, error);
@@ -54,9 +54,9 @@ const auth = {
     return auth.postRequest("resetpassword", data);
   },
 
-  confirmOTP: async ({otp,mobile}) => {
-    console.log({otp,mobile})
-    return auth.postRequest(`resetpassword/${otp}`,mobile);
+  confirmOTP: async ({otp,mobile,password,confirmpassword}) => {
+    console.log({otp,mobile,password,confirmpassword})
+    return auth.postRequest(`resetpassword/${otp}`,{mobile,password,confirmpassword});
   },
 
   getChallenge: async (username) => {
