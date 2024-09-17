@@ -10,15 +10,20 @@ export const useDataContext = () => useContext(DataContext);
 // DataProvider Component with SQLiteProvider and context management
 export const DataProvider = ({ children }) => {
   const [data, setData] = useState({
+    farmerToken:"",
     commodity: "",
+    commodityId: "",
+    communityId: "",
+    siloId:"",
     weight: "",
     bags: "",
     totalPrice: 0,
     farmerName: "",
     phoneNumber: "",
     idCardPhoto: "",
-    momoName: "",
-    momoNumber: "",
+    altName: "",
+    altNumber: "",
+    qualityControlChecks:"",
   });
 
   // Get database context from SQLiteProvider

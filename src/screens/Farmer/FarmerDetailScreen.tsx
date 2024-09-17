@@ -15,6 +15,8 @@ import { farmers } from "../../controllers/api/farmerList";
 
 export default function FarmerDetailScreen({ navigation }) {
   const [fullName, setFullName] = useState("");
+  const [farmerToken,setFarmerToken] = useState('')
+  const [communityId,setCommunityId] =useState('')
   const [phoneNumber, setPhoneNumber] = useState("");
   const [idCardPhoto, setIdCardPhoto] = useState<string | null>(null);
   const [isVerified, setIsVerified] = useState(false);
@@ -50,12 +52,14 @@ export default function FarmerDetailScreen({ navigation }) {
 
   useEffect(() => {
     const verifyFarmer = async() => {
-      const {mobile} = await farmers.getOne(phoneNumber)
+      const {mobile,token,community_id} = await farmers.getOne(phoneNumber)
       if(mobile == phoneNumber){
         setIsVerified(true)
       }else{
         setIsVerified(false)
       }
+      setCommunityId(community_id)
+      setFarmerToken(token)
     }
     verifyFarmer()
   },[phoneNumber])
@@ -63,6 +67,8 @@ export default function FarmerDetailScreen({ navigation }) {
   const saveDataToDB = () => {
       updateData('farmerName', fullName);
       updateData('phoneNumber', phoneNumber);
+      updateData('farmerToken', farmerToken);
+      updateData('communityId', communityId);
       updateData('idCardPhoto', idCardPhoto);
   };
   
@@ -152,6 +158,7 @@ export default function FarmerDetailScreen({ navigation }) {
       navigation.navigate('QualityControlScreen');
       setFullName('');
       setPhoneNumber('');
+      setCommunityId('')
       setIdCardPhoto(null);
     } else {
       await pickImage();

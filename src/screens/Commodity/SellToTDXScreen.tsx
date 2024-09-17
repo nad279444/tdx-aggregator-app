@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useMemo,useContext } from "react";
+import React, { useEffect, useState, useRef, useMemo, useContext } from "react";
 import { DataContext } from "../../../DBContext";
 import {
   View,
@@ -17,23 +17,27 @@ import BottomSheet from "@gorhom/bottom-sheet";
 import { useDataContext } from "../../../DBContext";
 import { commodities } from "../../controllers/api/commodities";
 import { autoCalculator } from "../../controllers/api/priceCalculator";
+import { silos } from "../../controllers/api/silos";
 
 const SellToTDXScreen = ({ route, navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedCommodity, setSelectedCommodity] = useState('');
-  const [selectedCommodityId, setSelectedCommodityId] = useState('');
+  const [modalSiloVisible, setModalSiloVisible] = useState(false);
+  const [selectedCommodity, setSelectedCommodity] = useState("");
+  const [selectedSilo, setSelectedSilo] = useState("");
+  const [selectedSiloId, setSelectedSiloId] = useState("");
+  const [selectedCommodityId, setSelectedCommodityId] = useState("");
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
   const [commodityRates, setCommodityRates] = useState([]);
+  const [siloList, setSiloList] = useState([]);
   const [bags, setBags] = useState("");
   const [bagsRate, setBagsRate] = useState("");
   const [surplusKg, setSurplusKg] = useState("");
-  const [weight, setWeight] = useState('');
-  const [totalCost, setTotalCost] = useState('');
-  const [loading, setLoading] = useState(false); // 
+  const [weight, setWeight] = useState("");
+  const [totalCost, setTotalCost] = useState("");
+  const [loading, setLoading] = useState(false); //
   const bottomSheetRef = useRef(null);
   const snapPoints = useMemo(() => ["25%", "50%", "75%"], []);
-  const {data,updateData} = useDataContext()
-  
+  const { data, updateData } = useDataContext();
 
   useEffect(() => {
     navigation.setOptions({
@@ -53,43 +57,59 @@ const SellToTDXScreen = ({ route, navigation }) => {
     });
   }, [navigation]);
 
+  useEffect(() => {
+    const fetchCommodities = async () => {
+      try {
+        const data = await commodities.getRates(); // Await the commodities API call
+        setCommodityRates(data); // Store the response in state
+      } catch (error) {
+        console.error("Error fetching commodities: ", error);
+      }
+    };
 
-useEffect(() => {
-  const fetchCommodities = async () => {
-    try {
-      const data = await commodities.getRates();  // Await the commodities API call
-      setCommodityRates(data);            // Store the response in state
-    } catch (error) {
-      console.error("Error fetching commodities: ", error);
-    }
-  };
+    fetchCommodities();
+  }, []);
 
-  fetchCommodities();
-}, []);
+  useEffect(() => {
+    const fetchSilos = async () => {
+      try {
+        const data = await silos.get();
+        setSiloList(data);
+      } catch (error) {
+        console.error("Error fetching commodities: ", error);
+      }
+    };
+    fetchSilos();
+  }, []);
 
-useEffect(() => {
-  const fetchAutoCalculatedData = async () => {
-    try {
-     const {bags,totalcost,message,bagsrate,remainingkg} =  await autoCalculator.get(weight, selectedCommodityId);
-     setBags(bags)
-     setBagsRate(bagsrate)
-     setSurplusKg(remainingkg)
-     setTotalCost(totalcost)
-    } catch (error) {
-      console.error("Error fetching auto-calculated data: ", error);
-    }
-  };
+  useEffect(() => {
+    const fetchAutoCalculatedData = async () => {
+      try {
+        const { bags, totalcost, message, bagsrate, remainingkg } =
+          await autoCalculator.get(weight, selectedCommodityId);
+        setBags(bags);
+        setBagsRate(bagsrate);
+        setSurplusKg(remainingkg);
+        setTotalCost(totalcost);
+      } catch (error) {
+        console.error("Error fetching auto-calculated data: ", error);
+      }
+    };
 
-  fetchAutoCalculatedData(); // Call the async function
-}, [weight, selectedCommodityId]); // Add dependencies if necessary
+    fetchAutoCalculatedData(); // Call the async function
+  }, [weight, selectedCommodityId]); // Add dependencies if necessary
 
-
-  const handleSelectCommodity = (commodity,commodityId) => {
+  const handleSelectCommodity = (commodity, commodityId) => {
     setSelectedCommodity(commodity);
     setSelectedCommodityId(commodityId);
     setModalVisible(false);
   };
 
+  const handleSelectSilo = (siloName, siloId) => {
+    setSelectedSilo(siloName);
+    setSelectedSiloId(siloId);
+    setModalSiloVisible(false);
+  };
   const handleShowPrices = () => {
     setIsBottomSheetOpen(true);
     bottomSheetRef.current?.expand(); // Expands the BottomSheet
@@ -101,17 +121,20 @@ useEffect(() => {
   };
 
   const handleNext = () => {
-    updateData('commodity', selectedCommodity);
-    updateData('weight', weight);
-    updateData('bags',bags)
-    updateData('totalPrice',totalCost)
+    updateData("commodity", selectedCommodity);
+    updateData("commodityId",selectedCommodityId)
+    updateData("siloId",selectedSiloId)
+    updateData("weight", weight);
+    updateData("bags", bags);
+    updateData("totalPrice", totalCost);
     navigation.navigate("FarmerDetailScreen");
-    setSelectedCommodity('');
-    setBags('');
-    setWeight('')
-    setTotalCost('')
+    setSelectedCommodity("");
+    setBags("");
+    setWeight("");
+    setTotalCost("");
+    setSelectedSilo("")
+    setSelectedSiloId("")
   };
-
 
   const renderMarketPrices = () => (
     <ScrollView contentContainerStyle={styles.bottomSheetContent}>
@@ -133,7 +156,6 @@ useEffect(() => {
       </Text>
       {commodityRates.map((item) => (
         <View key={item.name} style={styles.marketItem}>
-
           <View>
             <Text style={styles.marketItemText}>{item.name}</Text>
             <Text style={{ color: "#94E081", fontSize: 16 }}>
@@ -141,35 +163,38 @@ useEffect(() => {
             </Text>
           </View>
           <View style={{ alignItems: "center" }}>
-            <View style={{flexDirection:'row',gap:6}}>
-            <Text style={styles.marketItemPrice}>High</Text>
-            <View
-              style={{
-                width: 45,
-                height: 25,
-                backgroundColor: "green",
-                borderRadius: 5,
-                padding: 2,
-              }}
-            >
-              <Text style={{ color: "white" }}>{item.purchaseprice_high}₵</Text>
+            <View style={{ flexDirection: "row", gap: 6 }}>
+              <Text style={styles.marketItemPrice}>High</Text>
+              <View
+                style={{
+                  width: 45,
+                  height: 25,
+                  backgroundColor: "green",
+                  borderRadius: 5,
+                  padding: 2,
+                }}
+              >
+                <Text style={{ color: "white" }}>
+                  {item.purchaseprice_high}₵
+                </Text>
+              </View>
             </View>
-            </View>
-          
 
-            <View style={{flexDirection:'row',gap:6}}>
-            <Text style={styles.marketItemPrice}>Low </Text>
-            <View
-              style={{
-                width: 45,
-                height: 25,
-                backgroundColor: "#ECC63E",
-                borderRadius: 5,
-                padding: 2,
-              }}
-            >
-              <Text style={{ color: "white" }}>{item.purchaseprice_low}₵</Text>
-            </View>
+            <View style={{ flexDirection: "row", gap: 6 }}>
+              <Text style={styles.marketItemPrice}>Low </Text>
+              <View
+                style={{
+                  width: 45,
+                  height: 25,
+                  backgroundColor: "#ECC63E",
+                  borderRadius: 5,
+                  padding: 2,
+                }}
+              >
+                <Text style={{ color: "white" }}>
+                  {item.purchaseprice_low}₵
+                </Text>
+              </View>
             </View>
           </View>
         </View>
@@ -216,7 +241,31 @@ useEffect(() => {
           />
           <Text style={styles.weightLabel}>KG</Text>
         </View>
-       
+        <View style={styles.inputGroup}>
+          <Text style={styles.commodityLabel}>Silo </Text>
+          <TouchableOpacity
+            onPress={() => setModalSiloVisible(true)}
+            style={styles.inputWrapper}
+          >
+            <TextInput
+               style={[
+                styles.bags,
+                { color: selectedSilo ? "black" : "grey" },
+              ]}
+              textAlign="left"
+              placeholder="Select Silo"
+              keyboardType="numeric"
+              value={selectedSilo}
+              editable={false}
+            />
+            <Ionicons
+              name="chevron-down"
+              size={20}
+              color="gray"
+              style={styles.chevronIcon}
+            />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <View
@@ -234,7 +283,6 @@ useEffect(() => {
             flexDirection: "row",
             justifyContent: "space-between",
             paddingVertical: 10,
-
           }}
         >
           <Text style={{ fontSize: 16 }}>Number of Bags</Text>
@@ -263,7 +311,7 @@ useEffect(() => {
           <Text style={{ fontSize: 16 }}>{surplusKg}KG</Text>
         </View>
         <Divider />
-        
+
         <View
           style={{
             flexDirection: "row",
@@ -316,17 +364,50 @@ useEffect(() => {
             <FlatList
               data={commodityRates}
               keyExtractor={(item) => item.commodityId}
-              renderItem={({ item }) => (
+              renderItem={({ item, index }) => (
                 <TouchableOpacity
                   style={{ width: 500 }}
-                  onPress={() => handleSelectCommodity(item.name,item.commodityId)}
+                  onPress={() =>
+                    handleSelectCommodity(item.name, item.commodityId)
+                  }
                 >
                   <View style={styles.modalItems}>
                     <View>
                       <Text style={styles.modalItem}>{item.name}</Text>
                     </View>
                   </View>
-                  <Divider style={styles.divider} />
+                    <Divider style={styles.divider} />
+                  
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        </View>
+      </Modal>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalSiloVisible}
+        onRequestClose={() => setModalSiloVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <FlatList
+              data={siloList}
+              keyExtractor={(item) => item.token}
+              renderItem={({ item, index }) => (
+                <TouchableOpacity
+                  style={{ width: 500 }}
+                  onPress={() => handleSelectSilo(item.siloname, item.token)}
+                >
+                  <View style={styles.modalItems}>
+                    <View>
+                      <Text style={styles.modalItem}>{item.siloname}</Text>
+                    </View>
+                  </View>
+                  {index !== siloList.length - 1 && (
+                    <Divider style={styles.divider} />
+                  )}
                 </TouchableOpacity>
               )}
             />
@@ -372,7 +453,7 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    gap: -10,
     marginTop: 20,
   },
   inputGroup: {

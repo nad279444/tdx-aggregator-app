@@ -12,6 +12,8 @@ export default function QualityControlScreen({ navigation }) {
   const [levelOfinsectDamage, setLevelOfinsectDamage] = useState(false);
   const [weightCheck, setWeightCheck] = useState(false);
   const [moistureContent, setMoistureContent] = useState(false);
+  const [AllChecked,setAllChecked] = useState('0')
+
   const [disclaimer, setDisclaimer] = useState(false);
 
   const { data, updateData } = useContext(DataContext);
@@ -42,7 +44,35 @@ export default function QualityControlScreen({ navigation }) {
   const handleCheckBoxChange = (setter) => {
     setter(prev => !prev);
   };
+  
+  useEffect(() => {
+    const calculateCheckedBoxes = () => {
+      let checkedCount = 0;
 
+      if (levelOfInfestation) checkedCount += 1;
+      if (levelOfForeignMatter) checkedCount += 1;
+      if (levelOfinsectDamage) checkedCount += 1;
+      if (weightCheck) checkedCount += 1;
+      if (moistureContent) checkedCount += 1;
+
+      setAllChecked(checkedCount.toString()); // Store the count as a string
+    };
+
+    calculateCheckedBoxes();
+  }, [levelOfInfestation, levelOfForeignMatter, levelOfinsectDamage, weightCheck, moistureContent]);
+
+  
+  const handleNext = () => {
+    updateData('qualityControlChecks', AllChecked);
+    navigation.navigate('FarmerPaymentScreen');
+    setLevelOfForeignMatter(false);
+    setLevelOfInfestation(false);
+    setLevelOfinsectDamage(false);
+    setWeightCheck(false);
+    setMoistureContent(false);
+    setDisclaimer(false);
+  };
+  
   const qualityControls = [
     {
       iconName: "gem",
@@ -182,7 +212,7 @@ export default function QualityControlScreen({ navigation }) {
       </View>
       <TouchableOpacity
         style={disclaimer?styles.greenButton:styles.button}
-        onPress={() => navigation.navigate('FarmerPaymentScreen')}
+        onPress={handleNext}
         disabled={!disclaimer}
       >
         <Text style={{ fontSize: 18, color: 'white' }}>
