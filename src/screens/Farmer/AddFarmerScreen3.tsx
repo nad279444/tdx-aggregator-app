@@ -6,17 +6,16 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
+  ToastAndroid
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { Ionicons } from "@expo/vector-icons";
 import { DataContext } from "../../../DBContext";
+import { farmers } from "../../controllers/api/farmerList";
 
-const AddFarmerScreen = ({ route, navigation }) => {
-  const [fullName, setFullName] = useState("");
-  const [nameError, setNameError] = useState("");
-  const [idCardType, setIdCardType] = useState("");
-  const [idCardNumber, setIdCardNumber] = useState("");
-  const { imageUri } = route.params;
+const AddFarmerScreen3 = ({ route, navigation }) => {
+  const [community, setCommunity] = useState("");
+  const [experienceYear, setExperienceYear] = useState("");
 
   const { addFarmer } = useContext(DataContext);
 
@@ -42,96 +41,96 @@ const AddFarmerScreen = ({ route, navigation }) => {
       ),
     });
   }, [navigation]);
-
- 
-
-  const validateFullName = (input) => {
-    const nameParts = input.trim().split(" ");
-    if (nameParts.length >= 2) {
-      const lastName = nameParts.pop();
-      const firstName = nameParts.join(" ");
-      return `${firstName} ${lastName}`;
-    } else {
-      setNameError("✗ Please enter both first and last name.");
-    }
-  };
-  const handleFullNameChange = (input) => {
-    setFullName(input);
-    const validatedName = validateFullName(input);
-    if (validatedName) {
-      setNameError(""); // Clear error message
-      // Set the full name
-    } else {
-      setNameError("✗ Please enter both first and last name."); // Show error
-    }
-  };
-
+  const {
+    previousData,
+    mobileNumber,
+    network,
+    altMobileNumber,
+    altNetWork,
+    gender,
+  } = route.params;
+  const { fullName, idCardNumber, idCardType } = previousData;
   const handleFarmer = async () => {
-    navigation.navigate("AddFarmerScreen2",{fullName,idCardNumber,idCardType});
-    setFullName("");
-    setIdCardType("");
-    setIdCardNumber("");
+    try {
+      const response = await farmers.add({
+        biodata: {
+          fullname: fullName,
+          mobilenumber: mobileNumber,
+          network: network,
+          altmobilenumber: altMobileNumber,
+          altnetwork: altNetWork,
+          gender: gender,
+          community: community,
+          experience_year: experienceYear,
+          idcardtype: idCardType,
+          idcardnumber: idCardNumber,
+        },
+      });
+      if (!response.error) {
+        ToastAndroid.showWithGravityAndOffset(
+          response.message,
+          ToastAndroid.LONG,
+          ToastAndroid.TOP,
+          25,
+          50
+        );
+      } else {
+        ToastAndroid.showWithGravityAndOffset(
+          response.message,
+          ToastAndroid.LONG,
+          ToastAndroid.TOP,
+          25,
+          50
+        );
+      }
+    } catch (error) {
+      
+    }
+   
+    navigation.navigate("");
+    setCommunity("");
+    setExperienceYear("");
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.inputContainer}>
         <View style={styles.inputGroup}>
-          <Text style={styles.inputTitle}>FUll Name</Text>
+          <Text style={styles.inputTitle}>Community</Text>
           <TextInput
             style={styles.nameInput}
             textAlign="left"
-            placeholder="Enter Full Name"
-            onChangeText={handleFullNameChange}
-            value={fullName}
+            placeholder="Enter Community"
+            onChangeText={(text) => setCommunity(text)}
+            value={community}
           />
         </View>
       </View>
-      {nameError ? (
-        <Text style={{ color: "red", marginLeft: 10 }}>{nameError}</Text>
-      ) : null}
 
       <View style={styles.inputContainer}>
         <View style={styles.inputGroup}>
-          <Text style={styles.inputTitle}>ID Card Number</Text>
+          <Text style={styles.inputTitle}>Experience Year</Text>
           <TextInput
             style={styles.nameInput}
             textAlign="left"
-            placeholder="Enter ID Number"
+            placeholder="The year you started farming"
             keyboardType="numeric"
-            onChangeText={(num) => setIdCardNumber(num)}
-            value={idCardNumber}
+            onChangeText={(num) => setExperienceYear(num)}
+            value={experienceYear}
           />
         </View>
       </View>
-      <View style={[styles.inputContainer, { marginHorizontal: 10, marginBottom:20 }]}>
-        <View style={styles.inputGroup}>
-          <Text style={styles.inputTitle}>ID Card Type</Text>
-          <Picker
-            selectedValue={idCardType} // Current selected value
-            style={styles.picker} // Style for the picker
-            onValueChange={(itemValue, itemIndex) => setIdCardType(itemValue)} // Handle the change
-          >
-            <Picker.Item label="Voters ID" value="voters" />
-            <Picker.Item label="Ghana Card" value="ghana_card" />
-          </Picker>
-        </View>
-      </View>
-      {imageUri && (
-        <View style={styles.imagePreviewContainer}>
-          <Image source={{ uri: imageUri }} style={styles.imagePreview} />
-        </View>
-      )}
+
       <TouchableOpacity
         style={
-          fullName && idCardNumber && idCardType
+          community && experienceYear
             ? styles.greenButton
             : styles.disabledButton
         }
         onPress={handleFarmer}
-        disabled={!fullName || !idCardNumber || !idCardType}
+        disabled={!community || !experienceYear}
       >
-        <Text style={{ fontSize: 18, color: "white" }}>Continue</Text>
+        <Text style={{ fontSize: 18, color: "white" }}>Add farmer</Text>
       </TouchableOpacity>
     </View>
   );
@@ -210,4 +209,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddFarmerScreen;
+export default AddFarmerScreen3;

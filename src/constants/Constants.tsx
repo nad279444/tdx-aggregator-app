@@ -9,3 +9,4 @@ export const MOMOLOOKUP =   `${BASE_URL}/user/momonamelookup`
 export const AUTO_CALCULATOR = `${BASE_URL}/user/pricecheck`
 export const SILOS = `${BASE_URL}/user/silos`
 export const ORDERS = `${BASE_URL}/user/order`
+export const ADDFARMER = `${BASE_URL}/user/addfarmer`

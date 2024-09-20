@@ -51,6 +51,7 @@
     "react-native-gesture-handler": "~2.16.1",
     "react-native-hash": "^3.0.3",
     "react-native-modal": "^13.0.1",
+    "react-native-onesignal": "^5.2.4",
     "react-native-paper": "^5.12.3",
     "react-native-pdf": "^6.7.5",
     "react-native-randombytes": "^3.6.1",

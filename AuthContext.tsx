@@ -44,22 +44,6 @@ export function AuthProvider({ children }) {
          await auth.signOut()
         dispatch({ type: 'SIGN_OUT' });
       },
-      resetPassword: async (email) => {
-        const { data, error } = await auth.resetPassword(email);
-        if (error) {
-          console.error(error); // Handle error appropriately
-        } else {
-          console.log(data); // Handle success appropriately
-        }
-      },
-      confirmOTP: async (otp,phone) => {
-        const { data, error } = await auth.confirmOTP(otp,phone);
-        if (error) {
-          console.error(error); // Handle error appropriately
-        } else {
-          console.log(data); // Handle success appropriately
-        }
-      },
      
     }),
     []

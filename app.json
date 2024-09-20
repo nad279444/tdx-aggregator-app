@@ -26,9 +26,7 @@
       "favicon": "./assets/favicon.png"
     },
     "extra": {
-      "eas": {
-        "projectId": "64e48aa6-47c9-481e-88c9-7f5f76311ada"
-      }
+       "oneSignalAppId": "8eb27357-7c0a-4271-9fef-ba3c5b8f04c7"
     },
     "owner": "tdxapp",
     "plugins": [

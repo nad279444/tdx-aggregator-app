@@ -78,7 +78,7 @@ export default function FarmerPaymentScreen({ navigation }) {
      
       if (!response.error) {
         ToastAndroid.showWithGravityAndOffset(
-          "Order Successful",
+          response.message,
           ToastAndroid.LONG,
           ToastAndroid.TOP,
           25,

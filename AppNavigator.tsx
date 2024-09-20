@@ -14,9 +14,11 @@ import SignIn from "./src/screens/Auth/SignIn";
 
 import SuccessScreen from "./src/screens/SuccessScreen";
 import CompleteScreen from "./src/screens/CompleteScreen";
-import MyAggregatesScreen from "./src/screens/Farmer/MyAggregatesScreen";
+import MyAggregatesScreen from "./src/screens/Aggregator/MyAggregatesScreen";
 import ManageFarmersScreen from "./src/screens/Farmer/ManageFarmersScreen";
 import AddFarmerScreen from "./src/screens/Farmer/AddFarmerScreen";
+import AddFarmerScreen2 from "./src/screens/Farmer/AddFarmerScreen2";
+import AddFarmerScreen3 from "./src/screens/Farmer/AddFarmerScreen3";
 import AggregationDetailScreen from "./src/screens/Aggregator/AggregationDetailScreen";
 import NotificationScreen from "./src/screens/Notification/NotificationScreen";
 import NotificationDetailScreen from "./src/screens/Notification/NotificationDetailScreen";
@@ -161,6 +163,11 @@ function DrawerNavigator() {
         component={CommunityPricesScreen}
       />
       <Stack.Screen name="AddFarmerScreen" component={AddFarmerScreen} />
+      
+      <Stack.Screen name="AddFarmerScreen2" component={AddFarmerScreen2} />
+  
+      <Stack.Screen name="AddFarmerScreen3" component={AddFarmerScreen3} />
+  
   
 
 
