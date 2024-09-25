@@ -10,3 +10,7 @@ export const AUTO_CALCULATOR = `${BASE_URL}/user/pricecheck`
 export const SILOS = `${BASE_URL}/user/silos`
 export const ORDERS = `${BASE_URL}/user/order`
 export const ADDFARMER = `${BASE_URL}/user/addfarmer`
+export const EDIT_USER =  `${BASE_URL}/user/profileedit`
+export const COMMUNITY_RATES =  `${BASE_URL}/user/commodityratesbycommunity`
+export const AGGREGATES =  `${BASE_URL}/user/aggregates`
+

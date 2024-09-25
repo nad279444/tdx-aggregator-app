@@ -155,7 +155,7 @@ const SellToTDXScreen = ({ route, navigation }) => {
         Prices
       </Text>
       {commodityRates.map((item) => (
-        <View key={item.name} style={styles.marketItem}>
+        <View key={item.commo_no} style={styles.marketItem}>
           <View>
             <Text style={styles.marketItemText}>{item.name}</Text>
             <Text style={{ color: "#94E081", fontSize: 16 }}>

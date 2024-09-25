@@ -1,43 +1,34 @@
-import React from "react";
-import { View, StyleSheet, Text, SectionList } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  StyleSheet,
+  Text,
+  SectionList,
+  ActivityIndicator,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Divider } from "react-native-elements";
 import CommodityAggregatesCard from "./CommodityAggregatesCard";
+import { aggregates } from "../controllers/api/aggregates";
 
 export default function Aggregates() {
-  const data = [
-    {
-      date: "2024-08-28",
-      data: [
-        {
-          id: "1",
-          commodityName: "Yellow Maize",
-          quantity: "20 bags, 100 KG",
-          price: 170000,
-          image: require("../../assets/Maize.jpg"),
-        },
-        {
-          id: "2",
-          commodityName: "Rice",
-          quantity: "15 bags, 75 KG",
-          price: 120000,
-          image: require("../../assets/GroundNut.jpg"),
-        },
-      ],
-    },
-    {
-      date: "2024-08-29",
-      data: [
-        {
-          id: "3",
-          commodityName: "Soybeans",
-          quantity: "10 bags, 50 KG",
-          price: 8000,
-          image: require("../../assets/Soybean.jpg"),
-        },
-      ],
-    },
-  ];
+  const [aggregationData, setAggregationData] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    (async function getAggregates() {
+      try {
+        setLoading(true);
+        const response = await aggregates.get();
+        console.log(response);
+        setAggregationData(response);
+      } catch (error) {
+        console.error("Error fetching community rates:", error);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
 
   function totalPrice(arr) {
     return arr.reduce((acc, { price }) => acc + price, 0);
@@ -54,28 +45,33 @@ export default function Aggregates() {
           <Ionicons name="filter" size={24} />
         </View>
       </View>
-
-      <SectionList
-        sections={data}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item,section}) => (
-          <CommodityAggregatesCard
-            commodityName={item.commodityName}
-            quantity={item.quantity}
-            price={item.price}
-            image={item.image}
-            date={section.date}
-          />
-        )}
-        renderSectionHeader={({ section: { date, data } }) => (
-          <View style={styles.sectionHeader}>
-            <Text style={styles.groupText}>{date}</Text>
-            <Divider style={styles.divider} />
-            <Text style={styles.groupText}>{totalPrice(data)} ₵</Text>
-          </View>
-        )}
-        contentContainerStyle={styles.listContent}
-      />
+      {loading ? (
+        <ActivityIndicator color='green' style={styles.loader}/>
+      ) : (
+        <SectionList
+          sections={aggregationData}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item, section }) => (
+            <CommodityAggregatesCard
+              commodityName={item.commodityName}
+              quantity={item.quantity}
+              price={item.price}
+              image={item.image}
+              bags={item.bags}
+              farmer={item.farmer}
+              date={section.date}
+            />
+          )}
+          renderSectionHeader={({ section: { date, data } }) => (
+            <View style={styles.sectionHeader}>
+              <Text style={styles.groupText}>{date}</Text>
+              <Divider style={styles.divider} />
+              <Text style={styles.groupText}>{totalPrice(data)} ₵</Text>
+            </View>
+          )}
+          contentContainerStyle={styles.listContent}
+        />
+      )}
     </View>
   );
 }
@@ -111,5 +107,10 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingBottom: 20,
+  },
+  loader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

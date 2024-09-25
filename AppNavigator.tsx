@@ -107,7 +107,7 @@ export default function AppNavigator() {
               options={{ headerShown: false }}
             />
             <Stack.Screen
-              name="CommodityAggregatesComponent"
+              name="CommodityAggregatesCard"
               component={CommodityAggregatesCard}
               options={{ headerShown: false }}
             />
@@ -170,7 +170,7 @@ function DrawerNavigator() {
   
   
 
-
+     
       <Drawer.Screen name="MyAggregatesScreen" component={MyAggregatesScreen} />
       <Drawer.Screen
         name="ManageFarmersScreen"

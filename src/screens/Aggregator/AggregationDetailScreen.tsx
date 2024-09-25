@@ -6,8 +6,9 @@ import ListComponent from '../../_components/ListComponent'
 
 
 export default function AggregationDetailScreen ({navigation,route}){
- const {commodityName,quantity,price,date} = route.params
-const totalPrice = price * quantity
+ const {commodityName,image,quantity,price,date,bags,farmer} = route.params
+const totalPrice = price * Number(quantity)
+console.log(image)
 
   useEffect(() => {
     navigation.setOptions({
@@ -15,7 +16,7 @@ const totalPrice = price * quantity
       headerTitleAlign: 'center',
       headerLeft: () => (
         <TouchableOpacity
-          onPress={() => navigation.goBack()}
+          onPress={() => navigation.navigate("MyAggregatesScreen")}
           style={{ marginLeft: 16 }}
         >
           <Ionicons name="arrow-back-outline" size={24} color="black" />
@@ -36,14 +37,14 @@ const totalPrice = price * quantity
     <View>
       <Text style={styles.title}>{commodityName} - {date}</Text>
       <View style={styles.blackContainer}>
-        <Image source={require('../../../assets/Maize.jpg')} style={{height:18,width:18}}/>
+      <Image source={{ uri: image }} style={styles.commodityImage} />
         <Text style={{color:'white',fontSize:18,}}>{commodityName}</Text>
         </View>
-       <ListComponent label='Farmer' value='Ebo Taylor' />
-       <ListComponent label='No. of bags' value={quantity} />
-       <ListComponent label='Price' value={price} />
-       <ListComponent label='Weight' value='100 KG' />
-       <ListComponent label='Total Price' value={price * quantity} textStyle={{color:'#21893E',fontWeight:'bold',fontSize:16,}}/>
+       <ListComponent label='Farmer' value={farmer} />
+       <ListComponent label='No. of bags' value={bags} />
+       <ListComponent label='Price' value={ `${price} ₵`}  /> 
+       <ListComponent label='Weight' value={`${quantity} KG`} />
+       <ListComponent label='Total Price' value={ `${totalPrice} ₵`} textStyle={{color:'#21893E',fontWeight:'bold',fontSize:16,}}/>
        
     </View>
   )
@@ -70,5 +71,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingLeft:24
   } ,
+  commodityImage: {
+    marginLeft: 20,
+    marginTop: 5,
+    width: 35,
+    height: 40,
+  },
  
 })

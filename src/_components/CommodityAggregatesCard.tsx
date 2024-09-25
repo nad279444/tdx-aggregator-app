@@ -3,13 +3,16 @@ import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { useNavigation } from '@react-navigation/native';
 
-export default function CommodityAggregatesCard({ commodityName, quantity, price,image, date}) {
+export default function CommodityAggregatesCard({ commodityName, quantity, price,image,bags,farmer, date}) {
   const [isPending, setIsPending] = useState(true);
   const navigation = useNavigation();
   function handleNavigation() {
     navigation.navigate('AggregationDetailScreen',{
       commodityName,
+      image,
       quantity,
+      farmer,
+      bags,
      price,
      date 
     });
@@ -18,13 +21,13 @@ export default function CommodityAggregatesCard({ commodityName, quantity, price
   return (
     <TouchableOpacity style={styles.whiteCard} onPress = {handleNavigation}  >
       <View style={styles.commodityContainer}>
-        <Image source={image} style={styles.commodityImage} />
+        <Image source={{uri:image}} style={styles.commodityImage} />
         <View style={{ marginLeft: 20 }}>
           <Text style={{ color: "black", fontSize: 18, fontWeight: "bold" }}>
             {commodityName}
           </Text>
           <Text style={{ color: "#94E081", fontSize: 14, fontWeight: "500" }}>
-            {quantity}
+            {bags}
           </Text>
         </View>
       </View>
