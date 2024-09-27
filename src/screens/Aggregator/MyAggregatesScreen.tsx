@@ -1,52 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, TouchableOpacity, Text } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Text, ActivityIndicator } from 'react-native';
 import { Ionicons, FontAwesome6 } from '@expo/vector-icons';
 import AggregateBarChart from '../../_components/BarChart'; 
 import Aggregates from '../../_components/Aggregates';
 import AggregatesCard from '../../_components/AggregatesCard';
-
-const weeklyData = [
-  { day: 'Mon', revenue: 30 },
-  { day: 'Tue', revenue: 40 },
-  { day: 'Wed', revenue: 35 },
-  { day: 'Thu', revenue: 50 },
-  { day: 'Fri', revenue: 60 },
-  { day: 'Sat', revenue: 70 },
-  { day: 'Sun', revenue: 55 },
-];
-
-const monthlyData = [
-  { month: 'Jan', revenue: 50 },
-  { month: 'Feb', revenue: 80 },
-  { month: 'Mar', revenue: 40 },
-  { month: 'Apr', revenue: 60 },
-  { month: 'May', revenue: 90 },
-  { month: 'Jun', revenue: 70 },
-  { month: 'Jul', revenue: 100 },
-  { month: 'Aug', revenue: 55 },
-  { month: 'Sep', revenue: 85 },
-  { month: 'Oct', revenue: 95 },
-  { month: 'Nov', revenue: 75 },
-  { month: 'Dec', revenue: 110 },
-];
-
-const yearlyData = [
-  { year: '2014', revenue: 500 },
-  { year: '2015', revenue: 600 },
-  { year: '2016', revenue: 700 },
-  { year: '2017', revenue: 800 },
-  { year: '2018', revenue: 900 },
-  { year: '2019', revenue: 1000 },
-  { year: '2020', revenue: 1100 },
-  { year: '2021', revenue: 1200 },
-  { year: '2022', revenue: 1300 },
-  { year: '2023', revenue: 1400 },
-];
+import { orders } from '../../controllers/api/orders';
 
 export default function MyAggregatesScreen({ navigation }) {
+  const [monthlyData, setMonthlyData] = useState([]);
+  const [weeklyData, setWeeklyData] = useState([]);
+  const [yearlyData, setYearlyData] = useState([]);
   const [activeTab, setActiveTab] = useState('progress');
   const [activeChart, setActiveChart] = useState('monthly');
-  const [chartData, setChartData] = useState(monthlyData);
+  const [chartData, setChartData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     navigation.setOptions({
@@ -71,6 +38,22 @@ export default function MyAggregatesScreen({ navigation }) {
     });
   }, [navigation]);
 
+  useEffect(() => {
+    (async function getStats() {
+      try {
+        const response = await orders.get();
+        setMonthlyData(response.monthlyData);
+        setWeeklyData(response.weeklyData);
+        setYearlyData(response.yearlyData);
+        setChartData(response.monthlyData); // Show monthly data by default
+      } catch (error) {
+        console.error('Error fetching stats', error);
+      } finally {
+        setLoading(false); // Hide the spinner after data is loaded
+      }
+    })();
+  }, []);
+  
   const handleToggle = (tab) => {
     setActiveTab(tab);
   };
@@ -94,6 +77,28 @@ export default function MyAggregatesScreen({ navigation }) {
   };
 
   const labels = chartData.map((item) => item.day || item.month || item.year);
+  const revenueData = monthlyData.map((item) => parseFloat(item.revenue.replace(/,/g, '')));
+   // Calculate total revenue
+   const totalAggregates = revenueData.reduce((acc, val) => acc + val, 0);
+   
+  // Calculate monthly average
+  const monthlyAverage = totalAggregates / monthlyData.length;
+
+  // Find highest and lowest aggregates
+  const highestAggregate = Math.max(...revenueData);
+  const lowestAggregate = Math.min(...revenueData)
+
+  // Get corresponding months for highest and lowest aggregates
+  let highestMonth = '';
+  let lowestMonth = '';
+  for (let i = 0; i < monthlyData.length; i++) {
+    if (revenueData[i] === highestAggregate) {
+      highestMonth = monthlyData[i].month;
+    }
+    if (revenueData[i] === lowestAggregate) {
+      lowestMonth = monthlyData[i].month;
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -153,19 +158,41 @@ export default function MyAggregatesScreen({ navigation }) {
 
       {activeTab === 'progress' && (
         <>
-        <AggregateBarChart data={chartData} labels={labels} />
-        <View style={{flexDirection:'row',marginHorizontal:15,flexWrap:'wrap',gap:20}}>
-        <AggregatesCard title="Total Aggregates" body="1,620,224 ₵" end="1 feb - 31st August"/>
-        <AggregatesCard title="Total Aggregates" body="1,620,224 ₵" end="1 feb - 31st August"/>
-        <AggregatesCard title="Total Aggregates" body="1,620,224 ₵" end="1 feb - 31st August"/>
-        <AggregatesCard title="Total Aggregates" body="1,620,224 ₵" end="1 feb - 31st August"/>
-      </View>
-      </>
+          {loading ? (
+            <View style={styles.loaderContainer}>
+              <ActivityIndicator size="large" color="green" />
+            </View>
+          ) : (
+            <>
+              <AggregateBarChart data={chartData} labels={labels} />
+              <View style={{flexDirection:'row',marginHorizontal:15,flexWrap:'wrap',gap:20}}>
+                <AggregatesCard
+                  title="Total Aggregates"
+                  body={`${totalAggregates.toFixed(2)} ₵`}
+                  end="1 Jan - 31 Dec"
+                />
+                <AggregatesCard
+                  title="Monthly Average"
+                  body={`${monthlyAverage.toFixed(2)} ₵`}
+                  end="1 Jan - 31 Dec"
+                />
+                <AggregatesCard
+                  title="Highest Aggregates"
+                  body={highestMonth}
+                  end={`${highestAggregate.toFixed(2)} ₵`}
+                />
+                <AggregatesCard
+                  title="Lowest Aggregates"
+                  body={lowestMonth}
+                  end={`${lowestAggregate.toFixed(2)} ₵`}
+                />
+              </View>
+            </>
+          )}
+        </>
       )}
       
-       {activeTab === 'aggregates' && (
-        <Aggregates/>
-      )}
+      {activeTab === 'aggregates' && <Aggregates />}
     </View>
   );
 }
@@ -226,5 +253,10 @@ const styles = StyleSheet.create({
   },
   selectedButton: {
     backgroundColor: "green",
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

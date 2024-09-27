@@ -3,7 +3,8 @@ import { View } from 'react-native';
 import { BarChart, XAxis, YAxis } from 'react-native-svg-charts';
 
 const AggregateBarChart = ({ data, labels }) => {
-  const barData = data.map((item) => item.revenue);
+  // Convert string revenues to number and ensure there are no commas in the values
+  const barData = data.map((item) => parseFloat(item.revenue.replace(/,/g, '')));
 
   return (
     <View style={{ height: 300, flexDirection: 'row', padding: 20, marginRight: 20 }}>
@@ -11,7 +12,8 @@ const AggregateBarChart = ({ data, labels }) => {
         data={barData}
         contentInset={{ top: 10, bottom: 10 }}
         svg={{ fontSize: 10, fill: 'black' }}
-        formatLabel={(value) => `${value}k`}
+        // Format labels without adding "k"
+        formatLabel={(value) => `${value}`}
       />
       <View style={{ flex: 1, marginLeft: 10 }}>
         <BarChart

@@ -26,11 +26,15 @@
       "favicon": "./assets/favicon.png"
     },
     "extra": {
-       "oneSignalAppId": "8eb27357-7c0a-4271-9fef-ba3c5b8f04c7"
+      "oneSignalAppId": "8eb27357-7c0a-4271-9fef-ba3c5b8f04c7",
+      "eas": {
+        "projectId": "956056d4-195d-4c50-ae1b-76ed9dcb06c4"
+      }
     },
-    "owner": "tdxapp",
-    "plugins": [
-      "expo-router"
-    ]
+    "cli": {
+      "appVersionSource": "packager"
+    },
+    "owner": "nad279444",
+    "plugins": ["expo-router"]
   }
 }

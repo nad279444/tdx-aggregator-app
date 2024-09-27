@@ -197,6 +197,7 @@ const SellToTDXScreen = ({ route, navigation }) => {
               </View>
             </View>
           </View>
+          
         </View>
       ))}
     </ScrollView>

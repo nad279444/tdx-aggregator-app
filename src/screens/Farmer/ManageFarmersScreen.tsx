@@ -14,7 +14,6 @@ import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
 import { DataContext } from "../../../DBContext";
-import { useApiContext } from "../../../ApiContext";
 import { farmers as farmersApi } from "../../controllers/api/farmerList";
 
 const ManageFarmersScreen = ({ navigation }) => {
@@ -29,11 +28,12 @@ const ManageFarmersScreen = ({ navigation }) => {
     last_name: string;
     paymentnumbers: PaymentNumbers;
   }
+  
   const [farmers, setFarmers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredFarmers, setFilteredFarmers] = useState([]);
   const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Loading state
   const [refreshing, setRefreshing] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const { getFarmers } = useContext(DataContext);
@@ -62,18 +62,27 @@ const ManageFarmersScreen = ({ navigation }) => {
   }, [navigation]);
 
   useEffect(() => {
-    const fetchFarmers = async () => {
-      try {
-        const farmerList = await farmersApi.get();
-        setFarmers(farmerList.data);
-        setFilteredFarmers(farmerList.data)
-      } catch (error) {
-        console.error("Error fetching farmers:", error);
-      }
-    };
-
     fetchFarmers();
   }, []);
+
+  const fetchFarmers = async () => {
+    try {
+      setIsLoading(true); // Show loader
+      const farmerList = await farmersApi.get();
+      setFarmers(farmerList.data);
+      setFilteredFarmers(farmerList.data);
+    } catch (error) {
+      console.error("Error fetching farmers:", error);
+    } finally {
+      setIsLoading(false); // Hide loader
+    }
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await fetchFarmers();
+    setRefreshing(false);
+  };
 
   const handleSearch = (text) => {
     setSearchQuery(text);
@@ -181,11 +190,11 @@ const ManageFarmersScreen = ({ navigation }) => {
         </View>
       </View>
 
-      {loading ? (
+      {isLoading ? (
         <ActivityIndicator
           size="large"
           color="green"
-          style={{ marginTop: 20 }}
+          style={styles.loader}
         />
       ) : (
         <>
@@ -199,13 +208,11 @@ const ManageFarmersScreen = ({ navigation }) => {
               refreshControl={
                 <RefreshControl
                   refreshing={refreshing}
-                  onRefresh={() => {
-                    // Implement refresh functionality here
-                  }}
+                  onRefresh={handleRefresh}
                 />
               }
               onEndReached={() => {
-                if (!loading && hasMore) {
+                if (!isLoading && hasMore) {
                   setPage(page + 1);
                 }
               }}
@@ -325,6 +332,11 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 10,
     marginTop: 10,
+  },
+  loader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

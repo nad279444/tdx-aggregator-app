@@ -46,7 +46,7 @@ export default function Aggregates() {
         </View>
       </View>
       {loading ? (
-        <ActivityIndicator color='green' style={styles.loader}/>
+        <ActivityIndicator color='green' size='large' style={styles.loader}/>
       ) : (
         <SectionList
           sections={aggregationData}

@@ -3,7 +3,6 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { View, FlatList } from "react-native";
 import * as Notifications from "expo-notifications";
 import * as SecureStore from "expo-secure-store"; // Import SecureStore
-import { ApiProvider } from "./ApiContext";
 import { AuthProvider } from "./AuthContext";
 import { DataProvider } from "./DBContext";
 import { SQLiteProvider } from "expo-sqlite";
@@ -97,7 +96,7 @@ export default function App() {
   
   return (
     <GestureHandlerRootView>
-      <ApiProvider>
+
         <AuthProvider>
           <SQLiteProvider databaseName="appData.db">
             <DataProvider>
@@ -105,7 +104,7 @@ export default function App() {
             </DataProvider>
           </SQLiteProvider>
         </AuthProvider>
-      </ApiProvider>
+      
     </GestureHandlerRootView>
   );
 }

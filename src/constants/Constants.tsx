@@ -13,4 +13,5 @@ export const ADDFARMER = `${BASE_URL}/user/addfarmer`
 export const EDIT_USER =  `${BASE_URL}/user/profileedit`
 export const COMMUNITY_RATES =  `${BASE_URL}/user/commodityratesbycommunity`
 export const AGGREGATES =  `${BASE_URL}/user/aggregates`
+export const ORDER_STATISTICS =  `${BASE_URL}/user/orderrecords`
 
