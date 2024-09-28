@@ -4,7 +4,7 @@ import { BarChart, XAxis, YAxis } from 'react-native-svg-charts';
 
 const AggregateBarChart = ({ data, labels }) => {
   // Convert string revenues to number and ensure there are no commas in the values
-  const barData = data.map((item) => parseFloat(item.revenue.replace(/,/g, '')));
+  const barData = data.map((item) => Number(item.revenue));
 
   return (
     <View style={{ height: 300, flexDirection: 'row', padding: 20, marginRight: 20 }}>

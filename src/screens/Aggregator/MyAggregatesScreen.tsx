@@ -14,6 +14,7 @@ export default function MyAggregatesScreen({ navigation }) {
   const [activeChart, setActiveChart] = useState('monthly');
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
+  
 
   useEffect(() => {
     navigation.setOptions({
@@ -77,7 +78,9 @@ export default function MyAggregatesScreen({ navigation }) {
   };
 
   const labels = chartData.map((item) => item.day || item.month || item.year);
-  const revenueData = monthlyData.map((item) => parseFloat(item.revenue.replace(/,/g, '')));
+  const revenueData = monthlyData.map((item) => parseFloat(item.revenue));
+  
+ 
    // Calculate total revenue
    const totalAggregates = revenueData.reduce((acc, val) => acc + val, 0);
    
