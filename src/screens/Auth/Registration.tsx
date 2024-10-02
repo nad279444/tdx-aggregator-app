@@ -1,8 +1,10 @@
-import React,{useContext, useState} from 'react'
+import React,{useContext, useState,useEffect} from 'react'
 import{View,Text,TextInput,StyleSheet,ScrollView,TouchableOpacity,ToastAndroid,ActivityIndicator} from 'react-native'
 import PasswordInput from '../../_components/PasswordInput';
 import auth from '../../controllers/auth/auth';
 import { AuthContext } from '../../../AuthContext';
+import { communities } from '../../controllers/api/communities';
+import { Picker } from '@react-native-picker/picker';
 
 
 export default function Registration ({navigation}) {
@@ -13,10 +15,22 @@ export default function Registration ({navigation}) {
   const [community, setCommunity] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [phoneError, setPhoneError] = useState("");
+  const [communityList,setCommunityList] = useState()
   const [isLoading,setIsLoading] = useState(false)
   const {authContext} = useContext(AuthContext)
-
   
+
+  useEffect(() => {
+    (async function getCommunities() {
+      try {
+    
+        const response = await communities.get();
+        setCommunityList(response)
+      } catch (error) {
+        console.error("Error fetching communities:", error);
+      }
+    })();
+  }, []);
 
 
   const validatePhone = (input) => {
@@ -31,6 +45,7 @@ export default function Registration ({navigation}) {
         fullname:name,
         mobile:phoneNumber,
         password,
+        deviceId:"",
         confirmpassword:confirmPassword,
         community,
       })
@@ -120,13 +135,20 @@ export default function Registration ({navigation}) {
        <View style={styles.inputContainer}>
         <View style={styles.inputGroup}>
           <Text style={styles.inputTitle}>Community</Text>
-          <TextInput
-            style={styles.nameInput}
-            textAlign="left"
-            placeholder="Community Name"
-            onChangeText={(text) => setCommunity(text)}
-            value={community}
-          />
+          <Picker
+              selectedValue={community}
+              onValueChange={(itemValue) => setCommunity(itemValue)}
+              style={styles.nameInput}
+            >
+              <Picker.Item label="Select a community" value="" />
+              {communityList?.map((communityItem) => (
+                <Picker.Item
+                  key={communityItem.id}
+                  label={communityItem.name}
+                  value={communityItem.id}  
+                />
+              ))}
+            </Picker>
         </View>
       </View>
     </View>

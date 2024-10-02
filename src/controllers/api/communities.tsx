@@ -5,24 +5,10 @@ import * as SecureStore from 'expo-secure-store';
 export const communities = {
     get: async () => {
         try {
-            // Retrieve tokens from secure storage
-            const access_token = await SecureStore.getItemAsync('accessToken');
-            const user_token = await SecureStore.getItemAsync('userToken');
-        
-
-            if (!access_token || !user_token) {
-                throw new Error('Missing access token or user token');
-            }
-
-            // Make the API request
-            const response = await axios.get(`${COMMUNITIES}/${user_token}`, {
-                headers: {
-                    Authorization: `Bearer ${access_token}`,
-                },
-            });
+            const response = await axios.get(`${COMMUNITIES}`);
             return response.data;
         } catch (error) {
-            console.error('Failed to fetch farmers:', error.message);
+            console.error('Failed to fetch communities:', error.message);
             throw error;
         }
     },

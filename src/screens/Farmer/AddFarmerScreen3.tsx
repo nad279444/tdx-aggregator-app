@@ -6,16 +6,21 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
-  ToastAndroid
+  ToastAndroid,
+  ActivityIndicator,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { Ionicons } from "@expo/vector-icons";
 import { DataContext } from "../../../DBContext";
 import { farmers } from "../../controllers/api/farmerList";
+import { communities } from "../../controllers/api/communities";
+import * as FileSystem from "expo-file-system";
 
 const AddFarmerScreen3 = ({ route, navigation }) => {
   const [community, setCommunity] = useState("");
+  const [communityList, setCommunityList] = useState([]);
   const [experienceYear, setExperienceYear] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const { addFarmer } = useContext(DataContext);
 
@@ -25,7 +30,7 @@ const AddFarmerScreen3 = ({ route, navigation }) => {
       headerTitleAlign: "center",
       headerLeft: () => (
         <TouchableOpacity
-          onPress={() => navigation.goBack()}
+          onPress={() => navigation.navigate("AddFarmerScreen")}
           style={{ marginLeft: 16 }}
         >
           <Ionicons name="arrow-back-outline" size={24} color="black" />
@@ -41,6 +46,28 @@ const AddFarmerScreen3 = ({ route, navigation }) => {
       ),
     });
   }, [navigation]);
+
+  useEffect(() => {
+    (async function getCommunities() {
+      try {
+        const response = await communities.get();
+        setCommunityList(response);
+      } catch (error) {
+        console.error("Error fetching communities:", error);
+      }
+    })();
+  }, []);
+  const convertImageToBase64 = async (uri) => {
+    try {
+      const base64 = await FileSystem.readAsStringAsync(uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+      return base64;
+    } catch (error) {
+      console.error("Error converting image to base64:", error);
+      return null;
+    }
+  };
   const {
     previousData,
     mobileNumber,
@@ -49,9 +76,14 @@ const AddFarmerScreen3 = ({ route, navigation }) => {
     altNetWork,
     gender,
   } = route.params;
-  const { fullName, idCardNumber, idCardType } = previousData;
+  const { fullName, idCardNumber, idCardType, frontImageUri, backImageUri } =
+    previousData;
   const handleFarmer = async () => {
+    setIsLoading(true)
     try {
+      const frontImageBase64 = await convertImageToBase64(frontImageUri);
+      const backImageBase64 = await convertImageToBase64(backImageUri);
+      
       const response = await farmers.add({
         biodata: {
           fullname: fullName,
@@ -61,14 +93,17 @@ const AddFarmerScreen3 = ({ route, navigation }) => {
           altnetwork: altNetWork,
           gender: gender,
           community: community,
+          frontimg: frontImageBase64,
+          backimg: backImageBase64,
           experience_year: experienceYear,
           idcardtype: idCardType,
           idcardnumber: idCardNumber,
         },
       });
+    
       if (!response.error) {
         ToastAndroid.showWithGravityAndOffset(
-          response.message,
+          response.message || 'Farmer Added Succesfully',
           ToastAndroid.LONG,
           ToastAndroid.TOP,
           25,
@@ -84,10 +119,19 @@ const AddFarmerScreen3 = ({ route, navigation }) => {
         );
       }
     } catch (error) {
-      
-    }
-   
-    navigation.navigate("");
+      ToastAndroid.showWithGravityAndOffset(
+        error.message,
+        ToastAndroid.LONG,
+        ToastAndroid.TOP,
+        25,
+        50
+      );
+    }finally{
+      setIsLoading(false)
+    } 
+
+    navigation.navigate("ManageFarmersScreen");
+    fullName
     setCommunity("");
     setExperienceYear("");
   };
@@ -97,13 +141,20 @@ const AddFarmerScreen3 = ({ route, navigation }) => {
       <View style={styles.inputContainer}>
         <View style={styles.inputGroup}>
           <Text style={styles.inputTitle}>Community</Text>
-          <TextInput
+          <Picker
+            selectedValue={community}
+            onValueChange={(itemValue) => setCommunity(itemValue)}
             style={styles.nameInput}
-            textAlign="left"
-            placeholder="Enter Community"
-            onChangeText={(text) => setCommunity(text)}
-            value={community}
-          />
+          >
+            <Picker.Item label="Select a community" value="" />
+            {communityList?.map((communityItem) => (
+              <Picker.Item
+                key={communityItem.id}
+                label={communityItem.name}
+                value={communityItem.id}
+              />
+            ))}
+          </Picker>
         </View>
       </View>
 
@@ -123,14 +174,21 @@ const AddFarmerScreen3 = ({ route, navigation }) => {
 
       <TouchableOpacity
         style={
-          community && experienceYear
+          community && experienceYear 
             ? styles.greenButton
             : styles.disabledButton
         }
         onPress={handleFarmer}
-        disabled={!community || !experienceYear}
+        disabled={!community || !experienceYear || isLoading }
       >
         <Text style={{ fontSize: 18, color: "white" }}>Add farmer</Text>
+        {isLoading && (
+          <ActivityIndicator
+            style={{ position: "absolute", top: 15, right: 30 }}
+            size="small"
+            color="#fff"
+          />
+        )}
       </TouchableOpacity>
     </View>
   );

@@ -27,7 +27,7 @@ const AddFarmerScreen2 = ({ route, navigation }) => {
       headerTitleAlign: "center",
       headerLeft: () => (
         <TouchableOpacity
-          onPress={() => navigation.goBack()}
+          onPress={() => navigation.navigate('AddFarmerScreen')}
           style={{ marginLeft: 16 }}
         >
           <Ionicons name="arrow-back-outline" size={24} color="black" />
@@ -163,7 +163,7 @@ const AddFarmerScreen2 = ({ route, navigation }) => {
 
       <TouchableOpacity
         style={
-          mobileNumber && network && altMobileNumber && altNetWork && gender
+          mobileNumber && network && gender
             ? styles.greenButton
             : styles.disabledButton
         }
@@ -171,8 +171,6 @@ const AddFarmerScreen2 = ({ route, navigation }) => {
         disabled={
           !mobileNumber ||
           !network ||
-          !altMobileNumber ||
-          !altNetWork ||
           !gender
         }
       >

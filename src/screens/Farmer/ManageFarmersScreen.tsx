@@ -97,31 +97,56 @@ const ManageFarmersScreen = ({ navigation }) => {
 
   const handleAddFarmer = async () => {
     const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
-
+  
     if (permissionResult.granted === false) {
       alert("You've refused to allow this app to access your camera!");
       return;
     }
-
-    const result = await ImagePicker.launchCameraAsync({
+  
+    // Capture front image
+    const frontResult = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
       base64: false,
     });
-
-    if (!result.canceled) {
-      const imageUri = result.assets[0].uri;
-      const filename = imageUri.split("/").pop();
-
-      const newPath = FileSystem.documentDirectory + filename;
-      await FileSystem.moveAsync({
-        from: imageUri,
-        to: newPath,
-      });
-
-      navigation.navigate("AddFarmerScreen", { imageUri: newPath });
+  
+    if (frontResult.canceled) {
+      return;
     }
+  
+    const frontImageUri = frontResult.assets[0].uri;
+    const frontFilename = frontImageUri.split("/").pop();
+    const frontImagePath = FileSystem.documentDirectory + frontFilename;
+  
+    await FileSystem.moveAsync({
+      from: frontImageUri,
+      to: frontImagePath,
+    });
+  
+    // Capture back image
+    const backResult = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+      base64: false,
+    });
+  
+    if (backResult.canceled) {
+      return;
+    }
+  
+    const backImageUri = backResult.assets[0].uri;
+    const backFilename = backImageUri.split("/").pop();
+    const backImagePath = FileSystem.documentDirectory + backFilename;
+  
+    await FileSystem.moveAsync({
+      from: backImageUri,
+      to: backImagePath,
+    });
+  
+    // Navigate to the AddFarmerScreen and pass both image URIs
+    navigation.navigate("AddFarmerScreen", { frontImageUri: frontImagePath, backImageUri: backImagePath });
   };
 
   const renderAvatar = (item) => {

@@ -8,7 +8,9 @@ import ListComponent from '../../_components/ListComponent'
 export default function AggregationDetailScreen ({navigation,route}){
  const {commodityName,image,quantity,price,date,bags,farmer} = route.params
 const totalPrice = price * Number(quantity)
-console.log(image)
+const whiteImage = image.replace(".png", "-white.png");
+
+
 
   useEffect(() => {
     navigation.setOptions({
@@ -37,7 +39,7 @@ console.log(image)
     <View>
       <Text style={styles.title}>{commodityName} - {date}</Text>
       <View style={styles.blackContainer}>
-      <Image source={{ uri: image }} style={styles.commodityImage} />
+      <Image source={{ uri: whiteImage }} style={styles.commodityImage} />
         <Text style={{color:'white',fontSize:18,}}>{commodityName}</Text>
         </View>
        <ListComponent label='Farmer' value={farmer} />
@@ -72,10 +74,10 @@ const styles = StyleSheet.create({
     paddingLeft:24
   } ,
   commodityImage: {
-    marginLeft: 20,
-    marginTop: 5,
+    
+    marginTop: 3,
     width: 35,
-    height: 40,
+    height: 30,
   },
  
 })

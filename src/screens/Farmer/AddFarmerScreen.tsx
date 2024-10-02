@@ -16,7 +16,9 @@ const AddFarmerScreen = ({ route, navigation }) => {
   const [nameError, setNameError] = useState("");
   const [idCardType, setIdCardType] = useState("");
   const [idCardNumber, setIdCardNumber] = useState("");
-  const { imageUri } = route.params;
+  const frontImageUri = route?.params?.frontImageUri || "";
+  const backImageUri = route?.params?.backImageUri || "";
+  
 
   const { addFarmer } = useContext(DataContext);
 
@@ -26,7 +28,7 @@ const AddFarmerScreen = ({ route, navigation }) => {
       headerTitleAlign: "center",
       headerLeft: () => (
         <TouchableOpacity
-          onPress={() => navigation.goBack()}
+          onPress={() => navigation.navigate('ManageFarmersScreen')}
           style={{ marginLeft: 16 }}
         >
           <Ionicons name="arrow-back-outline" size={24} color="black" />
@@ -44,7 +46,7 @@ const AddFarmerScreen = ({ route, navigation }) => {
   }, [navigation]);
 
  
-
+   
   const validateFullName = (input) => {
     const nameParts = input.trim().split(" ");
     if (nameParts.length >= 2) {
@@ -65,9 +67,32 @@ const AddFarmerScreen = ({ route, navigation }) => {
       setNameError("✗ Please enter both first and last name."); // Show error
     }
   };
-
+  const handleIdCardTypeChange = (itemValue) => {
+    setIdCardType(itemValue);
+    
+    if (itemValue === "ghana_card") {
+      setIdCardNumber("GHA-"); // Immediately set "GHA-" when Ghana Card is selected
+    } else {
+      setIdCardNumber(""); // Clear the field for other card types
+    }
+  };
+  
+  const handleIdCardNumberChange = (num) => {
+    if (idCardType === "ghana_card") {
+      // Ensure the prefix "GHA-" is always there
+      if (num.startsWith("GHA-")) {
+        setIdCardNumber(num);
+      } else {
+        setIdCardNumber(`GHA-${num}`);
+      }
+    } else {
+      setIdCardNumber(num);
+    }
+  };
+  
+  
   const handleFarmer = async () => {
-    navigation.navigate("AddFarmerScreen2",{fullName,idCardNumber,idCardType});
+    navigation.navigate("AddFarmerScreen2",{fullName,idCardNumber,idCardType,frontImageUri,backImageUri});
     setFullName("");
     setIdCardType("");
     setIdCardNumber("");
@@ -77,7 +102,7 @@ const AddFarmerScreen = ({ route, navigation }) => {
     <View style={styles.container}>
       <View style={styles.inputContainer}>
         <View style={styles.inputGroup}>
-          <Text style={styles.inputTitle}>FUll Name</Text>
+          <Text style={styles.inputTitle}>Full Name</Text>
           <TextInput
             style={styles.nameInput}
             textAlign="left"
@@ -90,7 +115,19 @@ const AddFarmerScreen = ({ route, navigation }) => {
       {nameError ? (
         <Text style={{ color: "red", marginLeft: 10 }}>{nameError}</Text>
       ) : null}
-
+      <View style={[styles.inputContainer, { marginHorizontal: 10, marginBottom:20 }]}>
+        <View style={styles.inputGroup}>
+        <Text style={[styles.inputTitle,{marginLeft:0}]}>ID Card Type</Text>
+          <Picker
+            selectedValue={idCardType} // Current selected value
+            style={styles.picker} // Style for the picker
+            onValueChange={handleIdCardTypeChange} // Handle the change
+          >
+            <Picker.Item label="Voters ID" value="voters" />
+            <Picker.Item label="Ghana Card" value="ghana_card" />
+          </Picker>
+        </View>
+      </View> 
       <View style={styles.inputContainer}>
         <View style={styles.inputGroup}>
           <Text style={styles.inputTitle}>ID Card Number</Text>
@@ -99,29 +136,27 @@ const AddFarmerScreen = ({ route, navigation }) => {
             textAlign="left"
             placeholder="Enter ID Number"
             keyboardType="numeric"
-            onChangeText={(num) => setIdCardNumber(num)}
+            onChangeText={handleIdCardNumberChange}
             value={idCardNumber}
           />
         </View>
       </View>
-      <View style={[styles.inputContainer, { marginHorizontal: 10, marginBottom:20 }]}>
-        <View style={styles.inputGroup}>
-          <Text style={styles.inputTitle}>ID Card Type</Text>
-          <Picker
-            selectedValue={idCardType} // Current selected value
-            style={styles.picker} // Style for the picker
-            onValueChange={(itemValue, itemIndex) => setIdCardType(itemValue)} // Handle the change
-          >
-            <Picker.Item label="Voters ID" value="voters" />
-            <Picker.Item label="Ghana Card" value="ghana_card" />
-          </Picker>
-        </View>
-      </View>
-      {imageUri && (
+      
+      <View style={{flexDirection:'row',justifyContent:'space-around'}}>
+      {frontImageUri && (
         <View style={styles.imagePreviewContainer}>
-          <Image source={{ uri: imageUri }} style={styles.imagePreview} />
+          <Text style={styles.inputTitle}>Front </Text>
+          <Image source={{ uri: frontImageUri }} style={styles.imagePreview} />
         </View>
       )}
+      {backImageUri && (
+        <View style={styles.imagePreviewContainer}>
+          <Text style={styles.inputTitle}>Back </Text>
+          <Image source={{ uri: backImageUri }} style={styles.imagePreview} />
+        </View>
+      )}
+      </View>
+     
       <TouchableOpacity
         style={
           fullName && idCardNumber && idCardType

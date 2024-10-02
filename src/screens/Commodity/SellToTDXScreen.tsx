@@ -122,8 +122,8 @@ const SellToTDXScreen = ({ route, navigation }) => {
 
   const handleNext = () => {
     updateData("commodity", selectedCommodity);
-    updateData("commodityId",selectedCommodityId)
-    updateData("siloId",selectedSiloId)
+    updateData("commodityId", selectedCommodityId);
+    updateData("siloId", selectedSiloId);
     updateData("weight", weight);
     updateData("bags", bags);
     updateData("totalPrice", totalCost);
@@ -132,8 +132,8 @@ const SellToTDXScreen = ({ route, navigation }) => {
     setBags("");
     setWeight("");
     setTotalCost("");
-    setSelectedSilo("")
-    setSelectedSiloId("")
+    setSelectedSilo("");
+    setSelectedSiloId("");
   };
 
   const renderMarketPrices = () => (
@@ -197,7 +197,6 @@ const SellToTDXScreen = ({ route, navigation }) => {
               </View>
             </View>
           </View>
-          
         </View>
       ))}
     </ScrollView>
@@ -249,10 +248,7 @@ const SellToTDXScreen = ({ route, navigation }) => {
             style={styles.inputWrapper}
           >
             <TextInput
-               style={[
-                styles.bags,
-                { color: selectedSilo ? "black" : "grey" },
-              ]}
+              style={[styles.bags, { color: selectedSilo ? "black" : "grey" }]}
               textAlign="left"
               placeholder="Select Silo"
               keyboardType="numeric"
@@ -271,7 +267,7 @@ const SellToTDXScreen = ({ route, navigation }) => {
 
       <View
         style={{
-          height: 200,
+          height: 150,
           backgroundColor: "#E1EFFF",
           borderRadius: 10,
           marginHorizontal: 12,
@@ -299,17 +295,6 @@ const SellToTDXScreen = ({ route, navigation }) => {
         >
           <Text style={{ fontSize: 16 }}>Price Per Bag</Text>
           <Text style={{ fontSize: 16 }}>{bagsRate}₵</Text>
-        </View>
-        <Divider />
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            paddingVertical: 10,
-          }}
-        >
-          <Text style={{ fontSize: 16 }}>Commodity Suplus</Text>
-          <Text style={{ fontSize: 16 }}>{surplusKg}KG</Text>
         </View>
         <Divider />
 
@@ -360,7 +345,11 @@ const SellToTDXScreen = ({ route, navigation }) => {
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <View style={styles.modalContainer}>
+        <TouchableOpacity
+          style={styles.modalContainer}
+          activeOpacity={1}
+          onPressOut={() => setModalVisible(false)} // Close modal when background is clicked
+        >
           <View style={styles.modalContent}>
             <FlatList
               data={commodityRates}
@@ -377,13 +366,12 @@ const SellToTDXScreen = ({ route, navigation }) => {
                       <Text style={styles.modalItem}>{item.name}</Text>
                     </View>
                   </View>
-                    <Divider style={styles.divider} />
-                  
+                  <Divider style={styles.divider} />
                 </TouchableOpacity>
               )}
             />
           </View>
-        </View>
+        </TouchableOpacity>
       </Modal>
       <Modal
         animationType="slide"
@@ -391,7 +379,11 @@ const SellToTDXScreen = ({ route, navigation }) => {
         visible={modalSiloVisible}
         onRequestClose={() => setModalSiloVisible(false)}
       >
-        <View style={styles.modalContainer}>
+        <TouchableOpacity
+          style={styles.modalContainer}
+          activeOpacity={1}
+          onPressOut={() => setModalSiloVisible(false)} // Close modal when background is clicked
+        >
           <View style={styles.modalContent}>
             <FlatList
               data={siloList}
@@ -413,7 +405,7 @@ const SellToTDXScreen = ({ route, navigation }) => {
               )}
             />
           </View>
-        </View>
+        </TouchableOpacity>
       </Modal>
     </View>
   );

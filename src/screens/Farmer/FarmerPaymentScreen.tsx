@@ -9,6 +9,7 @@ import {
   TextInput,
   Modal,
   ToastAndroid,
+  ActivityIndicator
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Divider } from "react-native-elements";
@@ -24,6 +25,7 @@ export default function FarmerPaymentScreen({ navigation }) {
   const [momoNumber, setMomoNumber] = useState("");
   const [mainNumber, setMainNumber] = useState("");
   const [phoneError, setPhoneError] = useState("");
+  const [isLoading,setIsLoading] = useState(false)
   const { data, updateData } = useContext(DataContext);
 
   useEffect(() => {
@@ -63,7 +65,7 @@ export default function FarmerPaymentScreen({ navigation }) {
   };
 
   const handleNext = async () => {
-   
+   setIsLoading(true)
     try {
       const response = await orders.post({
         payto:  momoNumber === data.phoneNumber ? "mainNumber":"altNumber",
@@ -105,10 +107,12 @@ export default function FarmerPaymentScreen({ navigation }) {
         ToastAndroid.TOP,
         25,
         50
-      );
+      )
 
       // Log the error for debugging
       console.error("Error in handleNext:", error);
+    }finally{
+      setIsLoading(false)
     }
   };
 
@@ -259,9 +263,10 @@ export default function FarmerPaymentScreen({ navigation }) {
         <TouchableOpacity
           style={disclaimer ? styles.greenButton : styles.button}
           onPress={handleNext}
-          disabled={!disclaimer}
+          disabled={!disclaimer || isLoading}
         >
           <Text style={{ fontSize: 18, color: "white" }}>Continue</Text>
+          {isLoading &&   <ActivityIndicator style={{position: 'absolute',top: 15, right: 30}} size="small" color="#fff" />}
         </TouchableOpacity>
 
         {/* Dropdown Modal */}
@@ -334,6 +339,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     paddingVertical: 10,
     alignItems: "center",
+    position:'relative'
   },
   button: {
     marginTop: 5,
