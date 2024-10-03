@@ -10,6 +10,7 @@ import AppNavigator from "./AppNavigator";
 import NotificationCard from "./src/_components/NotificationCard";
 import { LogLevel, OneSignal } from "react-native-onesignal";
 import Constants from "expo-constants";
+import { ProfileDataProvider as AggregatorProfileProvider } from "./ProfileContext";
 import { sendDeviceToken } from "./src/controllers/user/deviceID";
 
 export default function App() {
@@ -84,27 +85,30 @@ export default function App() {
       try {
         const response = await sendDeviceToken.sendToken();
         if (!response.error) {
-          console.log('Device Token Sent');
+          console.log("Device Token Sent");
         } else {
-          console.log('Device Token not Sent');
+          console.log("Device Token not Sent");
         }
       } catch (error) {
-        console.error('An error occurred while sending the device token:', error);
+        console.error(
+          "An error occurred while sending the device token:",
+          error
+        );
       }
     })();
   }, []);
-  
+
   return (
     <GestureHandlerRootView>
-
-        <AuthProvider>
-          <SQLiteProvider databaseName="appData.db">
+      <AuthProvider>
+        <SQLiteProvider databaseName="appData.db">
+          <AggregatorProfileProvider>
             <DataProvider>
               <AppNavigator />
             </DataProvider>
-          </SQLiteProvider>
-        </AuthProvider>
-      
+          </AggregatorProfileProvider>
+        </SQLiteProvider>
+      </AuthProvider>
     </GestureHandlerRootView>
   );
 }

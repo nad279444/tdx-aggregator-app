@@ -23,6 +23,7 @@ const SellToTDXScreen = ({ route, navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalSiloVisible, setModalSiloVisible] = useState(false);
   const [selectedCommodity, setSelectedCommodity] = useState("");
+  const [selectedCommodityIcon,setSelectedCommodityIcon] = useState("")
   const [selectedSilo, setSelectedSilo] = useState("");
   const [selectedSiloId, setSelectedSiloId] = useState("");
   const [selectedCommodityId, setSelectedCommodityId] = useState("");
@@ -99,9 +100,10 @@ const SellToTDXScreen = ({ route, navigation }) => {
     fetchAutoCalculatedData(); // Call the async function
   }, [weight, selectedCommodityId]); // Add dependencies if necessary
 
-  const handleSelectCommodity = (commodity, commodityId) => {
+  const handleSelectCommodity = (commodity, commodityId,commodityIcon) => {
     setSelectedCommodity(commodity);
     setSelectedCommodityId(commodityId);
+    setSelectedCommodityIcon(commodityIcon)
     setModalVisible(false);
   };
 
@@ -123,6 +125,7 @@ const SellToTDXScreen = ({ route, navigation }) => {
   const handleNext = () => {
     updateData("commodity", selectedCommodity);
     updateData("commodityId", selectedCommodityId);
+    updateData("icon", selectedCommodityIcon);
     updateData("siloId", selectedSiloId);
     updateData("weight", weight);
     updateData("bags", bags);
@@ -358,7 +361,7 @@ const SellToTDXScreen = ({ route, navigation }) => {
                 <TouchableOpacity
                   style={{ width: 500 }}
                   onPress={() =>
-                    handleSelectCommodity(item.name, item.commodityId)
+                    handleSelectCommodity(item.name, item.commodityId,item.icon)
                   }
                 >
                   <View style={styles.modalItems}>

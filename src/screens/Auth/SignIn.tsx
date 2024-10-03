@@ -4,6 +4,7 @@ import PasswordInput from '../../_components/PasswordInput';
 import auth from '../../controllers/auth/auth';
 import { AuthContext } from '../../../AuthContext';
 import {Ionicons} from '@expo/vector-icons'
+import { ProfileContext } from '../../../ProfileContext';
 
 export default function SignIn({ navigation }) {
 
@@ -28,7 +29,7 @@ export default function SignIn({ navigation }) {
   const [phoneError, setPhoneError] = useState('');
   const [isLoading,setIsLoading] = useState(false)
   const {authContext} = useContext(AuthContext)
-  
+  const {updateProfile} = useContext(ProfileContext)
 
   const validatePhone = (input) => {
     const phoneRegex = /^\d{10}$/; // Exactly 10 digits
@@ -46,6 +47,7 @@ export default function SignIn({ navigation }) {
 
     });
      await authContext.signIn(response)
+     await updateProfile(response)
       if (!response.error) {
         ToastAndroid.showWithGravityAndOffset(
           response.challenge,

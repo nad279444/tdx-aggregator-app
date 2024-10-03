@@ -2,15 +2,13 @@ import React, { useContext } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
-import { StatusBar } from "react-native";
 import SplashScreen from "./src/screens/SplashScreen";
 
-import{ AuthContext } from "./AuthContext";
+import { AuthContext } from "./AuthContext";
 import Sidebar from "./src/widgets/Sidebar"; // Import the Sidebar component
 
 import Registration from "./src/screens/Auth/Registration";
 import SignIn from "./src/screens/Auth/SignIn";
-
 
 import SuccessScreen from "./src/screens/SuccessScreen";
 import CompleteScreen from "./src/screens/CompleteScreen";
@@ -26,13 +24,13 @@ import ForgotPassword from "./src/screens/Auth/ForgotPassword";
 import OTPScreen from "./src/screens/Auth/OTPScreen";
 import ResetPassword from "./src/screens/Auth/ResetPassword";
 
-
 import CommunityPricesScreen from "./src/screens/Community/CommunityPricesScreen";
 import SellToTDXScreen from "./src/screens/Commodity/SellToTDXScreen";
 import FarmerDetailScreen from "./src/screens/Farmer/FarmerDetailScreen";
 import QualityControlScreen from "./src/screens/Commodity/QualityControlScreen";
 import FarmerPaymentScreen from "./src/screens/Farmer/FarmerPaymentScreen";
 import CommodityAggregatesCard from "./src/_components/CommodityAggregatesCard";
+import AggregatorProfileScreen from "./src/screens/Aggregator/AggregatorProfileScreen";
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -51,23 +49,22 @@ export default function AppNavigator() {
           />
         ) : state.userToken === null ? (
           <>
-           
             <Stack.Screen
               name="Registration"
               component={Registration}
               options={{ headerShown: false }}
             />
-             <Stack.Screen
+            <Stack.Screen
               name="SignIn"
               component={SignIn}
               options={{ headerShown: true }}
             />
-             <Stack.Screen
+            <Stack.Screen
               name="ForgotPassword"
               component={ForgotPassword}
               options={{ headerShown: true }}
             />
-             <Stack.Screen
+            <Stack.Screen
               name="OTPScreen"
               component={OTPScreen}
               options={{ headerShown: true }}
@@ -77,7 +74,7 @@ export default function AppNavigator() {
               component={ResetPassword}
               options={{ headerShown: true }}
             />
-             
+
             <Stack.Screen
               name="SuccessScreen"
               component={SuccessScreen}
@@ -135,6 +132,10 @@ export default function AppNavigator() {
               component={AggregationDetailScreen}
             />
             <Stack.Screen
+              name="AggregatorProfileScreen"
+              component={AggregatorProfileScreen}
+            />
+            <Stack.Screen
               name="NotificationDetailScreen"
               component={NotificationDetailScreen}
             />
@@ -163,14 +164,11 @@ function DrawerNavigator() {
         component={CommunityPricesScreen}
       />
       <Stack.Screen name="AddFarmerScreen" component={AddFarmerScreen} />
-      
-      <Stack.Screen name="AddFarmerScreen2" component={AddFarmerScreen2} />
-  
-      <Stack.Screen name="AddFarmerScreen3" component={AddFarmerScreen3} />
-  
-  
 
-     
+      <Stack.Screen name="AddFarmerScreen2" component={AddFarmerScreen2} />
+
+      <Stack.Screen name="AddFarmerScreen3" component={AddFarmerScreen3} />
+
       <Drawer.Screen name="MyAggregatesScreen" component={MyAggregatesScreen} />
       <Drawer.Screen
         name="ManageFarmersScreen"
@@ -187,10 +185,10 @@ function DrawerNavigator() {
         component={AggregationDetailScreen}
       />
       <Stack.Screen
-              name="CompleteScreen"
-              component={CompleteScreen}
-        
-            />
+        name="AggregatorProfileScreen"
+        component={AggregatorProfileScreen}
+      />
+      <Stack.Screen name="CompleteScreen" component={CompleteScreen} />
     </Drawer.Navigator>
   );
 }

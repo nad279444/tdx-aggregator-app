@@ -5,6 +5,7 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
+  Image
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { DataContext } from "../../../DBContext";
@@ -18,6 +19,7 @@ export default function FarmerDetailScreen({ navigation }) {
   const [communityId, setCommunityId] = useState("");
 
   const { data, updateData } = useContext(DataContext);
+  console.log(data.icon)
 
   useEffect(() => {
     navigation.setOptions({
@@ -89,7 +91,8 @@ export default function FarmerDetailScreen({ navigation }) {
     <View style={styles.container}>
       <View style={styles.blackBox}>
         <View style={styles.commodityContainer}>
-          <View style={{ marginLeft: 20 }}>
+          <Image source={{uri:data.icon}} style={styles.icon}/>
+          <View style={{ marginLeft: 5 }}>
             <Text style={{ color: "white", fontSize: 18, fontWeight: "500" }}>
               {data.commodity}
             </Text>
@@ -228,4 +231,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#D5D8DE",
     alignItems: "center",
   },
+  icon: {
+    width:35,
+    height:40,
+    marginLeft:10,
+    marginTop:5
+
+  }
 });

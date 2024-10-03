@@ -24,6 +24,7 @@ export const DataProvider = ({ children }) => {
     altName: "",
     altNumber: "",
     qualityControlChecks:"",
+    icon:""
   });
 
   // Get database context from SQLiteProvider

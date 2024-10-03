@@ -1,9 +1,19 @@
-import React,{useEffect} from 'react';
-import { View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import React,{useEffect,useState,useMemo,useRef} from 'react';
+import { View, Text, StyleSheet, TouchableOpacity,ScrollView} from 'react-native';
 import { FontAwesome5,Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { orders } from '../controllers/api/orders';
+import BottomSheet from "@gorhom/bottom-sheet";
+
+
 
 const CompleteScreen = ({ route, navigation }) => {
+  const [orderList,setOrderList] = useState([])
+  const bottomSheetRef = useRef(null);
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+  const snapPoints = useMemo(() => ["25%", "50%", "75%"], []);
+
+
   useEffect(() => {
     navigation.setOptions({
       title: "",
@@ -26,8 +36,54 @@ const CompleteScreen = ({ route, navigation }) => {
       ),
     });
   }, [navigation]);
-    
   
+    
+  useEffect(() => {
+    const fetchAllOrders = async () => {
+      try {
+        const data = await orders.getAllOrders(); 
+        setOrderList(data); 
+      } catch (error) {
+        console.error("Error fetching commodities: ", error);
+      }
+    };
+
+    fetchAllOrders();
+  }, []);
+  const handleShowOrders = () => {
+    setIsBottomSheetOpen(true);
+    bottomSheetRef.current?.expand(); // Expands the BottomSheet
+  };
+
+  const handleCloseBottomSheet = () => {
+    setIsBottomSheetOpen(false);
+    bottomSheetRef.current?.close(); // Closes the BottomSheet
+  };
+  const renderOrderList = () => (
+    <ScrollView contentContainerStyle={styles.bottomSheetContent}>
+      <TouchableOpacity
+        onPress={handleCloseBottomSheet}
+        style={styles.closeButton}
+      >
+        <Ionicons name="close" size={32} color="white" />
+      </TouchableOpacity>
+      <Text
+        style={{
+          textAlign: "center",
+          fontSize: 20,
+          fontWeight: "400",
+          color: "white",
+        }}
+      >
+        List of Orders
+      </Text>
+      {orderList.map((item) => (
+        <View key={item.commo_no} style={{}}>
+          
+        </View>
+      ))}
+    </ScrollView>
+  );
     return(
     <View style={styles.container}>
       <FontAwesome5 name="heart" size={60} color="#21893E" solid/>
@@ -36,12 +92,21 @@ const CompleteScreen = ({ route, navigation }) => {
       <View style={{width:'100%',position:'absolute',bottom:50}} >
       <TouchableOpacity
           style={styles.greenButton }
-          onPress={() => {}}
+          onPress={handleShowOrders}
         >
           <Text style={{ fontSize: 18, color: 'white' }}>View Order Status</Text>
        </TouchableOpacity>
       </View>
       
+      <BottomSheet
+        ref={bottomSheetRef}
+        snapPoints={snapPoints}
+        enablePanDownToClose={true}
+        onClose={() => setIsBottomSheetOpen(false)}
+        backgroundStyle={styles.bottomSheetBackground}
+      >
+        {renderOrderList()}
+      </BottomSheet>
 
     </View>
   );
@@ -112,6 +177,17 @@ const styles = StyleSheet.create({
         borderRadius: 4,
         paddingVertical: 10,
         alignItems: "center",
+      },
+      closeButton: {
+        alignSelf: "flex-end",
+        padding: 5,
+        color: "white",
+      },
+      bottomSheetContent: {
+        padding: 20,
+      },
+      bottomSheetBackground: {
+        backgroundColor: "#221D1D",
       },
   });
   

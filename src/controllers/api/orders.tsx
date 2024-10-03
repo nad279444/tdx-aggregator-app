@@ -1,4 +1,4 @@
-import { ORDERS,ORDER_STATISTICS} from "../../constants/Constants";
+import { ORDERS,ORDER_STATISTICS,ALLORDERS} from "../../constants/Constants";
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 
@@ -47,6 +47,29 @@ export const orders = {
             return response.data;
         } catch (error) {
             console.error('Failed to fetch order statistics:', error.message);
+            throw error;
+        }
+    },
+    getAllOrders: async () => {
+        try {
+            // Retrieve tokens from secure storage
+            const access_token = await SecureStore.getItemAsync('accessToken');
+            const user_token = await SecureStore.getItemAsync('userToken');
+        
+
+            if (!access_token || !user_token) {
+                throw new Error('Missing access token or user token');
+            }
+
+            // Make the API request
+            const response = await axios.get(`${ALLORDERS}/${user_token}`, {
+                headers: {
+                    Authorization: `Bearer ${access_token}`,
+                },
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Failed to fetch all orders:', error.message);
             throw error;
         }
     }

@@ -134,8 +134,10 @@ export default function FarmerPaymentScreen({ navigation }) {
       <View style={styles.container}>
         {/* Black Box */}
         <View style={styles.blackBox}>
+       
           <View style={styles.commodityContainer}>
-            <View style={{ marginLeft: 20 }}>
+             <Image source={{uri:data.icon}} style={styles.icon}/>
+            <View style={{ marginLeft: 5 }}>
               <Text style={{ color: "white", fontSize: 18, fontWeight: "500" }}>
                 {data.commodity}
               </Text>
@@ -422,4 +424,11 @@ const styles = StyleSheet.create({
     right: 35,
     bottom: 15,
   },
+  icon: {
+    width:35,
+    height:40,
+    marginLeft:10,
+    marginTop:5
+
+  }
 });
