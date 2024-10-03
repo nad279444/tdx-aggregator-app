@@ -1,9 +1,10 @@
 import React, { useMemo, useRef, useEffect, useState } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, FlatList, ScrollView, Image, ActivityIndicator } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, FlatList, Image, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import CommunityPricesCard from '../../_components/CommunityPricesCard';
 import { communities } from '../../controllers/api/communities';
 import BottomSheet from "@gorhom/bottom-sheet";
+import { ScrollView } from 'react-native-gesture-handler';
 
 export default function CommunityPricesScreen({ navigation }) {
   useEffect(() => {
@@ -57,11 +58,12 @@ export default function CommunityPricesScreen({ navigation }) {
   };
 
   const renderMarketPrices = () => (
-    <ScrollView contentContainerStyle={styles.bottomSheetContent}>
+    <View style={styles.bottomSheetContent}>
       <TouchableOpacity onPress={handleCloseBottomSheet} style={styles.closeButton}>
         <Ionicons name="close" size={32} color="white" />
       </TouchableOpacity>
       <Text style={styles.title}>Prices in {selectedCommunity?.location}</Text>
+      <ScrollView>
       {selectedCommunity?.commodities.map((item) => (
         <View key={item.name} style={styles.marketItem}>
           <Image source={{uri:item.icon}} style={styles.marketImage} />
@@ -107,7 +109,8 @@ export default function CommunityPricesScreen({ navigation }) {
          
         </View>
       ))}
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 
   return (
@@ -153,6 +156,7 @@ const styles = StyleSheet.create({
   },
   bottomSheetContent: {
     padding: 20,
+    marginBottom:50
   },
   bottomSheetBackground: {
     backgroundColor: "#221D1D",

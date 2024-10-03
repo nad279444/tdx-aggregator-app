@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
   icon: {
     width:35,
     height:40,
-    marginLeft:10,
+    marginLeft:20,
     marginTop:5
 
   }

@@ -9,7 +9,7 @@ import {
   Modal,
   FlatList,
   Image,
-  ScrollView,
+  
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Divider } from "react-native-elements";
@@ -18,6 +18,7 @@ import { useDataContext } from "../../../DBContext";
 import { commodities } from "../../controllers/api/commodities";
 import { autoCalculator } from "../../controllers/api/priceCalculator";
 import { silos } from "../../controllers/api/silos";
+import { ScrollView } from "react-native-gesture-handler";
 
 const SellToTDXScreen = ({ route, navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -140,7 +141,7 @@ const SellToTDXScreen = ({ route, navigation }) => {
   };
 
   const renderMarketPrices = () => (
-    <ScrollView contentContainerStyle={styles.bottomSheetContent}>
+    <View style={styles.bottomSheetContent}>
       <TouchableOpacity
         onPress={handleCloseBottomSheet}
         style={styles.closeButton}
@@ -157,6 +158,7 @@ const SellToTDXScreen = ({ route, navigation }) => {
       >
         Prices
       </Text>
+      <ScrollView>
       {commodityRates.map((item) => (
         <View key={item.commo_no} style={styles.marketItem}>
           <View>
@@ -202,7 +204,8 @@ const SellToTDXScreen = ({ route, navigation }) => {
           </View>
         </View>
       ))}
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 
   return (
@@ -569,6 +572,7 @@ const styles = StyleSheet.create({
   },
   bottomSheetContent: {
     padding: 20,
+    marginBottom:50
   },
   bottomSheetBackground: {
     backgroundColor: "#221D1D",
