@@ -42,14 +42,14 @@ export default function Registration ({navigation}) {
     setIsLoading(true)
     try {
       const response = await auth.signUp({
-        fullname:name,
-        mobile:phoneNumber,
+        fullname: name,
+        mobile: phoneNumber,
         password,
-        deviceId:"",
-        confirmpassword:confirmPassword,
+        deviceId: "",
+        confirmpassword: confirmPassword,
         community,
-      })
-      if(!response.error){
+      });
+      if (!response.error) {
         ToastAndroid.showWithGravityAndOffset(
           response.challenge,
           ToastAndroid.LONG,
@@ -57,32 +57,29 @@ export default function Registration ({navigation}) {
           25,
           50,
         );
-      }
-      ToastAndroid.showWithGravityAndOffset(
-        response.message,
-        ToastAndroid.LONG,
-        ToastAndroid.TOP,
-        25,
-        50,
-    )
-    } catch (error) {
-      ToastAndroid.showWithGravityAndOffset(
-          error.message,
+        navigation.navigate('SignIn');  // Navigate only after success
+      } else {
+        ToastAndroid.showWithGravityAndOffset(
+          response.message,
           ToastAndroid.LONG,
           ToastAndroid.TOP,
           25,
           50,
-      )
+        );
+      }
+    } catch (error) {
+      ToastAndroid.showWithGravityAndOffset(
+        error.message,
+        ToastAndroid.LONG,
+        ToastAndroid.TOP,
+        25,
+        50,
+      );
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-    navigation.navigate('SignIn')
-    setName(''),
-    setPhoneNumber(''),
-    setPassword(''),
-    setConfirmPassword(''),
-    setCommunity('')
   }
+  
 
   const handlePhoneChange = (input) => {
     setPhoneNumber(input);

@@ -150,12 +150,12 @@ function DrawerNavigator() {
   return (
     <Drawer.Navigator drawerContent={(props) => <Sidebar {...props} />}>
       <Drawer.Screen name="SellToTDXScreen" component={SellToTDXScreen} />
-      <Stack.Screen name="FarmerDetailScreen" component={FarmerDetailScreen} />
-      <Stack.Screen
+      <Drawer.Screen name="FarmerDetailScreen" component={FarmerDetailScreen} />
+      <Drawer.Screen
         name="QualityControlScreen"
         component={QualityControlScreen}
       />
-      <Stack.Screen
+      <Drawer.Screen
         name="FarmerPaymentScreen"
         component={FarmerPaymentScreen}
       />
@@ -163,11 +163,11 @@ function DrawerNavigator() {
         name="CommunityPricesScreen"
         component={CommunityPricesScreen}
       />
-      <Stack.Screen name="AddFarmerScreen" component={AddFarmerScreen} />
+      <Drawer.Screen name="AddFarmerScreen" component={AddFarmerScreen} />
 
-      <Stack.Screen name="AddFarmerScreen2" component={AddFarmerScreen2} />
+      <Drawer.Screen name="AddFarmerScreen2" component={AddFarmerScreen2} />
 
-      <Stack.Screen name="AddFarmerScreen3" component={AddFarmerScreen3} />
+      <Drawer.Screen name="AddFarmerScreen3" component={AddFarmerScreen3} />
 
       <Drawer.Screen name="MyAggregatesScreen" component={MyAggregatesScreen} />
       <Drawer.Screen
@@ -176,19 +176,19 @@ function DrawerNavigator() {
       />
 
       <Drawer.Screen name="NotificationScreen" component={NotificationScreen} />
-      <Stack.Screen
+      <Drawer.Screen
         name="NotificationDetailScreen"
         component={NotificationDetailScreen}
       />
-      <Stack.Screen
+      <Drawer.Screen
         name="AggregationDetailScreen"
         component={AggregationDetailScreen}
       />
-      <Stack.Screen
+      <Drawer.Screen
         name="AggregatorProfileScreen"
         component={AggregatorProfileScreen}
       />
-      <Stack.Screen name="CompleteScreen" component={CompleteScreen} />
+      <Drawer.Screen name="CompleteScreen" component={CompleteScreen} />
     </Drawer.Navigator>
   );
 }
