@@ -31,9 +31,6 @@
         "projectId": "956056d4-195d-4c50-ae1b-76ed9dcb06c4"
       }
     },
-    "cli": {
-      "appVersionSource": "packager"
-    },
     "owner": "nad279444",
     "plugins": ["expo-router"]
   }

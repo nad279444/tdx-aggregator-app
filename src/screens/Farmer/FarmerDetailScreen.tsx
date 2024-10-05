@@ -17,9 +17,10 @@ export default function FarmerDetailScreen({ navigation }) {
   const [phoneError, setPhoneError] = useState("");
   const [farmerToken, setFarmerToken] = useState("");
   const [communityId, setCommunityId] = useState("");
+  const [fullName,setFullName] = useState("")
 
   const { data, updateData } = useContext(DataContext);
-  console.log(data.icon)
+
 
   useEffect(() => {
     navigation.setOptions({
@@ -46,7 +47,8 @@ export default function FarmerDetailScreen({ navigation }) {
 
   useEffect(() => {
     const verifyFarmer = async () => {
-      const { mobile, token, community_id } = await farmers.getOne(phoneNumber);
+      const { mobile, token, community_id,first_name,last_name } = await farmers.getOne(phoneNumber);
+      const fullname = `${first_name} ${last_name}`
       if (mobile == phoneNumber) {
         setIsVerified(true);
       } else {
@@ -54,6 +56,7 @@ export default function FarmerDetailScreen({ navigation }) {
       }
       setCommunityId(community_id);
       setFarmerToken(token);
+      setFullName(fullname)
     };
     verifyFarmer();
   }, [phoneNumber]);
@@ -62,6 +65,7 @@ export default function FarmerDetailScreen({ navigation }) {
     updateData("phoneNumber", phoneNumber);
     updateData("farmerToken", farmerToken);
     updateData("communityId", communityId);
+    updateData("farmerName", fullName)
   };
 
   const validatePhone = (input) => {
