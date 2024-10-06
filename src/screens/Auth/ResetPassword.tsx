@@ -43,12 +43,12 @@ export default function ResetPassword({ navigation, route }) {
         otp,
         mobile,
         password,
-        confirmpassword:confirmPassword,
+        confirmpassword: confirmPassword,
       });
-        
+
       if (!response.error) {
         ToastAndroid.showWithGravityAndOffset(
-          'password was unable to reset',
+          "password was unable to reset",
           ToastAndroid.LONG,
           ToastAndroid.TOP,
           25,
@@ -62,7 +62,7 @@ export default function ResetPassword({ navigation, route }) {
         25,
         50
       );
-      navigation.navigate('SignIn')
+      navigation.navigate("SignIn");
     } catch (error) {
       ToastAndroid.showWithGravityAndOffset(
         error.message,
@@ -88,7 +88,7 @@ export default function ResetPassword({ navigation, route }) {
           setConfirmPassword={setConfirmPassword}
           styles={styles}
         />
-       
+
         <TouchableOpacity
           style={password ? styles.greenButton : styles.disabledButton}
           onPress={handleReset}

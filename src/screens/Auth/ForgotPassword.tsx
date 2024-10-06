@@ -42,7 +42,6 @@ export default function ForgotPassword({ navigation }) {
     
 
     });
-    console.log(response)
       if (!response.error) {
         ToastAndroid.showWithGravityAndOffset(
           response.challenge,
