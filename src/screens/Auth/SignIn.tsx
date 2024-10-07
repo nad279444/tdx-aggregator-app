@@ -55,7 +55,7 @@ export default function SignIn({ navigation }) {
 
       if (!response.error) {
         ToastAndroid.showWithGravityAndOffset(
-          response.challenge,
+          response.challenge || 'Success',
           ToastAndroid.LONG,
           ToastAndroid.TOP,
           25,
@@ -83,7 +83,6 @@ export default function SignIn({ navigation }) {
     } finally {
       setIsLoading(false);
     }
-    navigation.navigate("SignIn");
     setPhoneNumber("");
     setPassword("");
     setConfirmPassword("");
@@ -228,7 +227,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#21893E",
     marginVertical: 20,
     height: 50,
-    marginHorizontal: 25,
+    marginHorizontal: 10,
     borderWidth: 1,
     borderColor: "#D5D8DE",
     borderRadius: 4,
