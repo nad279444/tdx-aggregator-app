@@ -23,7 +23,6 @@ import NotificationDetailScreen from "./src/screens/Notification/NotificationDet
 import ForgotPassword from "./src/screens/Auth/ForgotPassword";
 import OTPScreen from "./src/screens/Auth/OTPScreen";
 import ResetPassword from "./src/screens/Auth/ResetPassword";
-
 import CommunityPricesScreen from "./src/screens/Community/CommunityPricesScreen";
 import SellToTDXScreen from "./src/screens/Commodity/SellToTDXScreen";
 import FarmerDetailScreen from "./src/screens/Farmer/FarmerDetailScreen";
@@ -31,6 +30,7 @@ import QualityControlScreen from "./src/screens/Commodity/QualityControlScreen";
 import FarmerPaymentScreen from "./src/screens/Farmer/FarmerPaymentScreen";
 import CommodityAggregatesCard from "./src/_components/CommodityAggregatesCard";
 import AggregatorProfileScreen from "./src/screens/Aggregator/AggregatorProfileScreen";
+import DashboardScreen from "./src/screens/DashboardScreen";
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -83,9 +83,14 @@ export default function AppNavigator() {
           </>
         ) : (
           <>
+             <Stack.Screen
+              name="DashboardScreen"
+              component={DrawerNavigator}
+              options={{ headerShown: false }}
+            />
             <Stack.Screen
               name="SellToTDXScreen"
-              component={DrawerNavigator}
+              component={SellToTDXScreen}
               options={{ headerShown: false }}
             />
             <Stack.Screen
@@ -149,6 +154,7 @@ export default function AppNavigator() {
 function DrawerNavigator() {
   return (
     <Drawer.Navigator drawerContent={(props) => <Sidebar {...props} />}>
+      <Drawer.Screen name="DashboardScreen" component={DashboardScreen} />
       <Drawer.Screen name="SellToTDXScreen" component={SellToTDXScreen} />
       <Drawer.Screen name="FarmerDetailScreen" component={FarmerDetailScreen} />
       <Drawer.Screen

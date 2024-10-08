@@ -37,6 +37,7 @@ const Sidebar = ({ navigation }) => {
 
   // Array of menu items
   const menuItems = [
+    { name: 'Dashboard', icon: 'columns', onPress: () => navigation.navigate('DashboardScreen') },
     { name: 'Sell To TDX', icon: 'arrow-right', onPress: () => navigation.navigate('SellToTDXScreen') },
     { name: 'My aggregates', icon: 'chart-bar', onPress: () => navigation.navigate('MyAggregatesScreen') },
     { name: 'Farmers', icon: 'user-alt', onPress: () => navigation.navigate('ManageFarmersScreen') },
@@ -133,8 +134,7 @@ const styles = StyleSheet.create({
   profileSection: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 50,
-    marginBottom: 20,
+    marginTop: 40,
     paddingLeft: 20,
     paddingRight: 20,
   },
@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
   },
   imageBackgroundContainer: {
     width: '100%',
-    height: 180,
+    height: 160,
   },
   backgroundImage: {
     flex: 1,
@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
   },
   footer: {
     width: '55%',
-    marginBottom: 5,
+    marginBottom: 15,
     paddingLeft: 15,
     paddingRight: 10,
   },
