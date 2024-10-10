@@ -11,8 +11,6 @@ import {
 } from "react-native";
 import { Avatar } from "react-native-elements";
 import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
-import * as ImagePicker from "expo-image-picker";
-import * as FileSystem from "expo-file-system";
 import { DataContext } from "../../../DBContext";
 import { farmers as farmersApi } from "../../controllers/api/farmerList";
 
@@ -93,60 +91,6 @@ const ManageFarmersScreen = ({ navigation }) => {
         farmer.mobile?.toLowerCase().includes(text.toLowerCase())
     );
     setFilteredFarmers(filteredData);
-  };
-
-  const handleAddFarmer = async () => {
-    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
-  
-    if (permissionResult.granted === false) {
-      alert("You've refused to allow this app to access your camera!");
-      return;
-    }
-  
-    // Capture front image
-    const frontResult = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-      base64: false,
-    });
-  
-    if (frontResult.canceled) {
-      return;
-    }
-  
-    const frontImageUri = frontResult.assets[0].uri;
-    const frontFilename = frontImageUri.split("/").pop();
-    const frontImagePath = FileSystem.documentDirectory + frontFilename;
-  
-    await FileSystem.moveAsync({
-      from: frontImageUri,
-      to: frontImagePath,
-    });
-  
-    // Capture back image
-    const backResult = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-      base64: false,
-    });
-  
-    if (backResult.canceled) {
-      return;
-    }
-  
-    const backImageUri = backResult.assets[0].uri;
-    const backFilename = backImageUri.split("/").pop();
-    const backImagePath = FileSystem.documentDirectory + backFilename;
-  
-    await FileSystem.moveAsync({
-      from: backImageUri,
-      to: backImagePath,
-    });
-  
-    // Navigate to the AddFarmerScreen and pass both image URIs
-    navigation.navigate("AddFarmerScreen", { frontImageUri: frontImagePath, backImageUri: backImagePath });
   };
 
   const renderAvatar = (item) => {
@@ -246,7 +190,7 @@ const ManageFarmersScreen = ({ navigation }) => {
           )}
         </>
       )}
-      <TouchableOpacity style={styles.addButton} onPress={handleAddFarmer}>
+      <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('AddFarmerScreen')}>
         <Text style={styles.addButtonText}> Add New Farmer </Text>
         <Ionicons name="add" size={20} color="white" />
       </TouchableOpacity>

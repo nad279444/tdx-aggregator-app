@@ -1,4 +1,4 @@
-import React, { useEffect, useContext, useState } from "react";
+import React, { useEffect, useContext, useState,useRef,useMemo } from "react";
 import {
   View,
   Text,
@@ -9,11 +9,21 @@ import {
 import { FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { ProfileContext } from "../../ProfileContext";
 import { aggregates } from "../controllers/api/aggregates";
+import { orders } from '../controllers/api/orders';
+import BottomSheet from "@gorhom/bottom-sheet";
+import { Divider } from 'react-native-elements';
+import { ScrollView } from 'react-native-gesture-handler';
+
 
 export default function DashboardScreen({ navigation }) {
   const { profile } = useContext(ProfileContext);
   const [agg, setAgg] = useState({});
   const [loading, setLoading] = useState(false);
+  const [orderList, setOrderList] = useState([]);
+  const bottomSheetRef = useRef(null);
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+  const snapPoints = useMemo(() => ["25%", "50%", "75%"], []);
+
 
   useEffect(() => {
     navigation.setOptions({
@@ -45,6 +55,69 @@ export default function DashboardScreen({ navigation }) {
       }
     })();
   }, [navigation]);
+
+  useEffect(() => {
+    const fetchAllOrders = async () => {
+      try {
+        const data = await orders.getAllOrders(); 
+        setOrderList(data); 
+      } catch (error) {
+        console.error("Error fetching commodities: ", error);
+      }
+    };
+    fetchAllOrders();
+  }, []);
+
+  const handleShowOrders = () => {
+    setIsBottomSheetOpen(true);
+    bottomSheetRef.current?.expand(); // Expands the BottomSheet
+  };
+
+  const handleCloseBottomSheet = () => {
+    setIsBottomSheetOpen(false);
+    bottomSheetRef.current?.close(); // Closes the BottomSheet
+  };
+   
+  const renderOrderList = () => (
+    <View style={styles.bottomSheetContent}>
+      <TouchableOpacity onPress={handleCloseBottomSheet} style={styles.closeButton}>
+        <Ionicons name="close" size={32} color="white" />
+      </TouchableOpacity>
+      <Text style={styles.orderTitle}>List of Orders</Text>
+      <ScrollView>
+        {orderList.map((item) => (
+          <View key={item.order_tnx}>
+            <View style={styles.orderItem}>
+              <Text style={styles.orderData}>Farmer</Text>
+              <Text style={{color:'green',fontSize:15}}>{item.farmer}</Text>
+            </View>
+            <View style={styles.orderItem}>
+              <Text style={styles.orderData}>Quantity</Text>
+              <Text style={styles.orderData}>{item.quantity}</Text>
+            </View>
+            <View style={styles.orderItem}>
+              <Text style={styles.orderData}>Total Cost</Text>
+              <Text style={styles.orderData}>{item.total_cost}</Text>
+            </View>
+            <View style={styles.orderItem}>
+              <Text style={styles.orderData}>Payment Status</Text>
+              <View style={styles.pending}>
+                <Text style={styles.orderData}>{item.paymentstatus}</Text>
+              </View> 
+            </View>
+            <View style={styles.orderItem}>
+              <Text style={styles.orderData}>Created At</Text>
+              <Text style={styles.orderData}>{item.created_at.split(' ')[0]}</Text>
+            </View>
+            <View style={{ marginVertical: 10 }}>
+              <Divider color="white" />
+            </View>
+          </View>
+        ))}
+      </ScrollView>
+    </View>
+  );
+
 
   return (
     <View style={styles.container}>
@@ -83,7 +156,7 @@ export default function DashboardScreen({ navigation }) {
               >
                 <TouchableOpacity
                   style={styles.addButton}
-                  onPress={() => navigation.navigate("ManageFarmersScreen")}
+                  onPress={() => navigation.navigate("AddFarmerScreen")}
                 >
                   <Ionicons name="add" size={20} color="white" />
                   <Text style={styles.addButtonText}> Add New Farmer </Text>
@@ -105,15 +178,24 @@ export default function DashboardScreen({ navigation }) {
           />
           <DashboardList
             icon="weight"
-            button={() => navigation.navigate("CompleteScreen")}
+            button={handleShowOrders}
             title="Total Quantities Sold         "
             content={agg?.total_quantity ?? "0 KG" }
           />
         </View>
       )}
        <TouchableOpacity style={styles.greenButton} onPress={() => navigation.navigate('SellToTDXScreen')}>
-          <Text style={styles.buttonText2}>Place Order </Text>
+          <Text style={styles.buttonText2}>Sell To TDX </Text>
         </TouchableOpacity>
+        <BottomSheet
+        ref={bottomSheetRef}
+        snapPoints={snapPoints}
+        enablePanDownToClose={true}
+        onClose={() => setIsBottomSheetOpen(false)}
+        backgroundStyle={styles.bottomSheetBackground}
+      >
+        {renderOrderList()}
+      </BottomSheet>
     </View>
   );
 }
@@ -199,8 +281,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   viewButton: {
-    width: 70,
-    height: 30,
+    width: 80,
+    height: 40,
     borderRadius: 50,
     backgroundColor: "green",
     justifyContent: "center",
@@ -220,5 +302,39 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  bottomSheetContent: {
+    padding: 20,
+    marginBottom:50,
+  },
+  bottomSheetBackground: {
+    backgroundColor: "#221D1D",
+  },
+  orderTitle: {
+    textAlign: "center",
+    fontSize: 20,
+    fontWeight: "400",
+    color: "white",
+    marginBottom: 10,
+  },
+  orderItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  orderData: {
+    color: 'white',
+  },
+  pending: {
+    width: 70,
+    height: 25,
+    borderRadius: 5,
+    backgroundColor: '#ECC63E',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  closeButton: {
+    alignSelf: "flex-end",
+    padding: 5,
   },
 });

@@ -16,8 +16,7 @@ const AddFarmerScreen = ({ route, navigation }) => {
   const [nameError, setNameError] = useState("");
   const [idCardType, setIdCardType] = useState("");
   const [idCardNumber, setIdCardNumber] = useState("");
-  const frontImageUri = route?.params?.frontImageUri || "";
-  const backImageUri = route?.params?.backImageUri || "";
+  
   
 
   const { addFarmer } = useContext(DataContext);
@@ -92,7 +91,7 @@ const AddFarmerScreen = ({ route, navigation }) => {
   
   
   const handleFarmer = async () => {
-    navigation.navigate("AddFarmerScreen2",{fullName,idCardNumber,idCardType,frontImageUri,backImageUri});
+    navigation.navigate("AddFarmerScreen2",{fullName,idCardNumber,idCardType});
     setFullName("");
     setIdCardType("");
     setIdCardNumber("");
@@ -143,18 +142,7 @@ const AddFarmerScreen = ({ route, navigation }) => {
       </View>
       
       <View style={{flexDirection:'row',justifyContent:'space-around'}}>
-      {frontImageUri && (
-        <View style={styles.imagePreviewContainer}>
-          <Text style={styles.inputTitle}>Front </Text>
-          <Image source={{ uri: frontImageUri }} style={styles.imagePreview} />
-        </View>
-      )}
-      {backImageUri && (
-        <View style={styles.imagePreviewContainer}>
-          <Text style={styles.inputTitle}>Back </Text>
-          <Image source={{ uri: backImageUri }} style={styles.imagePreview} />
-        </View>
-      )}
+     
       </View>
      
       <TouchableOpacity
@@ -207,7 +195,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#21893E",
     marginTop: 30,
     height: 50,
-    marginHorizontal: 12,
+    marginHorizontal: 10,
     borderWidth: 1,
     borderColor: "#D5D8DE",
     borderRadius: 4,
@@ -217,7 +205,7 @@ const styles = StyleSheet.create({
   disabledButton: {
     marginTop: 30,
     height: 50,
-    marginHorizontal: 12,
+    marginHorizontal: 10,
     borderWidth: 1,
     borderColor: "#D5D8DE",
     borderRadius: 4,

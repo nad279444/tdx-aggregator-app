@@ -5,7 +5,6 @@ import {
   TextInput,
   StyleSheet,
   TouchableOpacity,
-  Image,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { Ionicons } from "@expo/vector-icons";
@@ -17,10 +16,12 @@ const AddFarmerScreen2 = ({ route, navigation }) => {
   const [network, setNetwork] = useState("");
   const [altNetWork, setAltNetWork] = useState("");
   const [gender, setGender] = useState("");
+  const [age, setAge] = useState(""); // New state for age
   const [mobileError, setMobileError] = useState("");
 
   const { addFarmer } = useContext(DataContext);
   const previousData = route.params;
+
   useEffect(() => {
     navigation.setOptions({
       title: "Farmers",
@@ -73,12 +74,14 @@ const AddFarmerScreen2 = ({ route, navigation }) => {
       altMobileNumber,
       altNetWork,
       gender,
+      age,
     });
     setMobileNumber("");
     setNetwork("");
     setAltMobileNumber("");
     setAltNetWork("");
     setGender("");
+    setAge("");
   };
 
   return (
@@ -109,7 +112,8 @@ const AddFarmerScreen2 = ({ route, navigation }) => {
           </Picker>
         </View>
       </View>
-      {/* alternative numbers */}
+
+      {/* Alternative phone number */}
       <View style={styles.inputContainer}>
         <View style={[styles.inputGroup, styles.phoneInput]}>
           <Text style={styles.inputTitle}>Alternative Number</Text>
@@ -123,9 +127,9 @@ const AddFarmerScreen2 = ({ route, navigation }) => {
           />
         </View>
 
-        {/* Network Picker Input (25% width) */}
+        {/* Alt Network Picker Input (25% width) */}
         <View style={[styles.inputGroup, styles.networkInput]}>
-          <Text style={styles.inputTitle}>AltNetwork</Text>
+          <Text style={styles.inputTitle}>Alt Network</Text>
           <Picker
             selectedValue={altNetWork}
             style={styles.picker}
@@ -136,43 +140,46 @@ const AddFarmerScreen2 = ({ route, navigation }) => {
           </Picker>
         </View>
       </View>
+
       {mobileError ? (
         <Text style={{ color: "red", marginLeft: 10 }}>{mobileError}</Text>
       ) : null}
 
-      {/* gender */}
-      <View
-        style={[
-          styles.inputContainer,
-          { marginHorizontal: 10, marginBottom: 20 },
-        ]}
-      >
-        <View style={styles.inputGroup}>
+      {/* Gender and Age inputs */}
+      <View style={styles.inputContainer}>
+        <View style={[styles.inputGroup, styles.phoneInput]}>
           <Text style={styles.inputTitle}>Gender</Text>
           <Picker
-            selectedValue={gender} // Current selected value
-            style={styles.picker} // Style for the picker
-            onValueChange={(itemValue, itemIndex) => setGender(itemValue)} // Handle the change
+            selectedValue={gender}
+            style={styles.nameInput}
+            onValueChange={(itemValue, itemIndex) => setGender(itemValue)}
           >
             <Picker.Item label="Male" value="male" />
             <Picker.Item label="Female" value="female" />
             <Picker.Item label="Other" value="other" />
           </Picker>
         </View>
+
+        <View style={[styles.inputGroup, styles.networkInput]}>
+          <Text style={styles.inputTitle}>Age</Text>
+          <TextInput
+            style={styles.ageInput}
+            placeholder="Enter Age"
+            keyboardType="numeric"
+            value={age}
+            onChangeText={(input) => setAge(input)}
+          />
+        </View>
       </View>
 
       <TouchableOpacity
         style={
-          mobileNumber && network && gender
+          mobileNumber && network && gender && age
             ? styles.greenButton
             : styles.disabledButton
         }
         onPress={handleNext}
-        disabled={
-          !mobileNumber ||
-          !network ||
-          !gender
-        }
+        disabled={!mobileNumber || !network || !gender || !age}
       >
         <Text style={{ fontSize: 18, color: "white" }}>Continue</Text>
       </TouchableOpacity>
@@ -183,7 +190,8 @@ const AddFarmerScreen2 = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    paddingLeft:5,
+    paddingRight: 15
   },
   inputContainer: {
     flexDirection: "row",
@@ -194,16 +202,12 @@ const styles = StyleSheet.create({
     flex: 1,
     position: "relative",
   },
-  row: {
-    flexDirection: "row",
-  },
   phoneInput: {
-    flexBasis: "60%", // Takes 75% width of the row
-    marginRight: 10,
+    flexBasis: "60%", // Takes 60% width of the row
+  
   },
   networkInput: {
-    flexBasis: "35%",
-    height: 30,
+    flexBasis: "25%",
   },
   inputTitle: {
     marginLeft: 10,
@@ -226,7 +230,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#21893E",
     marginTop: 30,
     height: 50,
-    marginHorizontal: 12,
+    marginHorizontal: 5,
     borderWidth: 1,
     borderColor: "#D5D8DE",
     borderRadius: 4,
@@ -236,23 +240,13 @@ const styles = StyleSheet.create({
   disabledButton: {
     marginTop: 30,
     height: 50,
-    marginHorizontal: 12,
+    marginHorizontal: 5,
     borderWidth: 1,
     borderColor: "#D5D8DE",
     borderRadius: 4,
     paddingVertical: 10,
     backgroundColor: "#D5D8DE",
     alignItems: "center",
-  },
-  imagePreviewContainer: {
-    alignItems: "center",
-    marginTop: 20,
-  },
-  imagePreview: {
-    width: 100,
-    height: 100,
-    borderRadius: 8,
-    backgroundColor: "#ddd",
   },
   picker: {
     height: 50,
@@ -261,6 +255,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 4,
     backgroundColor: "white",
+  },
+  ageInput: {
+    height: 57,
+    borderColor: "#FFFFFF",
+    borderWidth: 1,
+    borderRadius: 4,
+    backgroundColor: "white",
+    padding:15
   },
 });
 

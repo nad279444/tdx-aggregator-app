@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { Ionicons } from "@expo/vector-icons";
+import * as ImagePicker from 'expo-image-picker'; // Import the Image Picker
 import { DataContext } from "../../../DBContext";
 import { farmers } from "../../controllers/api/farmerList";
 import { communities } from "../../controllers/api/communities";
@@ -20,10 +21,13 @@ const AddFarmerScreen3 = ({ route, navigation }) => {
   const [community, setCommunity] = useState("");
   const [communityList, setCommunityList] = useState([]);
   const [experienceYear, setExperienceYear] = useState("");
+  const [frontImageUri, setFrontImageUri] = useState(null);
+  const [backImageUri, setBackImageUri] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const { addFarmer } = useContext(DataContext);
 
+  const { addFarmer } = useContext(DataContext);
+  const {previousData} = route.params
   useEffect(() => {
     navigation.setOptions({
       title: "Farmers",
@@ -57,6 +61,27 @@ const AddFarmerScreen3 = ({ route, navigation }) => {
       }
     })();
   }, []);
+
+  // Request camera permissions and capture image from camera
+  const pickImage = async (setter) => {
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+    if (!permissionResult.granted) {
+      alert("Permission to access camera is required!");
+      return;
+    }
+
+    let result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setter(result.assets[0].uri); // Set the image URI for front or back image
+    }
+  };
+
   const convertImageToBase64 = async (uri) => {
     try {
       const base64 = await FileSystem.readAsStringAsync(uri, {
@@ -68,42 +93,33 @@ const AddFarmerScreen3 = ({ route, navigation }) => {
       return null;
     }
   };
-  const {
-    previousData,
-    mobileNumber,
-    network,
-    altMobileNumber,
-    altNetWork,
-    gender,
-  } = route.params;
-  const { fullName, idCardNumber, idCardType, frontImageUri, backImageUri } =
-    previousData;
+
   const handleFarmer = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
       const frontImageBase64 = await convertImageToBase64(frontImageUri);
       const backImageBase64 = await convertImageToBase64(backImageUri);
-      
+
       const response = await farmers.add({
         biodata: {
-          fullname: fullName,
-          mobilenumber: mobileNumber,
-          network: network,
-          altmobilenumber: altMobileNumber,
-          altnetwork: altNetWork,
-          gender: gender,
+          fullname: previousData.fullName,
+          mobilenumber: route.params.mobileNumber,
+          network: route.params.network,
+          altmobilenumber: route.params.altMobileNumber,
+          altnetwork: route.params.altNetWork,
+          gender: route.params.gender,
           community: community,
           frontimg: frontImageBase64,
           backimg: backImageBase64,
           experience_year: experienceYear,
-          idcardtype: idCardType,
-          idcardnumber: idCardNumber,
+          idcardtype: previousData.idCardType,
+          idcardnumber: previousData.idCardNumber,
         },
       });
-    
+
       if (!response.error) {
         ToastAndroid.showWithGravityAndOffset(
-          response.message || 'Farmer Added Succesfully',
+          response.message || 'Farmer Added Successfully',
           ToastAndroid.LONG,
           ToastAndroid.TOP,
           25,
@@ -126,12 +142,11 @@ const AddFarmerScreen3 = ({ route, navigation }) => {
         25,
         50
       );
-    }finally{
-      setIsLoading(false)
-    } 
+    } finally {
+      setIsLoading(false);
+    }
 
     navigation.navigate("ManageFarmersScreen");
-    fullName
     setCommunity("");
     setExperienceYear("");
   };
@@ -160,7 +175,7 @@ const AddFarmerScreen3 = ({ route, navigation }) => {
 
       <View style={styles.inputContainer}>
         <View style={styles.inputGroup}>
-          <Text style={styles.inputTitle}>Experience Year</Text>
+          <Text style={styles.inputTitle}>Years of Experience</Text>
           <TextInput
             style={styles.nameInput}
             textAlign="left"
@@ -172,14 +187,37 @@ const AddFarmerScreen3 = ({ route, navigation }) => {
         </View>
       </View>
 
+      {/* Image capture and display */}
+      <View style={styles.imageCaptureContainer}>
+        <Text style={styles.inputTitle}>Capture Front ID</Text>
+        <TouchableOpacity onPress={() => pickImage(setFrontImageUri)}>
+          <View style={styles.imagePreviewContainer}>
+            {frontImageUri ? (
+              <Image source={{ uri: frontImageUri }} style={styles.imagePreview} />
+            ) : (
+              <Ionicons name="camera" size={50} color="#ccc" />
+            )}
+          </View>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.imageCaptureContainer}>
+        <Text style={styles.inputTitle}>Capture Back ID</Text>
+        <TouchableOpacity onPress={() => pickImage(setBackImageUri)}>
+          <View style={styles.imagePreviewContainer}>
+            {backImageUri ? (
+              <Image source={{ uri: backImageUri }} style={styles.imagePreview} />
+            ) : (
+              <Ionicons name="camera" size={50} color="#ccc" />
+            )}
+          </View>
+        </TouchableOpacity>
+      </View>
+
       <TouchableOpacity
-        style={
-          community && experienceYear 
-            ? styles.greenButton
-            : styles.disabledButton
-        }
+        style={community && experienceYear && frontImageUri && backImageUri ? styles.greenButton : styles.disabledButton}
         onPress={handleFarmer}
-        disabled={!community || !experienceYear || isLoading }
+        disabled={!community || !experienceYear  || isLoading}
       >
         <Text style={{ fontSize: 18, color: "white" }}>Add farmer</Text>
         {isLoading && (
@@ -222,7 +260,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     padding: 10,
     marginHorizontal: 10,
-    textAlign: "right",
+    textAlign: "left",
     backgroundColor: "#FFFFFF",
   },
   greenButton: {
@@ -247,23 +285,18 @@ const styles = StyleSheet.create({
     backgroundColor: "#D5D8DE",
     alignItems: "center",
   },
+  imageCaptureContainer: {
+    marginTop: 20,
+  },
   imagePreviewContainer: {
     alignItems: "center",
-    marginTop: 20,
+    marginTop: 10,
   },
   imagePreview: {
     width: 100,
     height: 100,
     borderRadius: 8,
     backgroundColor: "#ddd",
-  },
-  picker: {
-    height: 50,
-    width: "100%",
-    borderColor: "#ccc",
-    borderWidth: 1,
-    borderRadius: 4,
-    backgroundColor: "#ccc",
   },
 });
 
