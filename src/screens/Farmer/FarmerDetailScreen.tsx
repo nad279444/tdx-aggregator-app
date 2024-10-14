@@ -5,7 +5,9 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
-  Image
+  Image,
+  Keyboard,  
+  Dimensions  
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { DataContext } from "../../../DBContext";
@@ -17,10 +19,10 @@ export default function FarmerDetailScreen({ navigation }) {
   const [phoneError, setPhoneError] = useState("");
   const [farmerToken, setFarmerToken] = useState("");
   const [communityId, setCommunityId] = useState("");
-  const [fullName,setFullName] = useState("")
+  const [fullName, setFullName] = useState("");
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false); // Track keyboard visibility
 
   const { data, updateData } = useContext(DataContext);
-
 
   useEffect(() => {
     navigation.setOptions({
@@ -47,8 +49,8 @@ export default function FarmerDetailScreen({ navigation }) {
 
   useEffect(() => {
     const verifyFarmer = async () => {
-      const { mobile, token, community_id,first_name,last_name } = await farmers.getOne(phoneNumber);
-      const fullname = `${first_name} ${last_name}`
+      const { mobile, token, community_id, first_name, last_name } = await farmers.getOne(phoneNumber);
+      const fullname = `${first_name} ${last_name}`;
       if (mobile == phoneNumber) {
         setIsVerified(true);
       } else {
@@ -56,16 +58,30 @@ export default function FarmerDetailScreen({ navigation }) {
       }
       setCommunityId(community_id);
       setFarmerToken(token);
-      setFullName(fullname)
+      setFullName(fullname);
     };
     verifyFarmer();
   }, [phoneNumber]);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      setIsKeyboardVisible(true);
+    });
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setIsKeyboardVisible(false);
+    });
+
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
+  }, []);
 
   const saveDataToDB = () => {
     updateData("phoneNumber", phoneNumber);
     updateData("farmerToken", farmerToken);
     updateData("communityId", communityId);
-    updateData("farmerName", fullName)
+    updateData("farmerName", fullName);
   };
 
   const validatePhone = (input) => {
@@ -95,7 +111,7 @@ export default function FarmerDetailScreen({ navigation }) {
     <View style={styles.container}>
       <View style={styles.blackBox}>
         <View style={styles.commodityContainer}>
-          <Image source={{uri:data.icon}} style={styles.icon}/>
+          <Image source={{ uri: data.icon }} style={styles.icon} />
           <View style={{ marginLeft: 5 }}>
             <Text style={{ color: "white", fontSize: 18, fontWeight: "500" }}>
               {data.commodity}
@@ -106,7 +122,7 @@ export default function FarmerDetailScreen({ navigation }) {
           </View>
         </View>
         <Text style={{ color: "white", fontSize: 18, fontWeight: "500" }}>
-          {data.totalPrice} ₵
+          ₵{data.totalPrice}
         </Text>
       </View>
       <View style={{ marginLeft: 20, marginTop: 20 }}>
@@ -161,6 +177,14 @@ export default function FarmerDetailScreen({ navigation }) {
           Confirm and Continue
         </Text>
       </TouchableOpacity>
+
+      {/* Conditionally render the "Add New Farmer" button based on keyboard visibility */}
+      {!isKeyboardVisible && (
+        <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('AddFarmerScreen')}>
+          <Text style={styles.addButtonText}> Add New Farmer </Text>
+          <Ionicons name="add" size={20} color="white" />
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
@@ -236,10 +260,29 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   icon: {
-    width:35,
-    height:40,
-    marginLeft:20,
-    marginTop:5
-
-  }
+    width: 35,
+    height: 40,
+    marginLeft: 20,
+    marginTop: 5,
+  },
+  addButton: {
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.2)",
+    alignItems: "center",
+    justifyContent: "center",
+    minWidth: 140,
+    position: "absolute",
+    bottom: 40,
+    right: 20,
+    height: 50,
+    backgroundColor: "#000",
+    borderRadius: 100,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    flexDirection: "row",
+  },
+  addButtonText: {
+    color: "#fff",
+    textAlign: "center",
+  },
 });

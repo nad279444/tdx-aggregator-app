@@ -129,7 +129,7 @@ export default function QualityControlScreen({ navigation }) {
           </View>
         </View>
         <Text style={{ color: "white", fontSize: 18, fontWeight: "500" }}>
-          {data.totalPrice} ₵
+        ₵{data.totalPrice}
         </Text>
       </View>
       <View style={styles.greenBox}>

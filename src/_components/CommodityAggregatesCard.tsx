@@ -32,7 +32,7 @@ export default function CommodityAggregatesCard({ commodityName, quantity, price
         </View>
       </View>
       <Text style={{ color: "black", fontSize: 18, fontWeight: "bold" }}>
-        {price} ₵
+      ₵{price} 
       </Text>
       <FontAwesome5 name="chevron-right" size={18} />
       {isPending && (

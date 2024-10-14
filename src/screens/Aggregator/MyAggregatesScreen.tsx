@@ -167,27 +167,27 @@ export default function MyAggregatesScreen({ navigation }) {
             </View>
           ) : (
             <>
-              <AggregateBarChart data={chartData} labels={labels} />
+              <AggregateBarChart data={chartData} labels={labels} dataKey='revenue' />
               <View style={{flexDirection:'row',marginHorizontal:15,flexWrap:'wrap',gap:20}}>
                 <AggregatesCard
                   title="Total Aggregates"
-                  body={`${totalAggregates.toFixed(2)} ₵`}
+                  body={`₵${totalAggregates.toFixed(2)}`}
                   end="1 Jan - 31 Dec"
                 />
                 <AggregatesCard
                   title="Monthly Average"
-                  body={`${monthlyAverage.toFixed(2)} ₵`}
+                  body={`₵${monthlyAverage.toFixed(2)}`}
                   end="1 Jan - 31 Dec"
                 />
                 <AggregatesCard
                   title="Highest Aggregates"
                   body={highestMonth}
-                  end={`${highestAggregate.toFixed(2)} ₵`}
+                  end={`₵${highestAggregate.toFixed(2)}`}
                 />
                 <AggregatesCard
                   title="Lowest Aggregates"
                   body={lowestMonth}
-                  end={`${lowestAggregate.toFixed(2)} ₵`}
+                  end={`₵${lowestAggregate.toFixed(2)} `}
                 />
               </View>
             </>

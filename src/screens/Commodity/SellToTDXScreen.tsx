@@ -180,7 +180,7 @@ const SellToTDXScreen = ({ route, navigation }) => {
                 }}
               >
                 <Text style={{ color: "white" }}>
-                  {item.purchaseprice_high}₵
+                ₵{item.purchaseprice_high}
                 </Text>
               </View>
             </View>
@@ -197,7 +197,7 @@ const SellToTDXScreen = ({ route, navigation }) => {
                 }}
               >
                 <Text style={{ color: "white" }}>
-                  {item.purchaseprice_low}₵
+                ₵{item.purchaseprice_low}
                 </Text>
               </View>
             </View>
@@ -300,7 +300,7 @@ const SellToTDXScreen = ({ route, navigation }) => {
           }}
         >
           <Text style={{ fontSize: 16 }}>Price Per Bag</Text>
-          <Text style={{ fontSize: 16 }}>{bagsRate}₵</Text>
+          <Text style={{ fontSize: 16 }}> ₵{bagsRate}</Text>
         </View>
         <Divider />
 
@@ -312,7 +312,7 @@ const SellToTDXScreen = ({ route, navigation }) => {
           }}
         >
           <Text style={{ fontSize: 16 }}>Total Cost</Text>
-          <Text style={{ fontSize: 16 }}>{totalCost}₵</Text>
+          <Text style={{ fontSize: 16 }}> ₵{totalCost}</Text>
         </View>
       </View>
 

@@ -66,7 +66,7 @@ export default function Aggregates() {
             <View style={styles.sectionHeader}>
               <Text style={styles.groupText}>{date}</Text>
               <Divider style={styles.divider} />
-              <Text style={styles.groupText}>{totalPrice(data)} ₵</Text>
+              <Text style={styles.groupText}>₵{totalPrice(data)}</Text>
             </View>
           )}
           contentContainerStyle={styles.listContent}

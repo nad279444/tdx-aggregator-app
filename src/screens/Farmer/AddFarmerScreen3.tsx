@@ -114,6 +114,7 @@ const AddFarmerScreen3 = ({ route, navigation }) => {
           experience_year: experienceYear,
           idcardtype: previousData.idCardType,
           idcardnumber: previousData.idCardNumber,
+          age:route.params.age,
         },
       });
 
@@ -179,7 +180,7 @@ const AddFarmerScreen3 = ({ route, navigation }) => {
           <TextInput
             style={styles.nameInput}
             textAlign="left"
-            placeholder="The year you started farming"
+            placeholder=""
             keyboardType="numeric"
             onChangeText={(num) => setExperienceYear(num)}
             value={experienceYear}

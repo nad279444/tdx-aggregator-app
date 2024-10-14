@@ -84,7 +84,7 @@ export default function CommunityPricesScreen({ navigation }) {
                 }}
               >
                 <Text style={{ color: "white" }}>
-                  {item.purchaseprice_high}₵
+                ₵{item.purchaseprice_high}
                 </Text>
               </View>
             </View>
@@ -101,7 +101,7 @@ export default function CommunityPricesScreen({ navigation }) {
                 }}
               >
                 <Text style={{ color: "white" }}>
-                  {item.purchaseprice_low}₵
+                ₵{item.purchaseprice_low}
                 </Text>
               </View>
             </View>

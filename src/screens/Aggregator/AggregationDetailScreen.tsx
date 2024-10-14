@@ -44,9 +44,9 @@ const whiteImage = image.replace(".png", "-white.png");
         </View>
        <ListComponent label='Farmer' value={farmer} />
        <ListComponent label='No. of bags' value={bags} />
-       <ListComponent label='Price' value={ `${price} ₵`}  /> 
+       <ListComponent label='Price' value={ `₵${price}`}  /> 
        <ListComponent label='Weight' value={`${quantity} KG`} />
-       <ListComponent label='Total Price' value={ `${totalPrice} ₵`} textStyle={{color:'#21893E',fontWeight:'bold',fontSize:16,}}/>
+       <ListComponent label='Total Price' value={ `₵${totalPrice}`} textStyle={{color:'#21893E',fontWeight:'bold',fontSize:16,}}/>
        
     </View>
   )

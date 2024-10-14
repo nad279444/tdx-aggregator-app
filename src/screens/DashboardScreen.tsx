@@ -1,19 +1,20 @@
-import React, { useEffect, useContext, useState,useRef,useMemo } from "react";
+import React, { useEffect, useContext, useState, useRef, useMemo } from "react";
 import {
   View,
   Text,
   ActivityIndicator,
   StyleSheet,
   TouchableOpacity,
+  Animated,
+  Easing,
 } from "react-native";
 import { FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { ProfileContext } from "../../ProfileContext";
 import { aggregates } from "../controllers/api/aggregates";
-import { orders } from '../controllers/api/orders';
+import { orders } from "../controllers/api/orders";
 import BottomSheet from "@gorhom/bottom-sheet";
-import { Divider } from 'react-native-elements';
-import { ScrollView } from 'react-native-gesture-handler';
-
+import { Divider } from "react-native-elements";
+import { ScrollView } from "react-native-gesture-handler";
 
 export default function DashboardScreen({ navigation }) {
   const { profile } = useContext(ProfileContext);
@@ -23,7 +24,6 @@ export default function DashboardScreen({ navigation }) {
   const bottomSheetRef = useRef(null);
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
   const snapPoints = useMemo(() => ["25%", "50%", "75%"], []);
-
 
   useEffect(() => {
     navigation.setOptions({
@@ -42,31 +42,34 @@ export default function DashboardScreen({ navigation }) {
   }, [navigation]);
 
   useEffect(() => {
-    (async function dashboardAggregates() {
-      setLoading(false);
-      try {
-        const response = await aggregates.getDashboard();
-        console.log(response);
-        setAgg(response);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoading(false);
-      }
+    (async () => {
+      await dashboardAggregates();
     })();
   }, [navigation]);
 
   useEffect(() => {
     const fetchAllOrders = async () => {
       try {
-        const data = await orders.getAllOrders(); 
-        setOrderList(data); 
+        const data = await orders.getAllOrders();
+        setOrderList(data);
       } catch (error) {
-        console.error("Error fetching commodities: ", error);
+        console.error("Error fetching orders: ", error);
       }
     };
     fetchAllOrders();
   }, []);
+
+  async function dashboardAggregates() {
+    setLoading(true);
+    try {
+      const response = await aggregates.getDashboard();
+      setAgg(response);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   const handleShowOrders = () => {
     setIsBottomSheetOpen(true);
@@ -77,19 +80,24 @@ export default function DashboardScreen({ navigation }) {
     setIsBottomSheetOpen(false);
     bottomSheetRef.current?.close(); // Closes the BottomSheet
   };
-   
+
   const renderOrderList = () => (
     <View style={styles.bottomSheetContent}>
-      <TouchableOpacity onPress={handleCloseBottomSheet} style={styles.closeButton}>
+      <TouchableOpacity
+        onPress={handleCloseBottomSheet}
+        style={styles.closeButton}
+      >
         <Ionicons name="close" size={32} color="white" />
       </TouchableOpacity>
-      <Text style={styles.orderTitle}>List of Orders</Text>
+      <Text style={styles.orderTitle}>Recent Orders</Text>
       <ScrollView>
         {orderList.map((item) => (
           <View key={item.order_tnx}>
             <View style={styles.orderItem}>
               <Text style={styles.orderData}>Farmer</Text>
-              <Text style={{color:'green',fontSize:15}}>{item.farmer}</Text>
+              <Text style={{ color: "green", fontSize: 15 }}>
+                {item.farmer}
+              </Text>
             </View>
             <View style={styles.orderItem}>
               <Text style={styles.orderData}>Quantity</Text>
@@ -97,17 +105,19 @@ export default function DashboardScreen({ navigation }) {
             </View>
             <View style={styles.orderItem}>
               <Text style={styles.orderData}>Total Cost</Text>
-              <Text style={styles.orderData}>{item.total_cost}</Text>
+              <Text style={styles.orderData}>₵{item.total_cost}</Text>
             </View>
             <View style={styles.orderItem}>
               <Text style={styles.orderData}>Payment Status</Text>
               <View style={styles.pending}>
                 <Text style={styles.orderData}>{item.paymentstatus}</Text>
-              </View> 
+              </View>
             </View>
             <View style={styles.orderItem}>
               <Text style={styles.orderData}>Created At</Text>
-              <Text style={styles.orderData}>{item.created_at.split(' ')[0]}</Text>
+              <Text style={styles.orderData}>
+                {item.created_at.split(" ")[0]}
+              </Text>
             </View>
             <View style={{ marginVertical: 10 }}>
               <Divider color="white" />
@@ -118,25 +128,30 @@ export default function DashboardScreen({ navigation }) {
     </View>
   );
 
-
   return (
     <View style={styles.container}>
       {loading ? (
-        <ActivityIndicator size="large" color="green" />
+        <ActivityIndicator size="large" color="green" style={styles.loader} />
       ) : (
         <View style={styles.dashboardContainer}>
-          <Text
-            style={{ fontSize: 18, fontWeight: "bold" }}
-          >
+          <Text style={{ fontSize: 18, fontWeight: "bold" }}>
             Hello {profile?.firstname ?? ""}
           </Text>
-          <View style={styles.greenCard}>
+          <View style={[styles.greenCard, { position: "relative" }]}>
             <View style={{ padding: 20 }}>
               <Text
                 style={{ fontSize: 18, fontWeight: "bold", color: "white" }}
               >
                 Available Balance
               </Text>
+              <TouchableOpacity
+                style={{ position: "absolute", right: 40, top: 20 }}
+                onPress={async () => {
+                  await dashboardAggregates();
+                }}
+              >
+                <Ionicons name="refresh-circle" size={40} color="white" />
+              </TouchableOpacity>
               <Text
                 style={{
                   fontSize: 28,
@@ -145,7 +160,7 @@ export default function DashboardScreen({ navigation }) {
                   marginTop: 5,
                 }}
               >
-                {agg?.account_balance}₵
+                ₵{agg?.account_balance}
               </Text>
               <View
                 style={{
@@ -156,10 +171,10 @@ export default function DashboardScreen({ navigation }) {
               >
                 <TouchableOpacity
                   style={styles.addButton}
-                  onPress={() => navigation.navigate("AddFarmerScreen")}
+                  onPress={handleShowOrders}
                 >
-                  <Ionicons name="add" size={20} color="white" />
-                  <Text style={styles.addButtonText}> Add New Farmer </Text>
+                  <Ionicons name="cart" size={20} color="white" />
+                  <Text style={styles.addButtonText}> Recent Orders </Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -173,21 +188,25 @@ export default function DashboardScreen({ navigation }) {
           <DashboardList
             icon="hand-holding-usd"
             button={() => navigation.navigate("MyAggregatesScreen")}
-            title="Total Cash Transmissions"
-            content={`${agg?.total_cost ?? 0} ₵ `}
+            title="Total Cash Transactions"
+            content={`₵${agg?.total_cost ?? 0} `}
           />
           <DashboardList
             icon="weight"
-            button={handleShowOrders}
+            button={() => navigation.navigate("AggregatorQuantitiesScreen")}
             title="Total Quantities Sold         "
-            content={agg?.total_quantity ?? "0 KG" }
+            content={agg?.total_quantity ?? "0 KG"}
           />
+          <TouchableOpacity
+            style={styles.greenButton}
+            onPress={() => navigation.navigate("SellToTDXScreen")}
+          >
+            <Text style={styles.buttonText2}>Sell To TDX </Text>
+          </TouchableOpacity>
         </View>
       )}
-       <TouchableOpacity style={styles.greenButton} onPress={() => navigation.navigate('SellToTDXScreen')}>
-          <Text style={styles.buttonText2}>Sell To TDX </Text>
-        </TouchableOpacity>
-        <BottomSheet
+
+      <BottomSheet
         ref={bottomSheetRef}
         snapPoints={snapPoints}
         enablePanDownToClose={true}
@@ -203,7 +222,14 @@ export default function DashboardScreen({ navigation }) {
 const DashboardList = ({ icon, button, title, content }) => {
   return (
     <View style={styles.listContainer}>
-      <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 10 }}>
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          paddingHorizontal: 10,
+        }}
+      >
         <View style={styles.iconContainer}>
           <FontAwesome5 name={icon} size={30} color="black" />
         </View>
@@ -211,10 +237,7 @@ const DashboardList = ({ icon, button, title, content }) => {
           <Text style={styles.listTitle}>{title}</Text>
           <Text style={styles.listContent}>{content}</Text>
         </View>
-        <TouchableOpacity
-          onPress={button}
-          style={styles.viewButton}
-        >
+        <TouchableOpacity onPress={button} style={styles.viewButton}>
           <Text style={{ color: "white" }}>View</Text>
         </TouchableOpacity>
       </View>
@@ -273,7 +296,6 @@ const styles = StyleSheet.create({
   },
   listTitle: {
     fontSize: 14,
-    
   },
   listContent: {
     fontSize: 16,
@@ -287,25 +309,24 @@ const styles = StyleSheet.create({
     backgroundColor: "green",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom:10
+    marginBottom: 10,
   },
   greenButton: {
     backgroundColor: "#21893E",
     marginTop: 25,
     height: 50,
-    marginHorizontal: 20,
     borderRadius: 4,
     justifyContent: "center",
     alignItems: "center",
   },
   buttonText2: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   bottomSheetContent: {
     padding: 20,
-    marginBottom:50,
+    marginBottom: 50,
   },
   bottomSheetBackground: {
     backgroundColor: "#221D1D",
@@ -318,23 +339,28 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   orderItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 10,
   },
   orderData: {
-    color: 'white',
+    color: "white",
   },
   pending: {
     width: 70,
     height: 25,
     borderRadius: 5,
-    backgroundColor: '#ECC63E',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#ECC63E",
+    justifyContent: "center",
+    alignItems: "center",
   },
   closeButton: {
     alignSelf: "flex-end",
     padding: 5,
+  },
+  loader: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

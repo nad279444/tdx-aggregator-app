@@ -86,6 +86,7 @@ export default function FarmerPaymentScreen({ navigation }) {
           25,
           50
         );
+        navigation.navigate("CompleteScreen");
       } else {
         ToastAndroid.showWithGravityAndOffset(
           response.message,
@@ -94,9 +95,10 @@ export default function FarmerPaymentScreen({ navigation }) {
           25,
           50
         );
+        navigation.navigate("");
       }
 
-      navigation.navigate("CompleteScreen");
+      
       setMomoName("");
       setMomoNumber("");
     } catch (error) {
@@ -149,7 +151,7 @@ export default function FarmerPaymentScreen({ navigation }) {
             </View>
           </View>
           <Text style={{ color: "white", fontSize: 18, fontWeight: "500" }}>
-            {data.totalPrice} ₵
+          ₵{data.totalPrice}
           </Text>
         </View>
 

@@ -77,7 +77,7 @@ const CompleteScreen = ({ route, navigation }) => {
             </View>
             <View style={styles.orderItem}>
               <Text style={styles.orderData}>Total Cost</Text>
-              <Text style={styles.orderData}>{item.total_cost}</Text>
+              <Text style={styles.orderData}>₵{item.total_cost}</Text>
             </View>
             <View style={styles.orderItem}>
               <Text style={styles.orderData}>Payment Status</Text>

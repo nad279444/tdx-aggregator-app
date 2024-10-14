@@ -31,6 +31,7 @@ import FarmerPaymentScreen from "./src/screens/Farmer/FarmerPaymentScreen";
 import CommodityAggregatesCard from "./src/_components/CommodityAggregatesCard";
 import AggregatorProfileScreen from "./src/screens/Aggregator/AggregatorProfileScreen";
 import DashboardScreen from "./src/screens/DashboardScreen";
+import AggregatorQuantitiesScreen from "./src/screens/Aggregator/AggregatorQuantitiesScreen";
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -137,6 +138,10 @@ export default function AppNavigator() {
               component={AggregationDetailScreen}
             />
             <Stack.Screen
+              name="AggregatorQuantitiesScreen"
+              component={AggregatorQuantitiesScreen}
+            />
+            <Stack.Screen
               name="AggregatorProfileScreen"
               component={AggregatorProfileScreen}
             />
@@ -193,6 +198,10 @@ function DrawerNavigator() {
       <Drawer.Screen
         name="AggregatorProfileScreen"
         component={AggregatorProfileScreen}
+      />
+      <Drawer.Screen
+        name="AggregatorQuantitiesScreen"
+        component={AggregatorQuantitiesScreen}
       />
       <Drawer.Screen name="CompleteScreen" component={CompleteScreen} />
     </Drawer.Navigator>
