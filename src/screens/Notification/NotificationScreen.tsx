@@ -11,12 +11,12 @@ import {
 import NotificationCard from "../../_components/NotificationCard";
 import { Ionicons } from "@expo/vector-icons";
 import { notifications } from "../../controllers/api/notifications";
-import * as Notifications from 'expo-notifications'
+import * as Notifications from "expo-notifications";
 
 export default function NotificationScreen({ navigation }) {
-  
   const [loading, setLoading] = useState(false);
   const [notificationResponse, setNotificationResponse] = useState([]);
+  console.log(notificationResponse)
 
   useEffect(() => {
     // Fetch notifications from server
@@ -33,17 +33,6 @@ export default function NotificationScreen({ navigation }) {
     })();
   }, []);
 
-
-  useEffect(() => {
-    const subscription = Notifications.addNotificationResponseReceivedListener(response => {
-      const { notification } = response;
-
-      // Navigate to the NotificationScreen when notification is tapped
-      navigation.navigate("NotificationScreen");
-    });
-
-    return () => subscription.remove();
-  }, [navigation]);
   // Update header options
   useEffect(() => {
     navigation.setOptions({
@@ -71,7 +60,11 @@ export default function NotificationScreen({ navigation }) {
   return (
     <View style={{ flex: 1 }}>
       {loading ? (
-        <ActivityIndicator size="large" color="green" style={styles.loadingIndicator} />
+        <ActivityIndicator
+          size="large"
+          color="green"
+          style={styles.loadingIndicator}
+        />
       ) : notificationResponse.length === 0 ? (
         <Text style={styles.noNotificationText}>No notifications yet</Text>
       ) : (
