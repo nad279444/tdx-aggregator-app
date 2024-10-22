@@ -15,6 +15,7 @@ export const COMMUNITY_RATES =  `${BASE_URL}/user/commodityratesbycommunity`
 export const AGGREGATES =  `${BASE_URL}/user/aggregates`
 export const ORDER_STATISTICS =  `${BASE_URL}/user/orderrecords`
 export const ALLORDERS =  `${BASE_URL}/user/orderlist`
+export const NOTIFICATIONS =  `${BASE_URL}/user/notifications`
 export const DASHBOARD =  `${BASE_URL}/user/milestones`
 export const QUANTITYDATA =  `${BASE_URL}/user/orderqtyrecords`
 

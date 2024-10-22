@@ -1,3 +1,4 @@
+
 import { Dimensions } from 'react-native';
 
 // Function to calculate the diagonal length of the screen in inches

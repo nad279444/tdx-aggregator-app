@@ -107,6 +107,7 @@ const AddFarmerScreen2 = ({ route, navigation }) => {
             style={styles.picker}
             onValueChange={(itemValue, itemIndex) => setNetwork(itemValue)}
           >
+            <Picker.Item label="SELECT" value="" />
             <Picker.Item label="MTN" value="mtn" />
             <Picker.Item label="Telecel" value="telecel" />
           </Picker>
@@ -135,6 +136,7 @@ const AddFarmerScreen2 = ({ route, navigation }) => {
             style={styles.picker}
             onValueChange={(itemValue, itemIndex) => setAltNetWork(itemValue)}
           >
+            <Picker.Item label="SELECT" value="" />
             <Picker.Item label="MTN" value="mtn" />
             <Picker.Item label="Telecel" value="telecel" />
           </Picker>

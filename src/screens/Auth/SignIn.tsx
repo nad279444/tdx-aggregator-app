@@ -14,6 +14,8 @@ import auth from "../../controllers/auth/auth";
 import { AuthContext } from "../../../AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import { ProfileContext } from "../../../ProfileContext";
+import { usePushNotifications } from "../../functions/useNotifications";
+import * as SecureStore from 'expo-secure-store';
 
 export default function SignIn({ navigation }) {
   useEffect(() => {
@@ -38,6 +40,7 @@ export default function SignIn({ navigation }) {
   const [isLoading, setIsLoading] = useState(false);
   const { authContext } = useContext(AuthContext);
   const { updateProfile } = useContext(ProfileContext);
+  const {expoPushToken} = usePushNotifications()
 
   const validatePhone = (input) => {
     const phoneRegex = /^\d{10}$/; // Exactly 10 digits
@@ -63,6 +66,7 @@ export default function SignIn({ navigation }) {
         );
         await authContext.signIn(response);
         await updateProfile(response);
+        await SecureStore.setItemAsync('expoPushToken', expoPushToken?.data ?? '');
       } else {
         ToastAndroid.showWithGravityAndOffset(
           response.message,

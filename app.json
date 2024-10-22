@@ -20,13 +20,12 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.tdxapps.aggregator",
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": "./android/app/google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "extra": {
-      "oneSignalAppId": "8eb27357-7c0a-4271-9fef-ba3c5b8f04c7",
       "eas": {
         "projectId": "956056d4-195d-4c50-ae1b-76ed9dcb06c4"
       }

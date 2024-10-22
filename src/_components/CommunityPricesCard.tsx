@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
    container: {
     backgroundColor: '#fff',
     marginHorizontal:20,
-    marginTop:40,
+    marginTop:30,
     borderRadius:10,
     flexDirection:'row',
     justifyContent:'space-between',

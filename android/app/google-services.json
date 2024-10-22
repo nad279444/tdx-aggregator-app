@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "18268445525",
+    "project_id": "tdx-applications",
+    "storage_bucket": "tdx-applications.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:18268445525:android:6c9f8ac2d9773d3d236ddc",
+        "android_client_info": {
+          "package_name": "com.tdxapps.aggregator"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCjkoAdrKCsfWV5wguRZhb-dfR9vSiGH7I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:18268445525:android:ee0ba05f34f47883236ddc",
+        "android_client_info": {
+          "package_name": "com.tdxfieldagent.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCjkoAdrKCsfWV5wguRZhb-dfR9vSiGH7I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

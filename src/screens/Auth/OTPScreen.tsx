@@ -1,19 +1,15 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
   TextInput,
   StyleSheet,
-  ScrollView,
   TouchableOpacity,
-  ToastAndroid,
   ActivityIndicator,
 } from "react-native";
-import auth from "../../controllers/auth/auth";
 import { Ionicons } from "@expo/vector-icons";
-import OTPInputView from "@twotalltotems/react-native-otp-input";
 
-export default function OTPScreen({ navigation,route }) {
+export default function OTPScreen({ navigation, route }) {
   useEffect(() => {
     navigation.setOptions({
       title: "OTP",
@@ -30,38 +26,57 @@ export default function OTPScreen({ navigation,route }) {
   }, [navigation]);
 
   const [isLoading, setIsLoading] = useState(false);
-  const [otp, setOtp] = useState("");
-  const {mobile} = route.params
+  const [otp, setOtp] = useState(["", "", "", ""]);
+  const { mobile } = route.params;
 
-  
-  
+  // Refs for each TextInput
+  const otpRefs = useRef([]);
 
-  async function handleOTP() {
-    navigation.navigate("ResetPassword",{otp,mobile});
-    setOtp("")
-  }
+  const handleOtpChange = (text, index) => {
+    const newOtp = [...otp];
+    newOtp[index] = text;
+    setOtp(newOtp);
+
+    // Move to the next input once the user enters a digit
+    if (text && index < 3) {
+      otpRefs.current[index + 1].focus();
+    }
+  };
+
+  const handleOTP = () => {
+    const otpCode = otp.join(""); // Combine digits into one OTP code
+    navigation.navigate("ResetPassword", { otp: otpCode, mobile });
+    setOtp(["", "", "", ""]);
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.otpContainer}>
         <Text style={styles.text}>Enter Your TDX OTP</Text>
-        <OTPInputView
-          style={styles.otpView}
-          pinCount={4}
-          code={otp} // set OTP if needed
-          onCodeChanged={(code) => setOtp(code)} // updates OTP on change
-          codeInputFieldStyle={styles.underlineStyleBase}
-          codeInputHighlightStyle={styles.underlineStyleHighlighted}
-          onCodeFilled={(code) => {
-            console.log(`OTP entered: ${code}`);
-          }}
-        />
+        <View style={styles.otpBoxes}>
+          {otp.map((digit, index) => (
+            <TextInput
+              key={index}
+              style={styles.otpInput}
+              keyboardType="numeric"
+              maxLength={1}
+              value={digit}
+              onChangeText={(text) => handleOtpChange(text, index)}
+              ref={(el) => (otpRefs.current[index] = el)} // Set ref for each TextInput
+              onKeyPress={({ nativeEvent }) => {
+                if (nativeEvent.key === 'Backspace' && index > 0 && !digit) {
+                  otpRefs.current[index - 1].focus(); // Move to the previous input on backspace if empty
+                }
+              }}
+            />
+          ))}
+        </View>
       </View>
 
       <TouchableOpacity
-        style={otp ? styles.greenButton : styles.disabledButton}
+        style={otp.every((digit) => digit) ? styles.greenButton : styles.disabledButton}
         onPress={handleOTP}
-        disabled={!otp || isLoading}
+        disabled={otp.some((digit) => !digit) || isLoading}
       >
         <Text style={{ fontSize: 18, color: "white" }}>Send</Text>
         {isLoading && (
@@ -81,19 +96,27 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
   },
-
-  title: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 4,
-    color: "green",
-    marginLeft: 10,
-    paddingTop: 20,
+  otpContainer: {
+    alignItems: "center",
   },
-  label: {
-    fontSize: 14,
+  text: {
+    fontSize: 20,
     marginBottom: 20,
-    marginLeft: 10,
+    color: "green",
+    fontWeight: "bold",
+  },
+  otpBoxes: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "80%",
+  },
+  otpInput: {
+    width: 50,
+    height: 50,
+    borderBottomWidth: 2,
+    borderColor: "green",
+    textAlign: "center",
+    fontSize: 18,
   },
   greenButton: {
     backgroundColor: "#21893E",
@@ -109,38 +132,12 @@ const styles = StyleSheet.create({
   disabledButton: {
     marginVertical: 50,
     height: 50,
-    marginHorizontal: 10,
+    marginHorizontal: 25,
     borderWidth: 1,
     borderColor: "#D5D8DE",
     borderRadius: 4,
     paddingVertical: 10,
     backgroundColor: "#D5D8DE",
     alignItems: "center",
-  },
-  otpContainer: {
-    alignItems: "center",
-  },
-
-  text: {
-    fontSize: 20,
-    marginBottom: 20,
-    color: 'green',
-    fontWeight: 'condensedBold'
-  },
-  otpView: {
-    width: "80%",
-    height: 200,
-  },
-  underlineStyleBase: {
-    width: 30,
-    height: 45,
-    borderWidth: 0,
-    borderColor: "green",
-    color: "green",
-    borderBottomWidth: 3,
-    borderBottomColor: 'green'
-  },
-  underlineStyleHighlighted: {
-    borderColor: "#03DAC6",
   },
 });

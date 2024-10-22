@@ -54,6 +54,7 @@ export default function ResetPassword({ navigation, route }) {
           25,
           50
         );
+        navigation.navigate("SignIn");
       }
       ToastAndroid.showWithGravityAndOffset(
         response.message,
@@ -62,7 +63,7 @@ export default function ResetPassword({ navigation, route }) {
         25,
         50
       );
-      navigation.navigate("SignIn");
+      
     } catch (error) {
       ToastAndroid.showWithGravityAndOffset(
         error.message,
@@ -174,7 +175,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#21893E",
     marginVertical: 20,
     height: 50,
-    marginHorizontal: 25,
+    marginHorizontal: 10,
     borderWidth: 1,
     borderColor: "#D5D8DE",
     borderRadius: 4,

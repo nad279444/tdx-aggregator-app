@@ -5,6 +5,7 @@ import auth from '../../controllers/auth/auth';
 import { AuthContext } from '../../../AuthContext';
 import { communities } from '../../controllers/api/communities';
 import { Picker } from '@react-native-picker/picker';
+import { usePushNotifications } from '../../functions/useNotifications';
 
 
 export default function Registration ({navigation}) {
@@ -18,7 +19,10 @@ export default function Registration ({navigation}) {
   const [communityList,setCommunityList] = useState()
   const [isLoading,setIsLoading] = useState(false)
   const {authContext} = useContext(AuthContext)
-  
+  const { expoPushToken } = usePushNotifications();
+  const expoToken = expoPushToken?.data ?? ''
+  const deviceId = expoToken ? expoToken.split('[')[1].split(']')[0] : '';
+
 
   useEffect(() => {
     (async function getCommunities() {
@@ -39,13 +43,14 @@ export default function Registration ({navigation}) {
   };
   
   async function handleRegistration () {
+
     setIsLoading(true)
     try {
       const response = await auth.signUp({
         fullname: name,
         mobile: phoneNumber,
         password,
-        deviceId: "",
+        deviceId,
         confirmpassword: confirmPassword,
         community,
       });
@@ -78,6 +83,7 @@ export default function Registration ({navigation}) {
     } finally {
       setIsLoading(false);
     }
+    
   }
   
 
@@ -244,7 +250,7 @@ const styles = StyleSheet.create({
   disabledButton: {
     marginVertical: 10,
     height: 50,
-    marginHorizontal: 10,
+    marginHorizontal: 25,
     borderWidth: 1,
     borderColor: "#D5D8DE",
     borderRadius: 4,
