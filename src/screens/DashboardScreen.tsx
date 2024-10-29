@@ -15,6 +15,8 @@ import { orders } from "../controllers/api/orders";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { Divider } from "react-native-elements";
 import { ScrollView } from "react-native-gesture-handler";
+import NotificationIcon from "./Notification/NotificationIcon";
+import { usePushNotifications } from "../functions/useNotifications";
 
 export default function DashboardScreen({ navigation }) {
   const { profile } = useContext(ProfileContext);
@@ -24,7 +26,8 @@ export default function DashboardScreen({ navigation }) {
   const bottomSheetRef = useRef(null);
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
   const snapPoints = useMemo(() => ["25%", "50%", "75%"], []);
-
+  const {unreadCount,resetUnreadCount} = usePushNotifications()
+ 
   useEffect(() => {
     navigation.setOptions({
       title: "Dashboard",
@@ -134,7 +137,7 @@ export default function DashboardScreen({ navigation }) {
         <ActivityIndicator size="large" color="green" style={styles.loader} />
       ) : (
         <View style={styles.dashboardContainer}>
-          <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+          <Text style={{ fontSize: 22, fontWeight: "bold" }}>
             Hello {profile?.firstname ?? ""}
           </Text>
           <View style={[styles.greenCard, { position: "relative" }]}>
@@ -152,6 +155,12 @@ export default function DashboardScreen({ navigation }) {
               >
                 <Ionicons name="refresh-circle" size={40} color="white" />
               </TouchableOpacity>
+              <TouchableOpacity
+                style={{ position: "absolute", right: 80, top: 23 }}
+              >
+               <NotificationIcon unreadCount={unreadCount} onPress={() => navigation.navigate('NotificationScreen')}/> 
+              </TouchableOpacity>
+              
               <Text
                 style={{
                   fontSize: 28,

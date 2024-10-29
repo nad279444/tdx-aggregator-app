@@ -11,7 +11,6 @@ import * as Notifications from 'expo-notifications'
 import { usePushNotifications } from "./src/functions/useNotifications";
 
 export default function App({navigation}) {
-
   
   useEffect(() => {
     const subscription = Notifications.addNotificationReceivedListener(notification => {

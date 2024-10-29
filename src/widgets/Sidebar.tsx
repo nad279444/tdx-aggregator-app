@@ -5,6 +5,7 @@ import { Divider } from 'react-native-elements';
 import { AuthContext } from '../../AuthContext';
 import AuthTokenStore from '../../AuthTokenStore';
 import AggregatorController from '../controllers/api/AggregatorController';
+import { usePushNotifications } from '../functions/useNotifications';
 
 const Sidebar = ({ navigation }) => {
   const { authContext } = useContext(AuthContext);
@@ -13,6 +14,7 @@ const Sidebar = ({ navigation }) => {
   const [proLastName, setProLastName] = useState("");
   const [proAccountType, setProAccountType] = useState("");
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const {resetUnreadCount} = usePushNotifications()
 
 
 

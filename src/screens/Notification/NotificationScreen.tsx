@@ -12,11 +12,13 @@ import NotificationCard from "../../_components/NotificationCard";
 import { Ionicons } from "@expo/vector-icons";
 import { notifications } from "../../controllers/api/notifications";
 import * as Notifications from "expo-notifications";
+import { usePushNotifications } from "../../functions/useNotifications";
 
-export default function NotificationScreen({ navigation }) {
+export default function NotificationScreen({ navigation,route }) {
   const [loading, setLoading] = useState(false);
   const [notificationResponse, setNotificationResponse] = useState([]);
-  console.log(notificationResponse)
+  const {unreadCount,resetUnreadCount} = usePushNotifications()
+ 
 
   useEffect(() => {
     // Fetch notifications from server
@@ -56,6 +58,13 @@ export default function NotificationScreen({ navigation }) {
       ),
     });
   }, [navigation]);
+
+  useEffect(() => {
+    if (resetUnreadCount) {
+      resetUnreadCount() 
+    }
+  }, [resetUnreadCount]);
+
 
   return (
     <View style={{ flex: 1 }}>

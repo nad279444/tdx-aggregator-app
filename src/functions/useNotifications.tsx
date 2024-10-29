@@ -9,6 +9,8 @@ import { Platform } from "react-native";
 export interface PushNotificationState {
   expoPushToken?: Notifications.ExpoPushToken;
   notification?: Notifications.Notification;
+  unreadCount?: number
+  resetUnreadCount: () => void  
 }
 
 export const usePushNotifications = (): PushNotificationState => {
@@ -28,9 +30,13 @@ export const usePushNotifications = (): PushNotificationState => {
     Notifications.Notification | undefined
   >();
 
+  const [unreadCount,setUnreadCount] = useState(0)
+
   const notificationListener = useRef<Notifications.Subscription>();
   const responseListener = useRef<Notifications.Subscription>();
-
+  
+  
+ 
   async function registerForPushNotificationsAsync() {
     let token;
     if (Device.isDevice) {
@@ -66,19 +72,25 @@ export const usePushNotifications = (): PushNotificationState => {
     return token;
   }
 
+  const resetUnreadCount = () => {
+    setUnreadCount(0); 
+  };
+
   useEffect(() => {
     registerForPushNotificationsAsync().then((token) => {
       setExpoPushToken(token);
     });
-
+   
+   
     notificationListener.current =
       Notifications.addNotificationReceivedListener((notification) => {
         setNotification(notification);
+        setUnreadCount((prevCount) => prevCount + 1); 
       });
 
     responseListener.current =
       Notifications.addNotificationResponseReceivedListener((response) => {
-        console.log(response);
+        setUnreadCount((prevCount) => Math.max(prevCount - 1, 0));
       });
 
     return () => {
@@ -93,5 +105,7 @@ export const usePushNotifications = (): PushNotificationState => {
   return {
     expoPushToken,
     notification,
+    unreadCount,
+    resetUnreadCount,
   };
 };
