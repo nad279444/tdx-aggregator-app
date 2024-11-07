@@ -26,7 +26,7 @@ export default function DashboardScreen({ navigation }) {
   const bottomSheetRef = useRef(null);
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
   const snapPoints = useMemo(() => ["25%", "50%", "75%"], []);
-  const {unreadCount,resetUnreadCount} = usePushNotifications()
+  const {unreadCount} = usePushNotifications()
  
   useEffect(() => {
     navigation.setOptions({

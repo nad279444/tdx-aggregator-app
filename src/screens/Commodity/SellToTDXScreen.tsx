@@ -19,6 +19,10 @@ import { commodities } from "../../controllers/api/commodities";
 import { autoCalculator } from "../../controllers/api/priceCalculator";
 import { silos } from "../../controllers/api/silos";
 import { ScrollView } from "react-native-gesture-handler";
+import NetInfo from '@react-native-community/netinfo';
+
+
+
 
 const SellToTDXScreen = ({ route, navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -40,6 +44,8 @@ const SellToTDXScreen = ({ route, navigation }) => {
   const bottomSheetRef = useRef(null);
   const snapPoints = useMemo(() => ["25%", "50%", "75%"], []);
   const { data, updateData } = useDataContext();
+  const [isOnline,setIsOnline] = useState(false)
+
 
   useEffect(() => {
     navigation.setOptions({
@@ -59,18 +65,51 @@ const SellToTDXScreen = ({ route, navigation }) => {
     });
   }, [navigation]);
 
+ 
+
   useEffect(() => {
-    const fetchCommodities = async () => {
-      try {
-        const data = await commodities.getRates(); // Await the commodities API call
-        setCommodityRates(data); // Store the response in state
-      } catch (error) {
-        console.error("Error fetching commodities: ", error);
-      }
+    const handleNetworkChange = async (isConnected) => {
+        setIsOnline(isConnected);
+        if (isConnected) {
+            try {
+                await commodities.fetchAndSync();
+                const localData = await commodities.loadJsonFromFile()
+                if (localData) {
+                  setCommodityRates(localData.data)
+                } else {
+                    console.log("No local data available.");
+                }
+            } catch (error) {
+                console.error("Error syncing data:", error);
+            }
+        } else {
+            try {
+                const localData = await commodities.loadJsonFromFile();
+                if (localData) {
+                    console.log(localData)
+                } else {
+                    console.log("No local data available.");
+                }
+            } catch (error) {
+                console.error("Error loading data from local storage:", error);
+            }
+        }
     };
 
-    fetchCommodities();
-  }, []);
+    // Listen for network status changes
+    const unsubscribe = NetInfo.addEventListener(state => {
+        handleNetworkChange(state.isConnected);
+    });
+
+    // Initial check
+    NetInfo.fetch().then(state => {
+        handleNetworkChange(state.isConnected);
+    });
+
+    // Clean up the event listener
+    return () => unsubscribe();
+}, []);
+
 
   useEffect(() => {
     const fetchSilos = async () => {
@@ -160,7 +199,7 @@ const SellToTDXScreen = ({ route, navigation }) => {
       </Text>
       <ScrollView>
       {commodityRates.map((item) => (
-        <View key={item.commo_no} style={styles.marketItem}>
+        <View key={item.commodityId} style={styles.marketItem}>
           <View>
             <Text style={styles.marketItemText}>{item.name}</Text>
             <Text style={{ color: "#94E081", fontSize: 16 }}>
@@ -288,7 +327,7 @@ const SellToTDXScreen = ({ route, navigation }) => {
             paddingVertical: 10,
           }}
         >
-          <Text style={{ fontSize: 16 }}>Number of Bags</Text>
+          <Text style={{ fontSize: 16 }}>No.of Bags(100KG)</Text>
           <Text style={{ fontSize: 16 }}>{bags}</Text>
         </View>
         <Divider />
@@ -299,7 +338,7 @@ const SellToTDXScreen = ({ route, navigation }) => {
             paddingVertical: 10,
           }}
         >
-          <Text style={{ fontSize: 16 }}>Price Per Bag</Text>
+          <Text style={{ fontSize: 16 }}>Price Per KG</Text>
           <Text style={{ fontSize: 16 }}> ₵{bagsRate}</Text>
         </View>
         <Divider />
@@ -364,7 +403,7 @@ const SellToTDXScreen = ({ route, navigation }) => {
                 <TouchableOpacity
                   style={{ width: 500 }}
                   onPress={() =>
-                    handleSelectCommodity(item.name, item.commodityId,item.icon)
+                    handleSelectCommodity(item.name, item.id,item.icon)
                   }
                 >
                   <View style={styles.modalItems}>

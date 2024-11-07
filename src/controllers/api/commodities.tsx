@@ -1,55 +1,45 @@
-import { COMMODITIES,COMMODITIES_RATES } from "../../constants/Constants";
-import axios from 'axios';
-import * as SecureStore from 'expo-secure-store';
+import { COMMODITIES, COMMODITIES_RATES } from "../../constants/Constants"
+import * as FileSystem from "expo-file-system";
+import { fetchAndSaveJson, syncJson } from "../../functions/utils";
 
 export const commodities = {
-    get: async () => {
-        try {
-            // Retrieve tokens from secure storage
-            const access_token = await SecureStore.getItemAsync('accessToken');
-            const user_token = await SecureStore.getItemAsync('userToken');
-        
+  fileName: "commodities.json",
+  filePath: `${FileSystem.documentDirectory}commodities.json`,
+  fetchAndSync: async () => {
+    try {
+      await fetchAndSaveJson(COMMODITIES_RATES, commodities.filePath);
+      await syncJson(
+        COMMODITIES_RATES,
+        commodities.filePath,
+        commodities.loadJsonFromFile
+      );
+    } catch (error) {
+      console.error("Failed to fetch commodities:", error.message);
+      throw error;
+    }
+  },
+  // Load JSON data from local file storage
+  loadJsonFromFile: async () => {
+    try {
+      const fileExists = await FileSystem.getInfoAsync(commodities.filePath);
 
-            if (!access_token || !user_token) {
-                throw new Error('Missing access token or user token');
-            }
+      if (fileExists.exists) {
+        const data = await FileSystem.readAsStringAsync(commodities.filePath, {
+          encoding: FileSystem.EncodingType.UTF8,
+        });
+        console.log("Loaded data from file:", data);
 
-            // Make the API request
-            const response = await axios.get(`${COMMODITIES}/${user_token}`, {
-                headers: {
-                    Authorization: `Bearer ${access_token}`,
-                },
-            });
-            return response.data;
-        } catch (error) {
-            console.error('Failed to fetch farmers:', error.message);
-            throw error;
-        }
-    },
-    getRates: async () => {
-        try {
-            // Retrieve tokens from secure storage
-            const access_token = await SecureStore.getItemAsync('accessToken');
-            const user_token = await SecureStore.getItemAsync('userToken');
-        
+        const jsonData = JSON.parse(data);
 
-            if (!access_token || !user_token) {
-                throw new Error('Missing access token or user token');
-            }
-
-            // Make the API request
-            const response = await axios.get(`${COMMODITIES_RATES}/${user_token}`, {
-                headers: {
-                    Authorization: `Bearer ${access_token}`,
-                },
-            });
-            return response.data;
-        } catch (error) {
-            console.error('Failed to fetch farmers:', error.message);
-            throw error;
-        }
-    },
-
+        return jsonData;
+      } else {
+        console.log("File does not exist");
+        return null;
+      }
+    } catch (error) {
+      console.error("Error loading file:", error.message);
+      return null;
+    }
+  },
+  
 };
-
-

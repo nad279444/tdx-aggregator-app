@@ -1,4 +1,5 @@
-export const BASE_URL =  "https://torux.app/api";
+export const BASE_URL =  "https://torux.app/api"; //live
+//export const BASE_URL =  "https://gpx.torux.app/api"; //development
 export const FARMERLIST = `${BASE_URL}/user/farmers`
 export const COMMODITIES =  `${BASE_URL}/user/commodities`
 export const COMMODITIES_RATES =  `${BASE_URL}/user/commodityrates`
@@ -18,4 +19,5 @@ export const ALLORDERS =  `${BASE_URL}/user/orderlist`
 export const NOTIFICATIONS =  `${BASE_URL}/user/notifications`
 export const DASHBOARD =  `${BASE_URL}/user/milestones`
 export const QUANTITYDATA =  `${BASE_URL}/user/orderqtyrecords`
+export const JSONBLOB =  `${BASE_URL}/user/sync`
 

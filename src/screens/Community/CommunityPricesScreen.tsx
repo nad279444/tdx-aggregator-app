@@ -2,9 +2,10 @@ import React, { useMemo, useRef, useEffect, useState } from 'react';
 import { Text, View, StyleSheet, TouchableOpacity, FlatList, Image, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import CommunityPricesCard from '../../_components/CommunityPricesCard';
-import { communities } from '../../controllers/api/communities';
+import { communityRates } from '../../controllers/api/communities';
 import BottomSheet from "@gorhom/bottom-sheet";
 import { ScrollView } from 'react-native-gesture-handler';
+import NetInfo from '@react-native-community/netinfo';
 
 export default function CommunityPricesScreen({ navigation }) {
   useEffect(() => {
@@ -30,21 +31,61 @@ export default function CommunityPricesScreen({ navigation }) {
   const [loading,setLoading] = useState(false);
   const bottomSheetRef = useRef(null);
   const snapPoints = useMemo(() => ["25%", "50%", "75%"], []);
+  const [isOnline,setIsOnline] = useState(false)
+
+
+  
 
  
   useEffect(() => {
-    (async function getCommunities() {
-      try {
-        setLoading(true); // Start loading
-        const response = await communities.getRates();
-        setCommunityPrices(response);
-      } catch (error) {
-        console.error("Error fetching community rates:", error);
-      } finally {
-        setLoading(false); // Stop loading
-      }
-    })();
-  }, []);
+    const handleNetworkChange = async (isConnected) => {
+        setIsOnline(isConnected);
+        if (isConnected) {
+            try {
+              setLoading(true)
+                await communityRates.fetchAndSync();
+                const localData = await communityRates.loadJsonFromFile()
+                if (localData) {
+                  setCommunityPrices(localData.data)
+                } else {
+                    console.log("No local data available.");
+                }
+            } catch (error) {
+                console.error("Error syncing data:", error);
+            }finally{
+              setLoading(false)
+            }
+        } else {
+            try {
+                const localData = await communityRates.loadJsonFromFile();
+                if (localData) {
+                    console.log(localData)
+                } else {
+                    console.log("No local data available.");
+                }
+            } catch (error) {
+                console.error("Error loading data from local storage:", error);
+            }
+        }
+    };
+
+    // Listen for network status changes
+    const unsubscribe = NetInfo.addEventListener(state => {
+        handleNetworkChange(state.isConnected);
+    });
+
+    // Initial check
+    NetInfo.fetch().then(state => {
+        handleNetworkChange(state.isConnected);
+    });
+
+    // Clean up the event listener
+    return () => unsubscribe();
+}, []);
+
+
+  
+
   
   const handleShowPrices = (community) => {
     setSelectedCommunity(community);

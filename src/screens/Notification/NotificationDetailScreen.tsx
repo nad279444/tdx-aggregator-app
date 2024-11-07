@@ -17,7 +17,7 @@ export default function NotificationDetailScreen({navigation,route}) {
       title: 'Notifications',
       headerTitleAlign: 'center',
       headerLeft: () => (
-        <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginLeft: 16 }}>
+        <TouchableOpacity onPress={() => navigation.navigate('NotificationScreen')} style={{ marginLeft: 16 }}>
           <Ionicons name="arrow-back-outline" size={24} color="black" />
         </TouchableOpacity>
       ),

@@ -1,16 +1,14 @@
 import { useState, useEffect, useRef } from "react";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
-
 import Constants from "expo-constants";
-
 import { Platform } from "react-native";
 
 export interface PushNotificationState {
   expoPushToken?: Notifications.ExpoPushToken;
   notification?: Notifications.Notification;
-  unreadCount?: number
-  resetUnreadCount: () => void  
+  unreadCount?: number;
+  decrementUnreadCount: () => void;
 }
 
 export const usePushNotifications = (): PushNotificationState => {
@@ -25,18 +23,14 @@ export const usePushNotifications = (): PushNotificationState => {
   const [expoPushToken, setExpoPushToken] = useState<
     Notifications.ExpoPushToken | undefined
   >();
-
   const [notification, setNotification] = useState<
     Notifications.Notification | undefined
   >();
-
-  const [unreadCount,setUnreadCount] = useState(0)
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const notificationListener = useRef<Notifications.Subscription>();
   const responseListener = useRef<Notifications.Subscription>();
   
-  
- 
   async function registerForPushNotificationsAsync() {
     let token;
     if (Device.isDevice) {
@@ -72,15 +66,14 @@ export const usePushNotifications = (): PushNotificationState => {
     return token;
   }
 
-  const resetUnreadCount = () => {
-    setUnreadCount(0); 
+  const decrementUnreadCount = () => {
+    setUnreadCount((prevCount) => Math.max(prevCount - 1, 0));
   };
 
   useEffect(() => {
     registerForPushNotificationsAsync().then((token) => {
       setExpoPushToken(token);
     });
-   
    
     notificationListener.current =
       Notifications.addNotificationReceivedListener((notification) => {
@@ -90,7 +83,7 @@ export const usePushNotifications = (): PushNotificationState => {
 
     responseListener.current =
       Notifications.addNotificationResponseReceivedListener((response) => {
-        setUnreadCount((prevCount) => Math.max(prevCount - 1, 0));
+        decrementUnreadCount();
       });
 
     return () => {
@@ -106,6 +99,6 @@ export const usePushNotifications = (): PushNotificationState => {
     expoPushToken,
     notification,
     unreadCount,
-    resetUnreadCount,
+    decrementUnreadCount,
   };
 };

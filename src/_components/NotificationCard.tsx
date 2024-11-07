@@ -1,14 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { usePushNotifications } from '../functions/useNotifications';
+import * as SecureStore from 'expo-secure-store';
 
-export default function NotificationCard({title,description}) {
-  const [newMessage, setNewMessage] = useState(true);
-  const navigation = useNavigation()
+export default function NotificationCard({ title, description, isRead, id }) {
+  const [newMessage, setNewMessage] = useState(!isRead);
+  const navigation = useNavigation();
+  const { decrementUnreadCount } = usePushNotifications();
 
-  function handleNavigation () {
-        navigation.navigate('NotificationDetailScreen',{title,description})
-  }
+  useEffect(() => {
+    setNewMessage(!isRead); // Initialize state based on isRead prop
+  }, [isRead]);
+
+  const markAsRead = async () => {
+    decrementUnreadCount();
+    setNewMessage(false);
+    const read = await SecureStore.getItemAsync("readNotifications");
+    const readNotifications = read ? JSON.parse(read) : [];
+    if (!readNotifications.includes(id)) {
+      readNotifications.push(id);
+      await SecureStore.setItemAsync("readNotifications", JSON.stringify(readNotifications));
+    }
+  };
+
+  const handleNavigation = () => {
+    markAsRead();
+    navigation.navigate('NotificationDetailScreen', { title, description });
+  };
 
   return (
     <View style={newMessage ? styles.newBackground : styles.background}>
@@ -21,7 +40,7 @@ export default function NotificationCard({title,description}) {
         )}
       </View>
       <Text style={styles.description}>{description}</Text>
-      <TouchableOpacity onPress = {handleNavigation}>
+      <TouchableOpacity onPress={handleNavigation}>
         <Text style={styles.readMore}>Read More</Text>
       </TouchableOpacity>
     </View>
@@ -34,15 +53,14 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 8,
     marginTop: 10,
-    marginHorizontal:10
+    marginHorizontal: 10,
   },
   newBackground: {
-    backgroundColor: '#f0f9f4', // Light green background for new messages
+    backgroundColor: '#f0f9f4',
     padding: 16,
     borderRadius: 8,
     marginTop: 10,
     marginHorizontal: 10,
-    
   },
   titleContainer: {
     flexDirection: 'row',

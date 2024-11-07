@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -6,83 +6,67 @@ import {
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
-  Alert, // Import Alert for alerts
+  RefreshControl,
 } from "react-native";
 import NotificationCard from "../../_components/NotificationCard";
 import { Ionicons } from "@expo/vector-icons";
+import * as SecureStore from "expo-secure-store";
 import { notifications } from "../../controllers/api/notifications";
-import * as Notifications from "expo-notifications";
 import { usePushNotifications } from "../../functions/useNotifications";
 
-export default function NotificationScreen({ navigation,route }) {
+export default function NotificationScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [notificationResponse, setNotificationResponse] = useState([]);
-  const {unreadCount,resetUnreadCount} = usePushNotifications()
- 
+  const [refreshing, setRefreshing] = useState(false);
+  const { unreadCount } = usePushNotifications();
+
+  // Fetch read notifications from SecureStore
+  const getReadNotifications = async () => {
+    const read = await SecureStore.getItemAsync("readNotifications");
+    return read ? JSON.parse(read) : [];
+  };
+
+  const getNotifications = async () => {
+    try {
+      setLoading(true);
+      const response = await notifications.get();
+      const readNotifications = await getReadNotifications();
+      const updatedNotifications = response.map((notif) => ({
+        ...notif,
+        isRead: readNotifications.includes(notif.id),
+      }));
+      setNotificationResponse(updatedNotifications);
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // Fetch notifications from server
-    (async function getNotifications() {
-      try {
-        setLoading(true);
-        const response = await notifications.get();
-        setNotificationResponse(response);
-      } catch (error) {
-        console.error("Error fetching notifications:", error);
-      } finally {
-        setLoading(false);
-      }
-    })();
+    getNotifications();
   }, []);
 
-  // Update header options
-  useEffect(() => {
-    navigation.setOptions({
-      title: "Notifications",
-      headerTitleAlign: "center",
-      headerLeft: () => (
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={{ marginLeft: 16 }}
-        >
-          <Ionicons name="arrow-back-outline" size={24} color="black" />
-        </TouchableOpacity>
-      ),
-      headerRight: () => (
-        <TouchableOpacity
-          onPress={() => navigation.openDrawer()}
-          style={{ marginRight: 16 }}
-        >
-          <Ionicons name="menu" size={24} color="black" />
-        </TouchableOpacity>
-      ),
-    });
-  }, [navigation]);
-
-  useEffect(() => {
-    if (resetUnreadCount) {
-      resetUnreadCount() 
-    }
-  }, [resetUnreadCount]);
-
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await getNotifications();
+    setRefreshing(false);
+  }, []);
 
   return (
     <View style={{ flex: 1 }}>
       {loading ? (
-        <ActivityIndicator
-          size="large"
-          color="green"
-          style={styles.loadingIndicator}
-        />
+        <ActivityIndicator size="large" color="green" style={styles.loadingIndicator} />
       ) : notificationResponse.length === 0 ? (
         <Text style={styles.noNotificationText}>No notifications yet</Text>
       ) : (
         <FlatList
           data={notificationResponse}
           renderItem={({ item }) => (
-            <NotificationCard title={item?.title} description={item?.body} />
+            <NotificationCard title={item?.title} description={item?.body} isRead={item?.isRead} id={item?.id} />
           )}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item.id.toString()}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         />
       )}
     </View>
@@ -102,3 +86,4 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
+

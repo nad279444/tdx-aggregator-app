@@ -1,28 +1,48 @@
 import { FARMERLIST, FINDFARMER, ADDFARMER } from "../../constants/Constants";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
+import * as FileSystem from "expo-file-system";
+import { fetchAndSaveJson, syncJson } from "../../functions/utils";
+
+
 
 export const farmers = {
-  get: async () => {
+  fileName: "farmers.json",
+  filePath: `${FileSystem.documentDirectory}farmers.json`,
+  fetchAndSync: async () => {
     try {
-      // Retrieve tokens from secure storage
-      const access_token = await SecureStore.getItemAsync("accessToken");
-      const user_token = await SecureStore.getItemAsync("userToken");
-
-      if (!access_token || !user_token) {
-        throw new Error("Missing access token or user token");
-      }
-
-      // Make the API request to get all farmers
-      const response = await axios.get(`${FARMERLIST}/${user_token}`, {
-        headers: {
-          Authorization: `Bearer ${access_token}`,
-        },
-      });
-      return response.data;
+      await fetchAndSaveJson(FARMERLIST, farmers.filePath);
+      await syncJson(
+        FARMERLIST,
+        farmers.filePath,
+        farmers.loadJsonFromFile
+      );
     } catch (error) {
-      console.error("Failed to fetch farmers:", error.message);
+      console.error("Failed to fetch commodities:", error.message);
       throw error;
+    }
+  },
+  // Load JSON data from local file storage
+  loadJsonFromFile: async () => {
+    try {
+      const fileExists = await FileSystem.getInfoAsync(farmers.filePath);
+
+      if (fileExists.exists) {
+        const data = await FileSystem.readAsStringAsync(farmers.filePath, {
+          encoding: FileSystem.EncodingType.UTF8,
+        });
+        console.log("Loaded data from file:", data);
+
+        const jsonData = JSON.parse(data);
+
+        return jsonData;
+      } else {
+        console.log("File does not exist");
+        return null;
+      }
+    } catch (error) {
+      console.error("Error loading file:", error.message);
+      return null;
     }
   },
   getOne: async (find) => {

@@ -14,7 +14,7 @@ const Sidebar = ({ navigation }) => {
   const [proLastName, setProLastName] = useState("");
   const [proAccountType, setProAccountType] = useState("");
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const {resetUnreadCount} = usePushNotifications()
+  
 
 
 

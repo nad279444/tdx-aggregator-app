@@ -29,7 +29,8 @@ export function AuthProvider({ children }) {
   const authContext = useMemo(
     () => ({
       signIn: async (authResponse) => {
-         console.log(authResponse.access_token)
+         console.log('jwtToken',authResponse.access_token)
+         console.log('userToken',authResponse.token)
         if (authResponse.token) {
           await SecureStore.setItemAsync('userToken', authResponse.token);
           await SecureStore.setItemAsync('accessToken',authResponse.access_token)

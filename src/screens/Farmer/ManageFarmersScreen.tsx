@@ -13,6 +13,8 @@ import { Avatar } from "react-native-elements";
 import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
 import { DataContext } from "../../../DBContext";
 import { farmers as farmersApi } from "../../controllers/api/farmerList";
+import NetInfo from '@react-native-community/netinfo';
+
 
 const ManageFarmersScreen = ({ navigation }) => {
   interface PaymentNumbers {
@@ -35,6 +37,8 @@ const ManageFarmersScreen = ({ navigation }) => {
   const [refreshing, setRefreshing] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const { getFarmers } = useContext(DataContext);
+  const [isOnline,setIsOnline] = useState(false)
+
 
   useEffect(() => {
     navigation.setOptions({
@@ -59,36 +63,64 @@ const ManageFarmersScreen = ({ navigation }) => {
     });
   }, [navigation]);
 
+  
   useEffect(() => {
-    fetchFarmers();
-  }, []);
+    const handleNetworkChange = async (isConnected) => {
+        setIsOnline(isConnected);
+        if (isConnected) {
+            try {
+              setIsLoading(true)
+                await farmersApi.fetchAndSync();
+                const localData = await farmersApi.loadJsonFromFile()
+                if (localData) {
+                  setFilteredFarmers(localData.data)
+                } else {
+                    console.log("No local data available.");
+                }
+            } catch (error) {
+                console.error("Error syncing data:", error);
+            }finally{
+              setIsLoading(false)
+            }
+        } else {
+            try {
+                const localData = await farmersApi.loadJsonFromFile();
+                if (localData) {
+                    console.log(localData)
+                } else {
+                    console.log("No local data available.");
+                }
+            } catch (error) {
+                console.error("Error loading data from local storage:", error);
+            }
+        }
+    };
 
-  const fetchFarmers = async () => {
-    try {
-      setIsLoading(true); // Show loader
-      const farmerList = await farmersApi.get();
-      setFarmers(farmerList.data);
-      setFilteredFarmers(farmerList.data);
-    } catch (error) {
-      console.error("Error fetching farmers:", error);
-    } finally {
-      setIsLoading(false); // Hide loader
-    }
-  };
+    // Listen for network status changes
+    const unsubscribe = NetInfo.addEventListener(state => {
+        handleNetworkChange(state.isConnected);
+    });
 
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    await fetchFarmers();
-    setRefreshing(false);
-  };
+    // Initial check
+    NetInfo.fetch().then(state => {
+        handleNetworkChange(state.isConnected);
+    });
 
+    // Clean up the event listener
+    return () => unsubscribe();
+}, []);
+
+  
   const handleSearch = (text) => {
     setSearchQuery(text);
+    
     const filteredData = farmers.filter(
-      (farmer) =>
+      (farmer) => 
         farmer.first_name?.toLowerCase().includes(text.toLowerCase()) ||
         farmer.last_name?.toLowerCase().includes(text.toLowerCase()) ||
-        farmer.mobile?.toLowerCase().includes(text.toLowerCase())
+        farmer.paymentnumbers.main?.toLowerCase().includes(text.toLowerCase()) ||
+        `${farmer.first_name} ${farmer.last_name}`.toLowerCase().includes(text.toLowerCase()) 
+        
     );
     setFilteredFarmers(filteredData);
   };
@@ -135,11 +167,8 @@ const ManageFarmersScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.titleContainer}>
-        <Text style={{ fontSize: 18, fontWeight: "bold" }}>All Farmers</Text>
-        <View style={{ flexDirection: "row", gap: 10, marginTop: 5 }}>
-          <Text style={{ fontWeight: "bold" }}>Filter</Text>
-          <Ionicons name="filter" size={24} />
-        </View>
+        <Text style={{ fontSize: 18, fontWeight: "bold",marginTop:5 }}>All Farmers</Text>
+        
       </View>
       <View style={styles.inputContainer}>
         <View style={styles.inputGroup}>
@@ -174,12 +203,6 @@ const ManageFarmersScreen = ({ navigation }) => {
               data={filteredFarmers}
               keyExtractor={(item) => item.token.toString()}
               renderItem={renderItem}
-              refreshControl={
-                <RefreshControl
-                  refreshing={refreshing}
-                  onRefresh={handleRefresh}
-                />
-              }
               onEndReached={() => {
                 if (!isLoading && hasMore) {
                   setPage(page + 1);
