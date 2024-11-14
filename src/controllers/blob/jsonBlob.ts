@@ -61,7 +61,7 @@ export const jsonFile = {
                 return jsonData;
             } else {
                 console.log('File does not exist');
-                return null;
+                return null
             }
         } catch (error) {
             console.error('Error loading file:', error.message); 

@@ -1,6 +1,6 @@
 import React, { useEffect} from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import { useNavigation } from '@react-navigation/native';
 // import AuthContext from '../../AuthContext';
 
@@ -10,31 +10,26 @@ const SplashScreen = (props) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        // Check if the user is authenticated
-        const userToken = await AsyncStorage.getItem('userToken');
-
+        const userToken = await SecureStore.getItemAsync('userToken');
+        console.log('splah', userToken)
         if (userToken) {
-          // User is authenticated, navigate to home page
-          // props.navigation.push('StartScreen');
-          navigation.navigate('');
+          navigation.navigate('DashboardScreen');
         } else {
-          // User is not authenticated, navigate to authentication page
-          // navigation.navigate('AuthPage');
-          // console.error('Error is here');
+          navigation.navigate('Registration');
         }
       } catch (error) {
         console.error('Error checking authentication:', error);
-        // In case of error, navigate to authentication page as a fallback
-        // navigation.navigate('AuthPage');
+        navigation.navigate('Registration');
       }
     };
+    
 
     checkAuth();
   }, [navigation]);
 
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <ActivityIndicator size="large" color="#0000ff" />
+      <ActivityIndicator size="large" color="green" />
       <Text>Loading...</Text>
     </View>
   );

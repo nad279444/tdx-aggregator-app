@@ -177,12 +177,12 @@ const AddFarmerScreen2 = ({ route, navigation }) => {
 
       <TouchableOpacity
         style={
-          mobileNumber && network && gender && age
+          mobileNumber && network 
             ? styles.greenButton
             : styles.disabledButton
         }
         onPress={handleNext}
-        disabled={!mobileNumber || !network || !gender || !age}
+        disabled={!mobileNumber || !network }
       >
         <Text style={{ fontSize: 18, color: "white" }}>Continue</Text>
       </TouchableOpacity>

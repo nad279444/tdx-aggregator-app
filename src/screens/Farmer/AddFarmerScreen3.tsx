@@ -16,6 +16,7 @@ import { DataContext } from "../../../DBContext";
 import { farmers } from "../../controllers/api/farmerList";
 import { communities } from "../../controllers/api/communities";
 import * as FileSystem from "expo-file-system";
+import NetInfo from '@react-native-community/netinfo';
 
 const AddFarmerScreen3 = ({ route, navigation }) => {
   const [community, setCommunity] = useState("");
@@ -24,6 +25,7 @@ const AddFarmerScreen3 = ({ route, navigation }) => {
   const [frontImageUri, setFrontImageUri] = useState(null);
   const [backImageUri, setBackImageUri] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isOnline,setIsOnline] = useState(false)
 
 
   const { addFarmer } = useContext(DataContext);
@@ -52,15 +54,47 @@ const AddFarmerScreen3 = ({ route, navigation }) => {
   }, [navigation]);
 
   useEffect(() => {
-    (async function getCommunities() {
-      try {
-        const response = await communities.get();
-        setCommunityList(response);
-      } catch (error) {
-        console.error("Error fetching communities:", error);
-      }
-    })();
-  }, []);
+    const loadLocalData = async () => {
+        try {
+            const localData = await communities.loadJsonFromFile();
+            if (localData) {
+                setCommunityList(localData.data);
+            } else {
+                console.log("No local data available.");
+            }
+        } catch (error) {
+            console.error("Error loading data from local storage:", error);
+        }
+    };
+
+    const handleNetworkChange = async (isConnected) => {
+        setIsOnline(isConnected);
+        if (isConnected) {
+            try {
+                await communities.fetchAndSync();
+                const localData = await communities.loadJsonFromFile();
+                if (localData) {
+                    setCommunityList(localData.data);
+                } else {
+                    console.log("No local data available after sync.");
+                }
+            } catch (error) {
+                console.error("Error syncing data:", error);
+            } 
+        }
+    };
+
+    // Load local data immediately on component mount (offline-first)
+    loadLocalData();
+
+    // Listen for network status changes
+    const unsubscribe = NetInfo.addEventListener(state => {
+        handleNetworkChange(state.isConnected);
+    });
+
+    // Clean up the event listener
+    return () => unsubscribe();
+}, []);
 
   // Request camera permissions and capture image from camera
   const pickImage = async (setter) => {
@@ -102,20 +136,22 @@ const AddFarmerScreen3 = ({ route, navigation }) => {
 
       const response = await farmers.add({
         biodata: {
-          fullname: previousData.fullName,
-          mobilenumber: route.params.mobileNumber,
-          network: route.params.network,
-          altmobilenumber: route.params.altMobileNumber,
-          altnetwork: route.params.altNetWork,
-          gender: route.params.gender,
-          community: community,
-          frontimg: frontImageBase64,
-          backimg: backImageBase64,
-          experience_year: experienceYear,
-          idcardtype: previousData.idCardType,
-          idcardnumber: previousData.idCardNumber,
-          age:route.params.age,
+          fullname: previousData.fullName || "",
+          mobilenumber: route.params.mobileNumber || "",
+          network: route.params.network || "",
+          altmobilenumber: route.params.altMobileNumber || "",
+          altnetwork: route.params.altNetWork || "",
+          gender: route.params.gender || "",
+          community: community || "",
+          frontimg: frontImageBase64 || "",
+          backimg: backImageBase64 || "",
+          experience_year: experienceYear || "",
+          idcardtype: previousData.idCardType || "",
+          idcardnumber: previousData.idCardNumber || "",
+          age: route.params.age || "",
+          accountype: "FARMER"
         },
+        farmdata:{},
       });
 
       if (!response.error) {
@@ -216,9 +252,9 @@ const AddFarmerScreen3 = ({ route, navigation }) => {
       </View>
 
       <TouchableOpacity
-        style={community && experienceYear && frontImageUri && backImageUri ? styles.greenButton : styles.disabledButton}
+        style={styles.greenButton}
         onPress={handleFarmer}
-        disabled={!community || !experienceYear  || isLoading}
+    
       >
         <Text style={{ fontSize: 18, color: "white" }}>Add farmer</Text>
         {isLoading && (

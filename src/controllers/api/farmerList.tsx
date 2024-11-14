@@ -2,7 +2,8 @@ import { FARMERLIST, FINDFARMER, ADDFARMER } from "../../constants/Constants";
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import * as FileSystem from "expo-file-system";
-import { fetchAndSaveJson, syncJson } from "../../functions/utils";
+import { fetchAndSaveJson, syncJson,offlineLoad } from "../../functions/getOfflineUtils";
+import { normalizeFarmerData } from "../../functions/normalization";
 
 
 
@@ -11,11 +12,12 @@ export const farmers = {
   filePath: `${FileSystem.documentDirectory}farmers.json`,
   fetchAndSync: async () => {
     try {
-      await fetchAndSaveJson(FARMERLIST, farmers.filePath);
+      await fetchAndSaveJson(FARMERLIST, farmers.filePath,normalizeFarmerData);
       await syncJson(
         FARMERLIST,
         farmers.filePath,
-        farmers.loadJsonFromFile
+        farmers.loadJsonFromFile,
+        normalizeFarmerData
       );
     } catch (error) {
       console.error("Failed to fetch commodities:", error.message);
@@ -25,21 +27,7 @@ export const farmers = {
   // Load JSON data from local file storage
   loadJsonFromFile: async () => {
     try {
-      const fileExists = await FileSystem.getInfoAsync(farmers.filePath);
-
-      if (fileExists.exists) {
-        const data = await FileSystem.readAsStringAsync(farmers.filePath, {
-          encoding: FileSystem.EncodingType.UTF8,
-        });
-        console.log("Loaded data from file:", data);
-
-        const jsonData = JSON.parse(data);
-
-        return jsonData;
-      } else {
-        console.log("File does not exist");
-        return null;
-      }
+      return await offlineLoad(FARMERLIST,farmers.filePath,normalizeFarmerData)
     } catch (error) {
       console.error("Error loading file:", error.message);
       return null;
@@ -87,7 +75,7 @@ export const farmers = {
       }
 
       // Make the API request to find the farmer using the mobile number
-      const response = await axios.post(`${ADDFARMER}/${user_token}`, farmer, {
+      const response = await axios.post(`${ADDFARMER}/${user_token}`,farmer, {
         headers: {
           Authorization: `Bearer ${access_token}`,
         },

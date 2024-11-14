@@ -3,9 +3,12 @@ import * as SecureStore from 'expo-secure-store';
 import { JSHash, JSHmac, CONSTANTS } from 'react-native-hash';
 import { BASE_URL } from '../../constants/Constants';
 import { usePushNotifications } from '../../functions/useNotifications';
+import * as  FileSystem from 'expo-file-system'
+import {storeOfflineRequest,retryOfflineRequests} from '../../functions/postOfflineUtils';
 
 
 const auth = {
+  registerOfflinePath: `${FileSystem.documentDirectory}offlineRequests.json`,
   postRequest: async (endpoint, data) => {
     try {
       const response = await axios.post(`${BASE_URL}/${endpoint}`, data);
@@ -16,8 +19,24 @@ const auth = {
     }
   },
 
+  offlineRequest: async (endpoint,data) => {
+    try {
+      const url = `${BASE_URL}/${endpoint}`;
+      return await axios.post(url, data);
+    } catch (error) {
+       if (!error.response && (error.code === "ECONNABORTED" || error.message.includes("Network Error"))) {
+      await storeOfflineRequest(auth.registerOfflinePath, { endpoint, data });
+    } else {
+      console.error("Non-network error occurred:", error);
+      throw error;
+    }
+    }
+  },
+   retryOffline : async () => {
+     await retryOfflineRequests(auth.registerOfflinePath);
+   },
   signUp: async (registrationData) => {
-     return await auth.postRequest("signup",registrationData);
+     return await auth.offlineRequest("signup",registrationData);
 
   },
 
@@ -68,6 +87,7 @@ const auth = {
   validateResponse: async (token) => {
     const expoToken = await SecureStore.getItemAsync('expoPushToken');
     const extractedId = expoToken ? expoToken.split('[')[1].split(']')[0] : '';
+    console.log('deviceId',extractedId)
     return auth.postRequest(`validate_response/${token}/${extractedId}`,'');
   },
 

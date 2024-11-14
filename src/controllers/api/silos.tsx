@@ -1,31 +1,27 @@
 import { SILOS } from "../../constants/Constants";
-import axios from 'axios';
-import * as SecureStore from 'expo-secure-store';
+import * as FileSystem from "expo-file-system";
+import { fetchAndSaveJson, syncJson, offlineLoad } from "../../functions/getOfflineUtils";
+import { normalizeArray } from "../../functions/normalization";
 
 export const silos = {
-    get: async () => {
-        try {
-            // Retrieve tokens from secure storage
-            const access_token = await SecureStore.getItemAsync('accessToken');
-            const user_token = await SecureStore.getItemAsync('userToken');
-        
-
-            if (!access_token || !user_token) {
-                throw new Error('Missing access token or user token');
-            }
-
-            // Make the API request
-            const response = await axios.get(`${SILOS}/${user_token}`, {
-                headers: {
-                    Authorization: `Bearer ${access_token}`,
-                },
-            });
-            return response.data;
-        } catch (error) {
-            console.error('Failed to fetch farmers:', error.message);
-            throw error;
-        }
+  fileName: "silos.json",
+  filePath: `${FileSystem.documentDirectory}silos.json`,
+  fetchAndSync: async () => {
+    try {
+      await fetchAndSaveJson(SILOS, silos.filePath,normalizeArray);
+      await syncJson(SILOS, silos.filePath, silos.loadJsonFromFile,normalizeArray);
+    } catch (error) {
+      console.error("Failed to fetch commodities:", error.message);
+      throw error;
     }
+  },
+  // Load JSON data from local file storage
+  loadJsonFromFile: async () => {
+    try {
+      return await offlineLoad(SILOS, silos.filePath,normalizeArray);
+    } catch (error) {
+      console.error("Error loading file:", error.message);
+      return null;
+    }
+  },
 };
-
-

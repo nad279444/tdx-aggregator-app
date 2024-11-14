@@ -58,7 +58,7 @@ export default function SignIn({ navigation }) {
 
       if (!response.error) {
         ToastAndroid.showWithGravityAndOffset(
-          response.challenge || 'Success',
+          response.challenge,
           ToastAndroid.LONG,
           ToastAndroid.TOP,
           25,

@@ -6,6 +6,9 @@ import { AuthContext } from '../../../AuthContext';
 import { communities } from '../../controllers/api/communities';
 import { Picker } from '@react-native-picker/picker';
 import { usePushNotifications } from '../../functions/useNotifications';
+import NetInfo from '@react-native-community/netinfo';
+
+
 
 
 export default function Registration ({navigation}) {
@@ -22,26 +25,64 @@ export default function Registration ({navigation}) {
   const { expoPushToken } = usePushNotifications();
   const expoToken = expoPushToken?.data ?? ''
   const deviceId = expoToken ? expoToken.split('[')[1].split(']')[0] : '';
+  const [isOnline,setIsOnline] = useState(false)
 
 
   useEffect(() => {
-    (async function getCommunities() {
-      try {
-    
-        const response = await communities.get();
-        setCommunityList(response)
-      } catch (error) {
-        console.error("Error fetching communities:", error);
-      }
-    })();
-  }, []);
+    const loadLocalData = async () => {
+        try {
+            const localData = await communities.loadJsonFromFile();
+            if (localData) {
+                setCommunityList(localData.data);
+            } else {
+                console.log("No local data available.");
+            }
+        } catch (error) {
+            console.error("Error loading data from local storage:", error);
+        }
+    };
 
+    const handleNetworkChange = async (isConnected) => {
+        setIsOnline(isConnected);
+        if (isConnected) {
+            try {
+                await communities.fetchAndSync();
+                const localData = await communities.loadJsonFromFile();
+                if (localData) {
+                    setCommunityList(localData.data);
+                } else {
+                    console.log("No local data available after sync.");
+                }
+            } catch (error) {
+                console.error("Error syncing data:", error);
+            } 
+        }
+    };
+
+    // Load local data immediately on component mount (offline-first)
+    loadLocalData();
+
+    // Listen for network status changes
+    const unsubscribe = NetInfo.addEventListener(state => {
+        handleNetworkChange(state.isConnected);
+    });
+
+    // Clean up the event listener
+    return () => unsubscribe();
+}, []);
 
   const validatePhone = (input) => {
     const phoneRegex = /^\d{10}$/; // Exactly 10 digits
     return phoneRegex.test(input);
   };
   
+  const setupNetworkListener = () => {
+    NetInfo.addEventListener(async (state) => {
+      if (state.isConnected) {
+        await auth.retryOffline();
+      }
+    });
+  };
   async function handleRegistration () {
 
     setIsLoading(true)
@@ -54,9 +95,9 @@ export default function Registration ({navigation}) {
         confirmpassword: confirmPassword,
         community,
       });
-      if (!response.error) {
+      if (!response.data.error) {
         ToastAndroid.showWithGravityAndOffset(
-          response.challenge,
+          response.data.challenge,
           ToastAndroid.LONG,
           ToastAndroid.TOP,
           25,
@@ -65,16 +106,17 @@ export default function Registration ({navigation}) {
         navigation.navigate('SignIn');  // Navigate only after success
       } else {
         ToastAndroid.showWithGravityAndOffset(
-          response.message,
+          response.data.message,
           ToastAndroid.LONG,
           ToastAndroid.TOP,
           25,
           50,
         );
+       
       }
     } catch (error) {
       ToastAndroid.showWithGravityAndOffset(
-        error.message,
+        error.message === 'Network Error' ? 'You are offline. Registration request saved for retry.': error.message,
         ToastAndroid.LONG,
         ToastAndroid.TOP,
         25,
@@ -86,6 +128,7 @@ export default function Registration ({navigation}) {
     
   }
   
+  setupNetworkListener()
 
   const handlePhoneChange = (input) => {
     setPhoneNumber(input);

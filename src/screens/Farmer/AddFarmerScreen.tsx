@@ -147,12 +147,12 @@ const AddFarmerScreen = ({ route, navigation }) => {
      
       <TouchableOpacity
         style={
-          fullName && idCardNumber && idCardType
+          fullName
             ? styles.greenButton
             : styles.disabledButton
         }
         onPress={handleFarmer}
-        disabled={!fullName || !idCardNumber || !idCardType}
+        disabled={!fullName}
       >
         <Text style={{ fontSize: 18, color: "white" }}>Continue</Text>
       </TouchableOpacity>

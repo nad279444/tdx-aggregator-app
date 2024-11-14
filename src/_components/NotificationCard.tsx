@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { usePushNotifications } from '../functions/useNotifications';
-import * as SecureStore from 'expo-secure-store';
+import { notifications } from "../controllers/api/notifications";
 
 export default function NotificationCard({ title, description, isRead, id }) {
   const [newMessage, setNewMessage] = useState(!isRead);
@@ -14,18 +14,20 @@ export default function NotificationCard({ title, description, isRead, id }) {
   }, [isRead]);
 
   const markAsRead = async () => {
-    decrementUnreadCount();
-    setNewMessage(false);
-    const read = await SecureStore.getItemAsync("readNotifications");
-    const readNotifications = read ? JSON.parse(read) : [];
-    if (!readNotifications.includes(id)) {
-      readNotifications.push(id);
-      await SecureStore.setItemAsync("readNotifications", JSON.stringify(readNotifications));
+    try {
+      if (newMessage) {  // Only mark as read if it's unread
+        await notifications.post(id); // Send read status to server
+        decrementUnreadCount();
+        setNewMessage(false);
+      }
+    } catch (error) {
+      Alert.alert("Error", "Failed to mark notification as read. Please try again.");
+      console.error("Error marking notification as read:", error);
     }
   };
 
-  const handleNavigation = () => {
-    markAsRead();
+  const handleNavigation = async () => {
+    await markAsRead();
     navigation.navigate('NotificationDetailScreen', { title, description });
   };
 

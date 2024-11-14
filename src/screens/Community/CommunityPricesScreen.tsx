@@ -38,44 +38,44 @@ export default function CommunityPricesScreen({ navigation }) {
 
  
   useEffect(() => {
+    const loadLocalData = async () => {
+        try {
+            const localData = await communityRates.loadJsonFromFile();
+            if (localData) {
+                setCommunityPrices(localData.data);
+            } else {
+                console.log("No local data available.");
+            }
+        } catch (error) {
+            console.error("Error loading data from local storage:", error);
+        }
+    };
+
     const handleNetworkChange = async (isConnected) => {
         setIsOnline(isConnected);
         if (isConnected) {
             try {
-              setLoading(true)
+                setLoading(true);
                 await communityRates.fetchAndSync();
-                const localData = await communityRates.loadJsonFromFile()
+                const localData = await communityRates.loadJsonFromFile();
                 if (localData) {
-                  setCommunityPrices(localData.data)
+                    setCommunityPrices(localData.data);
                 } else {
-                    console.log("No local data available.");
+                    console.log("No local data available after sync.");
                 }
             } catch (error) {
                 console.error("Error syncing data:", error);
-            }finally{
-              setLoading(false)
-            }
-        } else {
-            try {
-                const localData = await communityRates.loadJsonFromFile();
-                if (localData) {
-                    console.log(localData)
-                } else {
-                    console.log("No local data available.");
-                }
-            } catch (error) {
-                console.error("Error loading data from local storage:", error);
+            } finally {
+                setLoading(false);
             }
         }
     };
 
+    // Load local data immediately on component mount (offline-first)
+    loadLocalData();
+
     // Listen for network status changes
     const unsubscribe = NetInfo.addEventListener(state => {
-        handleNetworkChange(state.isConnected);
-    });
-
-    // Initial check
-    NetInfo.fetch().then(state => {
         handleNetworkChange(state.isConnected);
     });
 

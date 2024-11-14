@@ -4,15 +4,14 @@ import {
   Text,
   StyleSheet,
   FlatList,
-  TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
+  TouchableOpacity
 } from "react-native";
 import NotificationCard from "../../_components/NotificationCard";
-import { Ionicons } from "@expo/vector-icons";
-import * as SecureStore from "expo-secure-store";
 import { notifications } from "../../controllers/api/notifications";
 import { usePushNotifications } from "../../functions/useNotifications";
+import { Ionicons } from '@expo/vector-icons';
 
 export default function NotificationScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
@@ -20,26 +19,29 @@ export default function NotificationScreen({ navigation }) {
   const [refreshing, setRefreshing] = useState(false);
   const { unreadCount } = usePushNotifications();
 
-  // Fetch read notifications from SecureStore
-  const getReadNotifications = async () => {
-    const read = await SecureStore.getItemAsync("readNotifications");
-    return read ? JSON.parse(read) : [];
-  };
+  useEffect(() => {
+    navigation.setOptions({
+      title: 'Notifications',
+      headerTitleAlign: 'center',
+      headerLeft: () => null,
+      headerRight: () => (
+        <TouchableOpacity onPress={() => navigation.openDrawer()} style={{ marginRight: 16 }}>
+          <Ionicons name="menu" size={24} color="black" />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
 
-  const getNotifications = async () => {
+  const getNotifications = async (isRefreshing = false) => {
     try {
-      setLoading(true);
+      if (!isRefreshing) setLoading(true);
       const response = await notifications.get();
-      const readNotifications = await getReadNotifications();
-      const updatedNotifications = response.map((notif) => ({
-        ...notif,
-        isRead: readNotifications.includes(notif.id),
-      }));
-      setNotificationResponse(updatedNotifications);
+      setNotificationResponse(response);
     } catch (error) {
       console.error("Error fetching notifications:", error);
     } finally {
-      setLoading(false);
+      if (isRefreshing) setRefreshing(false);
+      else setLoading(false);
     }
   };
 
@@ -49,13 +51,12 @@ export default function NotificationScreen({ navigation }) {
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await getNotifications();
-    setRefreshing(false);
+    await getNotifications(true);
   }, []);
 
   return (
     <View style={{ flex: 1 }}>
-      {loading ? (
+      {loading && !refreshing ? (
         <ActivityIndicator size="large" color="green" style={styles.loadingIndicator} />
       ) : notificationResponse.length === 0 ? (
         <Text style={styles.noNotificationText}>No notifications yet</Text>
@@ -63,7 +64,12 @@ export default function NotificationScreen({ navigation }) {
         <FlatList
           data={notificationResponse}
           renderItem={({ item }) => (
-            <NotificationCard title={item?.title} description={item?.body} isRead={item?.isRead} id={item?.id} />
+            <NotificationCard
+              title={item?.title}
+              description={item?.body}
+              isRead={item?.isRead}
+              id={item?.id}
+            />
           )}
           keyExtractor={(item) => item.id.toString()}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
@@ -86,4 +92,3 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
-

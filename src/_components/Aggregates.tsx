@@ -9,26 +9,63 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { Divider } from "react-native-elements";
 import CommodityAggregatesCard from "./CommodityAggregatesCard";
-import { aggregates } from "../controllers/api/aggregates";
+import { aggregationOrder } from "../controllers/api/aggregates";
+import NetInfo from '@react-native-community/netinfo';
+
 
 export default function Aggregates() {
   const [aggregationData, setAggregationData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isOnline,setIsOnline] = useState(false)
+
+ 
 
   useEffect(() => {
-    (async function getAggregates() {
-      try {
-        setLoading(true);
-        const response = await aggregates.get();
-        console.log(response);
-        setAggregationData(response);
-      } catch (error) {
-        console.error("Error fetching community rates:", error);
-      } finally {
-        setLoading(false);
-      }
-    })();
+    const loadLocalData = async () => {
+        try {
+            const localData = await aggregationOrder.loadJsonFromFile();
+            if (localData) {
+                setAggregationData(localData.data);
+            } else {
+                console.log("No local data available.");
+            }
+        } catch (error) {
+            console.error("Error loading data from local storage:", error);
+        }
+    };
+  
+    const handleNetworkChange = async (isConnected) => {
+        setIsOnline(isConnected);
+        if (isConnected) {
+          setLoading(true)
+            try {
+                await aggregationOrder.fetchAndSync();
+                const localData = await aggregationOrder.loadJsonFromFile();
+                if (localData) {
+                    setAggregationData(localData.data);
+                } else {
+                    console.log("No local data available after sync.");
+                }
+            } catch (error) {
+                console.error("Error syncing data:", error);
+            } finally {
+              setLoading(false)
+            }
+        }
+    };
+  
+    // Load local data immediately on component mount (offline-first)
+    loadLocalData();
+  
+    // Listen for network status changes
+    const unsubscribe = NetInfo.addEventListener(state => {
+        handleNetworkChange(state.isConnected);
+    });
+  
+    // Clean up the event listener
+    return () => unsubscribe();
   }, []);
+  
 
   function totalPrice(arr) {
     return arr.reduce((acc, { price }) => acc + price, 0);

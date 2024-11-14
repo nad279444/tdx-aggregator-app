@@ -10,13 +10,14 @@ import {
 } from "react-native";
 import { FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { ProfileContext } from "../../ProfileContext";
-import { aggregates } from "../controllers/api/aggregates";
-import { orders } from "../controllers/api/orders";
+import { dashboard } from "../controllers/api/aggregates";
+import { getAllOrders } from "../controllers/api/orders";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { Divider } from "react-native-elements";
 import { ScrollView } from "react-native-gesture-handler";
 import NotificationIcon from "./Notification/NotificationIcon";
 import { usePushNotifications } from "../functions/useNotifications";
+import NetInfo from '@react-native-community/netinfo';
 
 export default function DashboardScreen({ navigation }) {
   const { profile } = useContext(ProfileContext);
@@ -27,6 +28,7 @@ export default function DashboardScreen({ navigation }) {
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
   const snapPoints = useMemo(() => ["25%", "50%", "75%"], []);
   const {unreadCount} = usePushNotifications()
+  const [isOnline,setIsOnline] = useState(false)
  
   useEffect(() => {
     navigation.setOptions({
@@ -44,36 +46,102 @@ export default function DashboardScreen({ navigation }) {
     });
   }, [navigation]);
 
-  useEffect(() => {
-    (async () => {
-      await dashboardAggregates();
-    })();
-  }, [navigation]);
+
+  
 
   useEffect(() => {
-    const fetchAllOrders = async () => {
-      try {
-        const data = await orders.getAllOrders();
-        setOrderList(data);
-      } catch (error) {
-        console.error("Error fetching orders: ", error);
-      }
+    const loadLocalData = async () => {
+        try {
+            const localData = await getAllOrders.loadJsonFromFile();
+            if (localData) {
+                setOrderList(localData.data);
+            } else {
+                console.log("No local data available.");
+            }
+        } catch (error) {
+            console.error("Error loading data from local storage:", error);
+        }
     };
-    fetchAllOrders();
+  
+    const handleNetworkChange = async (isConnected) => {
+        setIsOnline(isConnected);
+        if (isConnected) {
+          setLoading(true)
+            try {
+                await getAllOrders.fetchAndSync();
+                const localData = await getAllOrders.loadJsonFromFile();
+                if (localData) {
+                    setOrderList(localData.data);
+                } else {
+                    console.log("No local data available after sync.");
+                }
+            } catch (error) {
+                console.error("Error syncing data:", error);
+            } finally {
+              setLoading(false)
+            }
+        }
+    };
+  
+    // Load local data immediately on component mount (offline-first)
+    loadLocalData();
+  
+    // Listen for network status changes
+    const unsubscribe = NetInfo.addEventListener(state => {
+        handleNetworkChange(state.isConnected);
+    });
+  
+    // Clean up the event listener
+    return () => unsubscribe();
   }, []);
-
-  async function dashboardAggregates() {
-    setLoading(true);
-    try {
-      const response = await aggregates.getDashboard();
-      setAgg(response);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  }
-
+  
+  
+  useEffect(() => {
+    const loadLocalData = async () => {
+        try {
+            const localData = await dashboard.loadJsonFromFile();
+            if (localData) {
+                setAgg(localData.data);
+            } else {
+                console.log("No local data available.");
+            }
+        } catch (error) {
+            console.error("Error loading data from local storage:", error);
+        }
+    };
+  
+    const handleNetworkChange = async (isConnected) => {
+        setIsOnline(isConnected);
+        if (isConnected) {
+          setLoading(true)
+            try {
+                await dashboard.fetchAndSync();
+                const localData = await dashboard.loadJsonFromFile();
+                if (localData) {
+                    setAgg(localData.data);
+                } else {
+                    console.log("No local data available after sync.");
+                }
+            } catch (error) {
+                console.error("Error syncing data:", error);
+            } finally {
+              setLoading(false)
+            }
+        }
+    };
+  
+    // Load local data immediately on component mount (offline-first)
+    loadLocalData();
+  
+    // Listen for network status changes
+    const unsubscribe = NetInfo.addEventListener(state => {
+        handleNetworkChange(state.isConnected);
+    });
+  
+    // Clean up the event listener
+    return () => unsubscribe();
+  }, []);
+  
   const handleShowOrders = () => {
     setIsBottomSheetOpen(true);
     bottomSheetRef.current?.expand(); // Expands the BottomSheet
@@ -119,7 +187,7 @@ export default function DashboardScreen({ navigation }) {
             <View style={styles.orderItem}>
               <Text style={styles.orderData}>Created At</Text>
               <Text style={styles.orderData}>
-                {item.created_at.split(" ")[0]}
+               {item.created_at.split(" ")} 
               </Text>
             </View>
             <View style={{ marginVertical: 10 }}>
@@ -150,7 +218,7 @@ export default function DashboardScreen({ navigation }) {
               <TouchableOpacity
                 style={{ position: "absolute", right: 40, top: 20 }}
                 onPress={async () => {
-                  await dashboardAggregates();
+                  await dashboard.loadJsonFromFile();
                 }}
               >
                 <Ionicons name="refresh-circle" size={40} color="white" />

@@ -45,6 +45,7 @@ const SellToTDXScreen = ({ route, navigation }) => {
   const snapPoints = useMemo(() => ["25%", "50%", "75%"], []);
   const { data, updateData } = useDataContext();
   const [isOnline,setIsOnline] = useState(false)
+  console.log(weight,selectedCommodityId)
 
 
   useEffect(() => {
@@ -68,41 +69,41 @@ const SellToTDXScreen = ({ route, navigation }) => {
  
 
   useEffect(() => {
+    const loadLocalData = async () => {
+        try {
+            const localData = await commodities.loadJsonFromFile();
+            if (localData) {
+                setCommodityRates(localData.data);
+            } else {
+                console.log("No local data available.");
+            }
+        } catch (error) {
+            console.error("Error loading data from local storage:", error);
+        }
+    };
+
     const handleNetworkChange = async (isConnected) => {
         setIsOnline(isConnected);
         if (isConnected) {
             try {
                 await commodities.fetchAndSync();
-                const localData = await commodities.loadJsonFromFile()
+                const localData = await commodities.loadJsonFromFile();
                 if (localData) {
-                  setCommodityRates(localData.data)
+                    setCommodityRates(localData.data);
                 } else {
-                    console.log("No local data available.");
+                    console.log("No local data available after sync.");
                 }
             } catch (error) {
                 console.error("Error syncing data:", error);
             }
-        } else {
-            try {
-                const localData = await commodities.loadJsonFromFile();
-                if (localData) {
-                    console.log(localData)
-                } else {
-                    console.log("No local data available.");
-                }
-            } catch (error) {
-                console.error("Error loading data from local storage:", error);
-            }
         }
     };
 
+    // Load local data immediately on component mount (offline-first)
+    loadLocalData();
+
     // Listen for network status changes
     const unsubscribe = NetInfo.addEventListener(state => {
-        handleNetworkChange(state.isConnected);
-    });
-
-    // Initial check
-    NetInfo.fetch().then(state => {
         handleNetworkChange(state.isConnected);
     });
 
@@ -111,17 +112,49 @@ const SellToTDXScreen = ({ route, navigation }) => {
 }, []);
 
 
-  useEffect(() => {
-    const fetchSilos = async () => {
+useEffect(() => {
+  const loadLocalData = async () => {
       try {
-        const data = await silos.get();
-        setSiloList(data);
+          const localData = await silos.loadJsonFromFile();
+          if (localData) {
+              setSiloList(localData.data);
+          } else {
+              console.log("No local data available.");
+          }
       } catch (error) {
-        console.error("Error fetching commodities: ", error);
+          console.error("Error loading data from local storage:", error);
       }
-    };
-    fetchSilos();
-  }, []);
+  };
+
+  const handleNetworkChange = async (isConnected) => {
+      setIsOnline(isConnected);
+      if (isConnected) {
+          try {
+              await silos.fetchAndSync();
+              const localData = await silos.loadJsonFromFile();
+              if (localData) {
+                  setSiloList(localData.data);
+              } else {
+                  console.log("No local data available after sync.");
+              }
+          } catch (error) {
+              console.error("Error syncing data:", error);
+          } 
+      }
+  };
+
+  // Load local data immediately on component mount (offline-first)
+  loadLocalData();
+
+  // Listen for network status changes
+  const unsubscribe = NetInfo.addEventListener(state => {
+      handleNetworkChange(state.isConnected);
+  });
+
+  // Clean up the event listener
+  return () => unsubscribe();
+}, []);
+
 
   useEffect(() => {
     const fetchAutoCalculatedData = async () => {
@@ -141,6 +174,7 @@ const SellToTDXScreen = ({ route, navigation }) => {
   }, [weight, selectedCommodityId]); // Add dependencies if necessary
 
   const handleSelectCommodity = (commodity, commodityId,commodityIcon) => {
+    console.log(commodityId)
     setSelectedCommodity(commodity);
     setSelectedCommodityId(commodityId);
     setSelectedCommodityIcon(commodityIcon)
@@ -403,7 +437,7 @@ const SellToTDXScreen = ({ route, navigation }) => {
                 <TouchableOpacity
                   style={{ width: 500 }}
                   onPress={() =>
-                    handleSelectCommodity(item.name, item.id,item.icon)
+                    handleSelectCommodity(item.name, item.commodityId,item.icon)
                   }
                 >
                   <View style={styles.modalItems}>
