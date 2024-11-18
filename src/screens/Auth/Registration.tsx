@@ -3,7 +3,7 @@ import{View,Text,TextInput,StyleSheet,ScrollView,TouchableOpacity,ToastAndroid,A
 import PasswordInput from '../../_components/PasswordInput';
 import auth from '../../controllers/auth/auth';
 import { AuthContext } from '../../../AuthContext';
-import { communities } from '../../controllers/api/communities';
+import { communities, register_communities } from '../../controllers/api/communities';
 import { Picker } from '@react-native-picker/picker';
 import { usePushNotifications } from '../../functions/useNotifications';
 import NetInfo from '@react-native-community/netinfo';
@@ -31,7 +31,7 @@ export default function Registration ({navigation}) {
   useEffect(() => {
     const loadLocalData = async () => {
         try {
-            const localData = await communities.loadJsonFromFile();
+            const localData = await register_communities.loadJsonFromFile();
             if (localData) {
                 setCommunityList(localData.data);
             } else {
@@ -46,8 +46,8 @@ export default function Registration ({navigation}) {
         setIsOnline(isConnected);
         if (isConnected) {
             try {
-                await communities.fetchAndSync();
-                const localData = await communities.loadJsonFromFile();
+                await register_communities.fetchAndSync();
+                const localData = await register_communities.loadJsonFromFile();
                 if (localData) {
                     setCommunityList(localData.data);
                 } else {
@@ -60,7 +60,7 @@ export default function Registration ({navigation}) {
     };
 
     // Load local data immediately on component mount (offline-first)
-    loadLocalData();
+      loadLocalData();
 
     // Listen for network status changes
     const unsubscribe = NetInfo.addEventListener(state => {

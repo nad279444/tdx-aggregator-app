@@ -75,11 +75,12 @@ export const farmers = {
       }
 
       // Make the API request to find the farmer using the mobile number
-      const response = await axios.post(`${ADDFARMER}/${user_token}`,farmer, {
+      const response = await axios.post(`${ADDFARMER}/${user_token}`,farmer,{
         headers: {
           Authorization: `Bearer ${access_token}`,
         },
       });
+      console.log(response.data)
       return response.data;
     } catch (error) {
       console.error(`Failed to fetch farmer w `, error.message);

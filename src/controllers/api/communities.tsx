@@ -1,6 +1,7 @@
-import { COMMUNITIES,COMMUNITY_RATES } from "../../constants/Constants";
+import { COMMUNITIES,COMMUNITY_RATES,REGISTER_COMMUNITIES } from "../../constants/Constants";
 import * as FileSystem from "expo-file-system";
 import { fetchAndSaveJson, syncJson ,offlineLoad} from "../../functions/getOfflineUtils";
+import { communityFetchAndSaveJson,communitySyncJson,communityOfflineLoad } from "../../functions/register_communities";
 import { normalizeArray } from "../../functions/normalization";
 
 
@@ -47,7 +48,7 @@ export const communities = {
         normalizeArray
       );
     } catch (error) {
-      console.error("Failed to fetch commodities:", error.message);
+      console.error("Failed to fetch communities:", error.message);
       throw error;
     }
   },
@@ -55,6 +56,36 @@ export const communities = {
   loadJsonFromFile: async () => {
     try {
     return await offlineLoad(COMMUNITIES,communities.filePath,normalizeArray)
+    } catch (error) {
+      console.error("Error loading file:", error.message);
+      return null;
+    }
+  },
+  
+};
+
+
+export const register_communities = {
+  fileName: "register_communities.json",
+  filePath: `${FileSystem.documentDirectory}register_communities.json`,
+  fetchAndSync: async () => {
+    try {
+      await communityFetchAndSaveJson(REGISTER_COMMUNITIES, register_communities.filePath,normalizeArray);
+      await communitySyncJson(
+        REGISTER_COMMUNITIES,
+        register_communities.filePath,
+        register_communities.loadJsonFromFile,
+        normalizeArray
+      );
+    } catch (error) {
+      console.error("Failed to fetch register communities:", error.message);
+      throw error;
+    }
+  },
+  // Load JSON data from local file storage
+  loadJsonFromFile: async () => {
+    try {
+    return await communityOfflineLoad(REGISTER_COMMUNITIES,register_communities.filePath,normalizeArray)
     } catch (error) {
       console.error("Error loading file:", error.message);
       return null;

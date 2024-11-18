@@ -63,7 +63,25 @@ const ManageFarmersScreen = ({ navigation }) => {
     });
   }, [navigation]);
 
-  
+  const handleNetworkChange = async (isConnected) => {
+    setIsOnline(isConnected);
+    if (isConnected) {
+        try {
+            setIsLoading(true);
+            await farmersApi.fetchAndSync();
+            const localData = await farmersApi.loadJsonFromFile();
+            if (localData) {
+                setFilteredFarmers(localData.data);
+            } else {
+                console.log("No local data available after sync.");
+            }
+        } catch (error) {
+            console.error("Error syncing data:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+};
   useEffect(() => {
     const loadLocalData = async () => {
         try {
@@ -78,25 +96,7 @@ const ManageFarmersScreen = ({ navigation }) => {
         }
     };
 
-    const handleNetworkChange = async (isConnected) => {
-        setIsOnline(isConnected);
-        if (isConnected) {
-            try {
-                setIsLoading(true);
-                await farmersApi.fetchAndSync();
-                const localData = await farmersApi.loadJsonFromFile();
-                if (localData) {
-                    setFilteredFarmers(localData.data);
-                } else {
-                    console.log("No local data available after sync.");
-                }
-            } catch (error) {
-                console.error("Error syncing data:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        }
-    };
+    handleNetworkChange(isOnline)
 
     // Load local data immediately on component mount (offline-first)
     loadLocalData();
@@ -144,7 +144,7 @@ const ManageFarmersScreen = ({ navigation }) => {
       );
     }
   };
-
+  
   const renderItem = ({ item }) => (
     <View style={styles.farmerListContainer}>
       <View style={styles.leftContent}>
@@ -164,11 +164,14 @@ const ManageFarmersScreen = ({ navigation }) => {
       />
     </View>
   );
-
+   
   return (
     <View style={styles.container}>
       <View style={styles.titleContainer}>
-        <Text style={{ fontSize: 18, fontWeight: "bold",marginTop:5 }}>All Farmers</Text>
+        <Text style={{ fontSize: 18, fontWeight: "bold" }}>All Farmers</Text>
+        <TouchableOpacity onPress={()=> handleNetworkChange(isOnline)}>
+        <Ionicons name="refresh" size={24}/>
+        </TouchableOpacity>
         
       </View>
       <View style={styles.inputContainer}>
@@ -323,6 +326,7 @@ const styles = StyleSheet.create({
   titleContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems:'center',
     paddingHorizontal: 10,
     marginTop: 10,
   },

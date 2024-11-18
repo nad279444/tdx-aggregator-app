@@ -55,10 +55,10 @@ export default function SignIn({ navigation }) {
         username: phoneNumber,
         password,
       });
-
+      console.log(response)
       if (!response.error) {
         ToastAndroid.showWithGravityAndOffset(
-          response.challenge,
+          response.challenge || 'Success',
           ToastAndroid.LONG,
           ToastAndroid.TOP,
           25,

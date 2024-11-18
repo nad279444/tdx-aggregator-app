@@ -2,28 +2,23 @@ import * as FileSystem from "expo-file-system";
 import * as SecureStore from "expo-secure-store";
 import axios from "axios";
 
-
-
 // Function to fetch and save JSON
-export async function fetchAndSaveJson(url, filePath, normalizeData) {
+export async function communityFetchAndSaveJson(url, filePath, normalizeData) {
   try {
-    const access_token = await SecureStore.getItemAsync("accessToken");
-    const user_token = await SecureStore.getItemAsync("userToken");
-
-    if (!access_token || !user_token) {
-      throw new Error("Missing access token or user token");
-    }
-
-    const response = await axios.get(`${url}/${user_token}`, {
+    const response = await axios.get(url, {
       headers: {
-        Authorization: `Bearer ${access_token}`,
         "Content-Type": "application/json",
       },
     });
+    console.log(response.data);
     const normalizedData = normalizeData(response.data);
-    await FileSystem.writeAsStringAsync(filePath, JSON.stringify(normalizedData), {
-      encoding: FileSystem.EncodingType.UTF8,
-    });
+    await FileSystem.writeAsStringAsync(
+      filePath,
+      JSON.stringify(normalizedData),
+      {
+        encoding: FileSystem.EncodingType.UTF8,
+      }
+    );
     console.log("File saved to:", filePath);
 
     return normalizedData;
@@ -34,23 +29,21 @@ export async function fetchAndSaveJson(url, filePath, normalizeData) {
 }
 
 // Function to sync JSON
-export const syncJson = async (url, filePath, loadJson, normalizeData) => {
+export const communitySyncJson = async (
+  url,
+  filePath,
+  loadJson,
+  normalizeData
+) => {
   try {
     const localData = await loadJson();
     const localSync = localData?.lastSynced || null;
 
-    const access_token = await SecureStore.getItemAsync("accessToken");
-    const user_token = await SecureStore.getItemAsync("userToken");
-
-    if (!access_token || !user_token) {
-      throw new Error("Missing access token or user token");
-    }
-
     const response = await axios.get(
-      `${url}/${user_token}`,
+      url,
       {
         headers: {
-          Authorization: `Bearer ${access_token}`,
+          "Content-Type": "application/json",
         },
       }
     );
@@ -60,7 +53,7 @@ export const syncJson = async (url, filePath, loadJson, normalizeData) => {
 
     if (!localSync || new Date(serverSync) > new Date(localSync)) {
       console.log("Updating local data with server data...");
-      await fetchAndSaveJson(url, filePath, normalizeData);
+      await communityFetchAndSaveJson(url, filePath, normalizeData);
     } else {
       console.log("Local data is up to date.");
     }
@@ -70,7 +63,7 @@ export const syncJson = async (url, filePath, loadJson, normalizeData) => {
 };
 
 // Function for offline load
-export const offlineLoad = async (url, filePath, normalizeData) => {
+export const communityOfflineLoad = async (url, filePath, normalizeData) => {
   try {
     const fileExists = await FileSystem.getInfoAsync(filePath);
 
@@ -83,7 +76,7 @@ export const offlineLoad = async (url, filePath, normalizeData) => {
       const jsonData = JSON.parse(data);
       return jsonData;
     } else {
-      return await fetchAndSaveJson(url, filePath, normalizeData);
+      return await communityFetchAndSaveJson(url, filePath, normalizeData);
     }
   } catch (error) {
     console.error("Error loading file:", error.message);

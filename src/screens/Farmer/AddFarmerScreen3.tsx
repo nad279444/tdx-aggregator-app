@@ -124,7 +124,7 @@ const AddFarmerScreen3 = ({ route, navigation }) => {
       return base64;
     } catch (error) {
       console.error("Error converting image to base64:", error);
-      return null;
+      return "";
     }
   };
 
@@ -145,10 +145,10 @@ const AddFarmerScreen3 = ({ route, navigation }) => {
           community: community || "",
           frontimg: frontImageBase64 || "",
           backimg: backImageBase64 || "",
-          experience_year: experienceYear || "",
+          experience_year: experienceYear || "0",
           idcardtype: previousData.idCardType || "",
           idcardnumber: previousData.idCardNumber || "",
-          age: route.params.age || "",
+          age: route.params.age || "0",
           accountype: "FARMER"
         },
         farmdata:{},
