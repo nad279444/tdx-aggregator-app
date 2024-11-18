@@ -47,7 +47,25 @@ export default function DashboardScreen({ navigation }) {
   }, [navigation]);
 
 
-  
+  const handleDashboardNetworkChange = async (isConnected) => {
+    setIsOnline(isConnected);
+    if (isConnected) {
+      setLoading(true)
+        try {
+            await getAllOrders.fetchAndSync();
+            const localData = await getAllOrders.loadJsonFromFile();
+            if (localData) {
+                setOrderList(localData.data);
+            } else {
+                console.log("No local data available after sync.");
+            }
+        } catch (error) {
+            console.error("Error syncing data:", error);
+        } finally {
+          setLoading(false)
+        }
+    }
+};
 
   useEffect(() => {
     const loadLocalData = async () => {
@@ -63,32 +81,14 @@ export default function DashboardScreen({ navigation }) {
         }
     };
   
-    const handleNetworkChange = async (isConnected) => {
-        setIsOnline(isConnected);
-        if (isConnected) {
-          setLoading(true)
-            try {
-                await getAllOrders.fetchAndSync();
-                const localData = await getAllOrders.loadJsonFromFile();
-                if (localData) {
-                    setOrderList(localData.data);
-                } else {
-                    console.log("No local data available after sync.");
-                }
-            } catch (error) {
-                console.error("Error syncing data:", error);
-            } finally {
-              setLoading(false)
-            }
-        }
-    };
-  
+   
+      handleDashboardNetworkChange(isOnline)
     // Load local data immediately on component mount (offline-first)
     loadLocalData();
   
     // Listen for network status changes
     const unsubscribe = NetInfo.addEventListener(state => {
-        handleNetworkChange(state.isConnected);
+        handleDashboardNetworkChange(state.isConnected);
     });
   
     // Clean up the event listener
@@ -218,7 +218,7 @@ export default function DashboardScreen({ navigation }) {
               <TouchableOpacity
                 style={{ position: "absolute", right: 40, top: 20 }}
                 onPress={async () => {
-                  await dashboard.loadJsonFromFile();
+                  handleDashboardNetworkChange(isOnline);
                 }}
               >
                 <Ionicons name="refresh-circle" size={40} color="white" />
