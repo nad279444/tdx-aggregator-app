@@ -4,7 +4,8 @@ import { Ionicons, FontAwesome6 } from '@expo/vector-icons';
 import AggregateBarChart from '../../_components/BarChart'; 
 import Aggregates from '../../_components/Aggregates';
 import AggregatesCard from '../../_components/AggregatesCard';
-import { orders } from '../../controllers/api/orders';
+import { orderstats } from '../../controllers/api/orders';
+import NetInfo from '@react-native-community/netinfo';
 
 export default function MyAggregatesScreen({ navigation }) {
   const [monthlyData, setMonthlyData] = useState([]);
@@ -14,6 +15,7 @@ export default function MyAggregatesScreen({ navigation }) {
   const [activeChart, setActiveChart] = useState('monthly');
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isOnline,setIsOnline] = useState(false)
   
 
   useEffect(() => {
@@ -39,21 +41,54 @@ export default function MyAggregatesScreen({ navigation }) {
     });
   }, [navigation]);
 
+
   useEffect(() => {
-    (async function getStats() {
-      try {
-        const response = await orders.get();
-        setMonthlyData(response.monthlyData);
-        setWeeklyData(response.weeklyData);
-        setYearlyData(response.yearlyData);
-        setChartData(response.monthlyData); // Show monthly data by default
-      } catch (error) {
-        console.error('Error fetching stats', error);
-      } finally {
-        setLoading(false); // Hide the spinner after data is loaded
-      }
-    })();
-  }, []);
+    const loadLocalData = async () => {
+        try {
+            const localData = await orderstats.loadJsonFromFile();
+            const response = localData.data
+          
+                setMonthlyData(response.monthly);
+                setWeeklyData(response.weekly);
+                setYearlyData(response.yearly);
+                setChartData(response.monthly); 
+  
+        } catch (error) {
+            console.error("Error loading data from local storage:", error);
+        }
+    };
+
+    const handleNetworkChange = async (isConnected) => {
+        setIsOnline(isConnected);
+        if (isConnected) {
+            try {
+                setLoading(true);
+                await orderstats.fetchAndSync();
+                const localData = await orderstats.loadJsonFromFile();
+                const response = localData.data
+                    setMonthlyData(response.monthly);
+                    setWeeklyData(response.weekly);
+                    setYearlyData(response.yearly);
+                    setChartData(response.monthly); 
+            } catch (error) {
+                console.error("Error syncing data:", error);
+            } finally {
+                setLoading(false);
+            }
+        }
+    };
+
+    // Load local data immediately on component mount (offline-first)
+    loadLocalData();
+
+    // Listen for network status changes
+    const unsubscribe = NetInfo.addEventListener(state => {
+        handleNetworkChange(state.isConnected);
+    });
+
+    // Clean up the event listener
+    return () => unsubscribe();
+}, []);
   
   const handleToggle = (tab) => {
     setActiveTab(tab);
@@ -76,13 +111,13 @@ export default function MyAggregatesScreen({ navigation }) {
         break;
     }
   };
-
-  const labels = chartData.map((item) => item.day || item.month || item.year);
-  const revenueData = monthlyData.map((item) => parseFloat(item.revenue));
+  
+  const labels = chartData?.map((item) => item.day || item.month || item.year);
+  const revenueData = monthlyData?.map((item) => parseFloat(item.revenue));
   
  
    // Calculate total revenue
-   const totalAggregates = revenueData.reduce((acc, val) => acc + val, 0);
+   const totalAggregates = revenueData?.reduce((acc, val) => acc + val, 0);
    
   // Calculate monthly average
   const monthlyAverage = totalAggregates / monthlyData.length;

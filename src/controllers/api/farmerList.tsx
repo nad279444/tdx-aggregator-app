@@ -4,12 +4,14 @@ import * as SecureStore from "expo-secure-store";
 import * as FileSystem from "expo-file-system";
 import { fetchAndSaveJson, syncJson,offlineLoad } from "../../functions/getOfflineUtils";
 import { normalizeFarmerData } from "../../functions/normalization";
+import { storeOfflineRequest,retryOfflineRequests } from "../../functions/postOfflineUtils";
 
 
 
 export const farmers = {
   fileName: "farmers.json",
   filePath: `${FileSystem.documentDirectory}farmers.json`,
+  addFarmerFilePath: `${FileSystem.documentDirectory}orderOffline.json`,
   fetchAndSync: async () => {
     try {
       await fetchAndSaveJson(FARMERLIST, farmers.filePath,normalizeFarmerData);
@@ -80,11 +82,16 @@ export const farmers = {
           Authorization: `Bearer ${access_token}`,
         },
       });
-      console.log(response.data)
       return response.data;
     } catch (error) {
-      console.error(`Failed to fetch farmer w `, error.message);
-      throw error;
+      if (!error.response && (error.code === "ECONNABORTED" || error.message.includes("Network Error"))) {
+        await storeOfflineRequest(farmers.addFarmerFilePath, { ADDFARMER, farmer });
+        await retryOfflineRequests(farmers.addFarmerFilePath)
+      } else {
+        console.error("Non-network error occurred:", error);
+        throw error;
+      }
+      
     }
   },
 };

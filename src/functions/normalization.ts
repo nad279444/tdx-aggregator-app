@@ -18,3 +18,15 @@ export const normalizeArray = (data) => {
     return { data: dataObject, lastSynced };
   };
   
+ export function normalizeOrder(input) {
+    const { weeklyData, monthlyData, yearlyData, last_synced } = input;
+  
+    return {
+      data: {
+        weekly: weeklyData,
+        monthly: monthlyData,
+        yearly: yearlyData
+      },
+      lastSynced: last_synced
+    };
+  }

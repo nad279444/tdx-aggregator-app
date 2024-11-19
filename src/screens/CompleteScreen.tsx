@@ -6,12 +6,15 @@ import { orders } from '../controllers/api/orders';
 import BottomSheet from "@gorhom/bottom-sheet";
 import { Divider } from 'react-native-elements';
 import { ScrollView } from 'react-native-gesture-handler';
+import { getAllOrders } from '../controllers/api/orders';
+import NetInfo from '@react-native-community/netinfo';
 
 const CompleteScreen = ({ route, navigation }) => {
   const [orderList, setOrderList] = useState([]);
   const bottomSheetRef = useRef(null);
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
   const snapPoints = useMemo(() => ["25%", "50%", "75%"], []);
+  const [isOnline,setIsOnline] = useState(false)
 
   useEffect(() => {
     navigation.setOptions({
@@ -37,16 +40,48 @@ const CompleteScreen = ({ route, navigation }) => {
   }, [navigation]);
 
   useEffect(() => {
-    const fetchAllOrders = async () => {
-      try {
-        const data = await orders.getAllOrders(); 
-        setOrderList(data); 
-      } catch (error) {
-        console.error("Error fetching commodities: ", error);
-      }
+    const loadLocalData = async () => {
+        try {
+            const localData = await getAllOrders.loadJsonFromFile();
+            if (localData) {
+                setOrderList(localData.data);
+            } else {
+                console.log("No local data available.");
+            }
+        } catch (error) {
+            console.error("Error loading data from local storage:", error);
+        }
     };
-    fetchAllOrders();
+  
+    const handleNetworkChange = async (isConnected) => {
+        setIsOnline(isConnected);
+        if (isConnected) {
+            try {
+                await getAllOrders.fetchAndSync();
+                const localData = await getAllOrders.loadJsonFromFile();
+                if (localData) {
+                    setOrderList(localData.data);
+                } else {
+                    console.log("No local data available after sync.");
+                }
+            } catch (error) {
+                console.error("Error syncing data:", error);
+            } 
+        }
+    };
+  
+    // Load local data immediately on component mount (offline-first)
+    loadLocalData();
+  
+    // Listen for network status changes
+    const unsubscribe = NetInfo.addEventListener(state => {
+        handleNetworkChange(state.isConnected);
+    });
+  
+    // Clean up the event listener
+    return () => unsubscribe();
   }, []);
+  
 
   const handleShowOrders = () => {
     setIsBottomSheetOpen(true);

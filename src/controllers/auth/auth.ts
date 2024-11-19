@@ -8,7 +8,7 @@ import {storeOfflineRequest,retryOfflineRequests} from '../../functions/postOffl
 
 
 const auth = {
-  registerOfflinePath: `${FileSystem.documentDirectory}offlineRequests.json`,
+  registerOfflinePath: `${FileSystem.documentDirectory}registerOfflineRequests.json`,
   postRequest: async (endpoint, data) => {
     try {
       const response = await axios.post(`${BASE_URL}/${endpoint}`, data);
@@ -26,15 +26,13 @@ const auth = {
     } catch (error) {
        if (!error.response && (error.code === "ECONNABORTED" || error.message.includes("Network Error"))) {
       await storeOfflineRequest(auth.registerOfflinePath, { endpoint, data });
+      await retryOfflineRequests(auth.registerOfflinePath)
     } else {
       console.error("Non-network error occurred:", error);
       throw error;
     }
     }
   },
-   retryOffline : async () => {
-     await retryOfflineRequests(auth.registerOfflinePath);
-   },
   signUp: async (registrationData) => {
      return await auth.offlineRequest("signup",registrationData);
 

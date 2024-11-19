@@ -12,12 +12,14 @@ import NotificationCard from "../../_components/NotificationCard";
 import { notifications } from "../../controllers/api/notifications";
 import { usePushNotifications } from "../../functions/useNotifications";
 import { Ionicons } from '@expo/vector-icons';
+import NetInfo from '@react-native-community/netinfo';
 
 export default function NotificationScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [notificationResponse, setNotificationResponse] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const { unreadCount } = usePushNotifications();
+  const [isOnline,setIsOnline] = useState(false)
 
   useEffect(() => {
     navigation.setOptions({
@@ -32,26 +34,73 @@ export default function NotificationScreen({ navigation }) {
     });
   }, [navigation]);
 
-  const getNotifications = async (isRefreshing = false) => {
-    try {
-      if (!isRefreshing) setLoading(true);
-      const response = await notifications.get();
-      setNotificationResponse(response);
-    } catch (error) {
-      console.error("Error fetching notifications:", error);
-    } finally {
-      if (isRefreshing) setRefreshing(false);
-      else setLoading(false);
-    }
-  };
+  // const getNotifications = async (isRefreshing = false) => {
+  //   try {
+  //     if (!isRefreshing) setLoading(true);
+  //     const response = await notifications.get();
+  //     setNotificationResponse(response);
+  //   } catch (error) {
+  //     console.error("Error fetching notifications:", error);
+  //   } finally {
+  //     if (isRefreshing) setRefreshing(false);
+  //     else setLoading(false);
+  //   }
+  // };
 
+  ;
+
+  const handleNetworkChange = async (isConnected, isRefreshing = false) => {
+    setIsOnline(isConnected);
+    if (isConnected) {
+        try {
+          if (!isRefreshing) setLoading(true);
+            await  notifications.fetchAndSync();
+            const localData = await notifications.loadJsonFromFile();
+            if (localData) {
+                setNotificationResponse(localData.data);
+            } else {
+                console.log("No local data available after sync.");
+            }
+        } catch (error) {
+            console.error("Error syncing data:", error);
+        } finally {
+          if (isRefreshing) setRefreshing(false);
+             else setLoading(false);
+        }
+    }
+};
   useEffect(() => {
-    getNotifications();
-  }, []);
+    const loadLocalData = async () => {
+        try {
+            const localData = await notifications.loadJsonFromFile();
+            if (localData) {
+                setNotificationResponse(localData.data);
+            } else {
+                console.log("No local data available.");
+            }
+        } catch (error) {
+            console.error("Error loading data from local storage:", error);
+        }
+    };
+
+    
+     handleNetworkChange(isOnline)
+    // Load local data immediately on component mount (offline-first)
+    loadLocalData();
+
+    // Listen for network status changes
+    const unsubscribe = NetInfo.addEventListener(state => {
+        handleNetworkChange(state.isConnected);
+    });
+
+    // Clean up the event listener
+    return () => unsubscribe();
+}, []);
+
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await getNotifications(true);
+    await handleNetworkChange(isOnline,true);
   }, []);
 
   return (

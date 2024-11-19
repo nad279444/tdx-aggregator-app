@@ -8,8 +8,9 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import AggregateBarChart from "../../_components/BarChart";
-import { aggregates } from "../../controllers/api/aggregates";
+import { orderqtystats } from "../../controllers/api/orders";
 import AggregatesCard from "../../_components/AggregatesCard";
+import NetInfo from '@react-native-community/netinfo';
 
 export default function AggregatorQuantitiesScreen({ navigation }) {
   const [monthlyData, setMonthlyData] = useState([]);
@@ -18,6 +19,7 @@ export default function AggregatorQuantitiesScreen({ navigation }) {
   const [activeChart, setActiveChart] = useState("monthly");
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isOnline,setIsOnline] = useState(false)
 
   useEffect(() => {
     navigation.setOptions({
@@ -43,20 +45,52 @@ export default function AggregatorQuantitiesScreen({ navigation }) {
   }, [navigation]);
 
   useEffect(() => {
-    (async function getQuantityData() {
-      try {
-        const response = await aggregates.getQuantities();
-        setMonthlyData(response.monthlyData);
-        setWeeklyData(response.weeklyData);
-        setYearlyData(response.yearlyData);
-        setChartData(response.monthlyData); // Default to monthly data
-      } catch (error) {
-        console.error("Error fetching quantities", error);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
+    const loadLocalData = async () => {
+        try {
+            const localData = await orderqtystats.loadJsonFromFile();
+            const response = localData.data
+          
+                setMonthlyData(response.monthly);
+                setWeeklyData(response.weekly);
+                setYearlyData(response.yearly);
+                setChartData(response.monthly); 
+  
+        } catch (error) {
+            console.error("Error loading data from local storage:", error);
+        }
+    };
+
+    const handleNetworkChange = async (isConnected) => {
+        setIsOnline(isConnected);
+        if (isConnected) {
+            try {
+                setLoading(true);
+                await orderqtystats.fetchAndSync();
+                const localData = await orderqtystats.loadJsonFromFile();
+                const response = localData.data
+                    setMonthlyData(response.monthly);
+                    setWeeklyData(response.weekly);
+                    setYearlyData(response.yearly);
+                    setChartData(response.monthly); 
+            } catch (error) {
+                console.error("Error syncing data:", error);
+            } finally {
+                setLoading(false);
+            }
+        }
+    };
+
+    // Load local data immediately on component mount (offline-first)
+    loadLocalData();
+
+    // Listen for network status changes
+    const unsubscribe = NetInfo.addEventListener(state => {
+        handleNetworkChange(state.isConnected);
+    });
+
+    // Clean up the event listener
+    return () => unsubscribe();
+}, []);
 
   const handleChartToggle = (chart) => {
     setActiveChart(chart);
