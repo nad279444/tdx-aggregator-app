@@ -6,6 +6,10 @@ import { communityRates } from '../../controllers/api/communities';
 import BottomSheet from "@gorhom/bottom-sheet";
 import { ScrollView } from 'react-native-gesture-handler';
 import NetInfo from '@react-native-community/netinfo';
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
 
 export default function CommunityPricesScreen({ navigation }) {
   useEffect(() => {
@@ -56,7 +60,10 @@ export default function CommunityPricesScreen({ navigation }) {
         if (isConnected) {
             try {
                 setLoading(true);
-                await communityRates.fetchAndSync();
+                const timeout = new Promise((_,reject)=> setTimeout(() => reject(new Error('network Timed out')),10000))
+                const syncOperation = await communityRates.fetchAndSync();
+                await Promise.race([syncOperation,timeout])
+
                 const localData = await communityRates.loadJsonFromFile();
                 if (localData) {
                     setCommunityPrices(localData.data);
@@ -117,8 +124,8 @@ export default function CommunityPricesScreen({ navigation }) {
               <Text style={styles.marketItemPrice}>High</Text>
               <View
                 style={{
-                  width: 45,
-                  height: 25,
+                  width: wp('12'),
+                  height: hp('3'),
                   backgroundColor: "green",
                   borderRadius: 5,
                   padding: 2,
@@ -134,8 +141,8 @@ export default function CommunityPricesScreen({ navigation }) {
               <Text style={styles.marketItemPrice}>Low </Text>
               <View
                 style={{
-                  width: 45,
-                  height: 25,
+                  width: wp('12'),
+                  height: hp('3'),
                   backgroundColor: "#ECC63E",
                   borderRadius: 5,
                   padding: 2,

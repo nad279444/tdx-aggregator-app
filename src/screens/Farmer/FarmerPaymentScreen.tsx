@@ -16,6 +16,8 @@ import { Divider } from "react-native-elements";
 import CheckBox from "react-native-elements/dist/checkbox/CheckBox";
 import { DataContext } from "../../../DBContext";
 import { orders } from "../../controllers/api/orders";
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
+
 
 export default function FarmerPaymentScreen({ navigation }) {
   const [disclaimer, setDisclaimer] = useState(false);
@@ -315,7 +317,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   blackBox: {
-    height: 100,
+    height: hp('14'),
     backgroundColor: "black",
     flexDirection: "row",
     alignItems: "center",
@@ -329,14 +331,14 @@ const styles = StyleSheet.create({
     height: 40,
   },
   greenBox: {
-    height: 80,
+    height: hp('10'),
     backgroundColor: "#94E08180",
     justifyContent: "center",
   },
   greenButton: {
     backgroundColor: "#21893E",
     marginTop: 5,
-    height: 50,
+    height: hp('7'),
     marginHorizontal: 20,
     borderWidth: 1,
     borderColor: "#D5D8DE",
@@ -347,7 +349,7 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 5,
-    height: 50,
+    height: hp('7'),
     marginHorizontal: 20,
     borderWidth: 1,
     borderColor: "#D5D8DE",
@@ -362,7 +364,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   commodityInput: {
-    height: 60,
+    height: hp('7'),
     marginHorizontal: 20,
     borderWidth: 1,
     borderColor: "#FFFFFF",
@@ -412,7 +414,7 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   nameInput: {
-    height: 50,
+    height: hp('7'),
     borderWidth: 1,
     borderColor: "#0000001A",
     borderRadius: 4,

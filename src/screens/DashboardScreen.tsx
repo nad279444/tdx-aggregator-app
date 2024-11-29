@@ -18,18 +18,19 @@ import { ScrollView } from "react-native-gesture-handler";
 import NotificationIcon from "./Notification/NotificationIcon";
 import { usePushNotifications } from "../functions/useNotifications";
 import NetInfo from '@react-native-community/netinfo';
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 export default function DashboardScreen({ navigation }) {
   const { profile } = useContext(ProfileContext);
   const [agg, setAgg] = useState({});
-  const [loading, setLoading] = useState(false);
+  const [loading, setIsLoading] = useState(false);
   const [orderList, setOrderList] = useState([]);
   const bottomSheetRef = useRef(null);
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
   const snapPoints = useMemo(() => ["25%", "50%", "75%"], []);
   const {unreadCount} = usePushNotifications()
   const [isOnline,setIsOnline] = useState(false)
- 
+  const  [timeedOut,setTimedOut] = useState(false) 
   useEffect(() => {
     navigation.setOptions({
       title: "Dashboard",
@@ -47,101 +48,103 @@ export default function DashboardScreen({ navigation }) {
   }, [navigation]);
 
 
-  const handleDashboardNetworkChange = async (isConnected) => {
+  const TIMEOUT_DURATION = 10000; // 10 seconds timeout
+
+  const loadLocalData = async (loader, setter, fallbackMessage) => {
+    try {
+      const localData = await loader();
+      if (localData) {
+        setter(localData.data);
+      } else {
+        console.log(fallbackMessage || "No local data available.");
+      }
+    } catch (error) {
+      console.error("Error loading data from local storage:", error);
+    }
+  };
+
+  const handleNetworkChange = async (isConnected, syncFunction, loader, setter, fallbackMessage) => {
     setIsOnline(isConnected);
     if (isConnected) {
-      setLoading(true)
-        try {
-            await getAllOrders.fetchAndSync();
-            const localData = await getAllOrders.loadJsonFromFile();
-            if (localData) {
-                setOrderList(localData.data);
-            } else {
-                console.log("No local data available after sync.");
-            }
-        } catch (error) {
-            console.error("Error syncing data:", error);
-        } finally {
-          setLoading(false)
+      try {
+        setIsLoading(true);
+
+        const timeout = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Network operation timed out")), TIMEOUT_DURATION)
+        );
+        const syncOperation = syncFunction();
+
+        await Promise.race([syncOperation, timeout]);
+
+        const localData = await loader();
+        if (localData) {
+          setter(localData.data);
+        } else {
+          console.log(fallbackMessage || "No local data available after sync.");
         }
+      } catch (error) {
+        console.error("Error syncing data:", error);
+        // Ensure local data is loaded on failure
+        await loadLocalData(loader, setter, fallbackMessage);
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      // Load local data when offline
+      await loadLocalData(loader, setter, fallbackMessage);
     }
-};
+  };
 
   useEffect(() => {
-    const loadLocalData = async () => {
-        try {
-            const localData = await getAllOrders.loadJsonFromFile();
-            if (localData) {
-                setOrderList(localData.data);
-            } else {
-                console.log("No local data available.");
-            }
-        } catch (error) {
-            console.error("Error loading data from local storage:", error);
-        }
-    };
-  
-   
-      handleDashboardNetworkChange(isOnline)
-    // Load local data immediately on component mount (offline-first)
-    loadLocalData();
-  
+    // Load orders on component mount
+    loadLocalData(
+      getAllOrders.loadJsonFromFile,
+      setOrderList,
+      "No local orders data available."
+    );
+
+    const handleDashboardNetworkChange = (isConnected) =>
+      handleNetworkChange(
+        isConnected,
+        getAllOrders.fetchAndSync,
+        getAllOrders.loadJsonFromFile,
+        setOrderList,
+        "No local orders data available after sync."
+      );
+
     // Listen for network status changes
-    const unsubscribe = NetInfo.addEventListener(state => {
-        handleDashboardNetworkChange(state.isConnected);
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      handleDashboardNetworkChange(state.isConnected);
     });
-  
-    // Clean up the event listener
-    return () => unsubscribe();
+
+    return () => unsubscribe(); // Clean up listener
   }, []);
-  
-  
+
   useEffect(() => {
-    const loadLocalData = async () => {
-        try {
-            const localData = await dashboard.loadJsonFromFile();
-            if (localData) {
-                setAgg(localData.data);
-            } else {
-                console.log("No local data available.");
-            }
-        } catch (error) {
-            console.error("Error loading data from local storage:", error);
-        }
-    };
-  
-    const handleNetworkChange = async (isConnected) => {
-        setIsOnline(isConnected);
-        if (isConnected) {
-          setLoading(true)
-            try {
-                await dashboard.fetchAndSync();
-                const localData = await dashboard.loadJsonFromFile();
-                if (localData) {
-                    setAgg(localData.data);
-                } else {
-                    console.log("No local data available after sync.");
-                }
-            } catch (error) {
-                console.error("Error syncing data:", error);
-            } finally {
-              setLoading(false)
-            }
-        }
-    };
-  
-    // Load local data immediately on component mount (offline-first)
-    loadLocalData();
-  
+    // Load aggregation data on component mount
+    loadLocalData(
+      dashboard.loadJsonFromFile,
+      setAgg,
+      "No local dashboard data available."
+    );
+
+    const handleAggNetworkChange = (isConnected) =>
+      handleNetworkChange(
+        isConnected,
+        dashboard.fetchAndSync,
+        dashboard.loadJsonFromFile,
+        setAgg,
+        "No local dashboard data available after sync."
+      );
+
     // Listen for network status changes
-    const unsubscribe = NetInfo.addEventListener(state => {
-        handleNetworkChange(state.isConnected);
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      handleAggNetworkChange(state.isConnected);
     });
-  
-    // Clean up the event listener
-    return () => unsubscribe();
+
+    return () => unsubscribe(); // Clean up listener
   }, []);
-  
+
   const handleShowOrders = () => {
     setIsBottomSheetOpen(true);
     bottomSheetRef.current?.expand(); // Expands the BottomSheet
@@ -200,89 +203,84 @@ export default function DashboardScreen({ navigation }) {
   );
 
   return (
-    <View style={styles.container}>
+    <>
       {loading ? (
+        // Show the ActivityIndicator while loading
         <ActivityIndicator size="large" color="green" style={styles.loader} />
       ) : (
-        <View style={styles.dashboardContainer}>
-          <Text style={{ fontSize: 22, fontWeight: "bold" }}>
-            Hello {profile?.firstname ?? ""}
-          </Text>
-          <View style={[styles.greenCard, { position: "relative" }]}>
-            <View style={{ padding: 20 }}>
-              <Text
-                style={{ fontSize: 18, fontWeight: "bold", color: "white" }}
-              >
-                Available Balance
+        <ScrollView>
+          <View style={styles.container}>
+            <View style={styles.dashboardContainer}>
+              <Text style={{ fontSize: wp('5'), fontWeight: "bold" }}>
+                Hello {profile?.firstname ?? ""}
               </Text>
-              <TouchableOpacity
-                style={{ position: "absolute", right: 40, top: 20 }}
-                onPress={async () => {
-                  handleDashboardNetworkChange(isOnline);
-                }}
-              >
-                <Ionicons name="refresh-circle" size={40} color="white" />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={{ position: "absolute", right: 80, top: 23 }}
-              >
-               <NotificationIcon unreadCount={unreadCount} onPress={() => navigation.navigate('NotificationScreen')}/> 
-              </TouchableOpacity>
-              
-              <Text
-                style={{
-                  fontSize: 28,
-                  fontWeight: "bold",
-                  color: "white",
-                  marginTop: 5,
-                }}
-              >
-                ₵{agg?.account_balance}
-              </Text>
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "flex-end",
-                  marginTop: 40,
-                }}
-              >
-                <TouchableOpacity
-                  style={styles.addButton}
-                  onPress={handleShowOrders}
-                >
-                  <Ionicons name="cart" size={20} color="white" />
-                  <Text style={styles.addButtonText}> Recent Orders </Text>
-                </TouchableOpacity>
+              <View style={[styles.greenCard, { position: "relative" }]}>
+                <View style={{ padding: 20 }}>
+                  <Text style={{ fontSize: 18, fontWeight: "bold", color: "white" }}>
+                    Available Balance
+                  </Text>
+                  <TouchableOpacity
+                    style={{ position: "absolute", right: wp('5'), top: hp('2.5') }}
+                    onPress={async () => {
+                      await handleNetworkChange(
+                        isOnline,
+                        getAllOrders.fetchAndSync,
+                        getAllOrders.loadJsonFromFile,
+                        setOrderList,
+                        "No local orders data available after sync."
+                      );
+                    }}
+                  >
+                    <Ionicons name="refresh-circle" size={40} color="white" />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={{ position: "absolute", right: wp('15'), top: hp('2.8') }}
+                  >
+                    <NotificationIcon unreadCount={unreadCount} onPress={() => navigation.navigate('NotificationScreen')} />
+                  </TouchableOpacity>
+                  <Text style={{ fontSize: 28, fontWeight: "bold", color: "white", marginTop: 5 }}>
+                    ₵{agg?.account_balance}
+                  </Text>
+                  <View style={{ flexDirection: "row", justifyContent: "flex-end", marginTop: 40 }}>
+                    <TouchableOpacity
+                      style={styles.addButton}
+                      onPress={handleShowOrders}
+                    >
+                      <Ionicons name="cart" size={20} color="white" />
+                      <Text style={styles.addButtonText}> Recent Orders </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
               </View>
+              <DashboardList
+                icon="user-alt"
+                button={() => navigation.navigate("ManageFarmersScreen")}
+                title="Total Farmers Onboarded"
+                content={`${agg?.total_users ?? 0} farmers`}
+              />
+              <DashboardList
+                icon="hand-holding-usd"
+                button={() => navigation.navigate("MyAggregatesScreen")}
+                title="Total Cash Transactions"
+                content={`₵${agg?.total_cost ?? 0} `}
+              />
+              <DashboardList
+                icon="weight"
+                button={() => navigation.navigate("AggregatorQuantitiesScreen")}
+                title="Total Quantities Sold"
+                content={agg?.total_quantity ?? "0 KG"}
+              />
+              <TouchableOpacity
+                style={styles.greenButton}
+                onPress={() => navigation.navigate("SellToTDXScreen")}
+              >
+                <Text style={styles.buttonText2}>Sell To TDX</Text>
+              </TouchableOpacity>
             </View>
           </View>
-          <DashboardList
-            icon="user-alt"
-            button={() => navigation.navigate("ManageFarmersScreen")}
-            title="Total Farmers Onboarded"
-            content={`${agg?.total_users ?? 0} farmers`}
-          />
-          <DashboardList
-            icon="hand-holding-usd"
-            button={() => navigation.navigate("MyAggregatesScreen")}
-            title="Total Cash Transactions"
-            content={`₵${agg?.total_cost ?? 0} `}
-          />
-          <DashboardList
-            icon="weight"
-            button={() => navigation.navigate("AggregatorQuantitiesScreen")}
-            title="Total Quantities Sold         "
-            content={agg?.total_quantity ?? "0 KG"}
-          />
-          <TouchableOpacity
-            style={styles.greenButton}
-            onPress={() => navigation.navigate("SellToTDXScreen")}
-          >
-            <Text style={styles.buttonText2}>Sell To TDX </Text>
-          </TouchableOpacity>
-        </View>
+        </ScrollView>
       )}
-
+  
       <BottomSheet
         ref={bottomSheetRef}
         snapPoints={snapPoints}
@@ -292,8 +290,9 @@ export default function DashboardScreen({ navigation }) {
       >
         {renderOrderList()}
       </BottomSheet>
-    </View>
+    </>
   );
+  
 }
 
 const DashboardList = ({ icon, button, title, content }) => {
@@ -336,7 +335,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     minWidth: 140,
-    height: 50,
+    height: hp('7'),
     backgroundColor: "#45A455",
     borderRadius: 100,
     paddingHorizontal: 10,
@@ -357,7 +356,7 @@ const styles = StyleSheet.create({
   },
   greenCard: {
     width: "100%",
-    height: 200,
+    height: hp('27'),
     backgroundColor: "green",
     marginTop: 10,
     borderTopEndRadius: 10,
@@ -365,7 +364,7 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     width: "100%",
-    height: 100,
+    height: hp('12.5'),
     backgroundColor: "white",
     marginTop: 15,
     borderRadius: 10,
@@ -380,8 +379,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   viewButton: {
-    width: 80,
-    height: 40,
+    width: wp('17'),
+    height: hp('5.5'),
     borderRadius: 50,
     backgroundColor: "green",
     justifyContent: "center",
@@ -391,7 +390,7 @@ const styles = StyleSheet.create({
   greenButton: {
     backgroundColor: "#21893E",
     marginTop: 25,
-    height: 50,
+    height: hp('7'),
     borderRadius: 4,
     justifyContent: "center",
     alignItems: "center",

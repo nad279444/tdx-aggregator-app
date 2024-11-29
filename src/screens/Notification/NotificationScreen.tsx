@@ -34,20 +34,7 @@ export default function NotificationScreen({ navigation }) {
     });
   }, [navigation]);
 
-  // const getNotifications = async (isRefreshing = false) => {
-  //   try {
-  //     if (!isRefreshing) setLoading(true);
-  //     const response = await notifications.get();
-  //     setNotificationResponse(response);
-  //   } catch (error) {
-  //     console.error("Error fetching notifications:", error);
-  //   } finally {
-  //     if (isRefreshing) setRefreshing(false);
-  //     else setLoading(false);
-  //   }
-  // };
-
-  ;
+ 
 
   const handleNetworkChange = async (isConnected, isRefreshing = false) => {
     setIsOnline(isConnected);
@@ -65,7 +52,7 @@ export default function NotificationScreen({ navigation }) {
             console.error("Error syncing data:", error);
         } finally {
           if (isRefreshing) setRefreshing(false);
-             else setLoading(false);
+    if (!isRefreshing) setLoading(false);
         }
     }
 };

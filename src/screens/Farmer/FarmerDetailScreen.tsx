@@ -12,6 +12,8 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { DataContext } from "../../../DBContext";
 import { farmers } from "../../controllers/api/farmerList";
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
+
 
 export default function FarmerDetailScreen({ navigation }) {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -195,7 +197,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#eee",
   },
   blackBox: {
-    height: 120,
+    height: hp('14'),
     backgroundColor: "black",
     flexDirection: "row",
     alignItems: "center",
@@ -223,7 +225,7 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   nameInput: {
-    height: 60,
+    height: hp('8'),
     borderWidth: 1,
     borderColor: "#FFFFFF",
     borderRadius: 4,
@@ -240,8 +242,8 @@ const styles = StyleSheet.create({
   greenButton: {
     backgroundColor: "#21893E",
     marginTop: 30,
-    height: 50,
-    marginHorizontal: 12,
+    height: hp('7'),
+    marginHorizontal: 20,
     borderWidth: 1,
     borderColor: "#D5D8DE",
     borderRadius: 4,
@@ -250,8 +252,8 @@ const styles = StyleSheet.create({
   },
   disabledButton: {
     marginTop: 30,
-    height: 50,
-    marginHorizontal: 12,
+    height: hp('7'),
+    marginHorizontal: 20,
     borderWidth: 1,
     borderColor: "#D5D8DE",
     borderRadius: 4,
@@ -270,11 +272,11 @@ const styles = StyleSheet.create({
     borderColor: "rgba(0,0,0,0.2)",
     alignItems: "center",
     justifyContent: "center",
-    minWidth: 140,
+    width: wp('42'),
     position: "absolute",
-    bottom: 40,
-    right: 20,
-    height: 50,
+    bottom: hp('20'),
+    right: wp('2'),
+    height: hp('7'),
     backgroundColor: "#000",
     borderRadius: 100,
     paddingHorizontal: 10,

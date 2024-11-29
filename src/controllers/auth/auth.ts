@@ -26,12 +26,15 @@ const auth = {
     } catch (error) {
        if (!error.response && (error.code === "ECONNABORTED" || error.message.includes("Network Error"))) {
       await storeOfflineRequest(auth.registerOfflinePath, { endpoint, data });
-      await retryOfflineRequests(auth.registerOfflinePath)
+      await auth.retryOffline()
     } else {
       console.error("Non-network error occurred:", error);
       throw error;
     }
     }
+  },
+  retryOffline: async () => {
+    await retryOfflineRequests(auth.registerOfflinePath)
   },
   signUp: async (registrationData) => {
      return await auth.offlineRequest("signup",registrationData);

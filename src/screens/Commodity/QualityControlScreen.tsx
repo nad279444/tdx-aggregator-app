@@ -4,6 +4,8 @@ import { Ionicons,FontAwesome5 } from "@expo/vector-icons";
 import { DataContext } from "../../../DBContext";
 import CheckBox from "react-native-elements/dist/checkbox/CheckBox";
 import { Divider } from "react-native-elements/dist/divider/Divider";
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
+
 
 
 export default function QualityControlScreen({ navigation }) {
@@ -234,7 +236,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   blackBox: {
-    height: 100,
+    height: hp('14'),
     backgroundColor: "black",
     flexDirection: "row",
     alignItems: "center",
@@ -248,7 +250,7 @@ const styles = StyleSheet.create({
     height: 40,
   },
   greenBox: {
-    height: 80,
+    height: hp('10'),
     backgroundColor: "#94E08180",
     justifyContent: "center",
   },
@@ -256,7 +258,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#21893E",
     marginTop: 10,
     marginBottom:35,
-    height: 50,
+    height: hp('7'),
     marginHorizontal: 12,
     borderWidth: 1,
     borderColor: "#D5D8DE",
@@ -267,7 +269,7 @@ const styles = StyleSheet.create({
   button: {
     marginTop: 10,
     marginBottom:35,
-    height: 50,
+    height: hp('7'),
     marginHorizontal: 12,
     borderWidth: 1,
     borderColor: "#D5D8DE",

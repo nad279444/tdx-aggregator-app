@@ -9,6 +9,9 @@ import {
 import { Picker } from "@react-native-picker/picker";
 import { Ionicons } from "@expo/vector-icons";
 import { DataContext } from "../../../DBContext";
+import { ScrollView } from "react-native-gesture-handler";
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
+
 
 const AddFarmerScreen2 = ({ route, navigation }) => {
   const [mobileNumber, setMobileNumber] = useState("");
@@ -85,6 +88,7 @@ const AddFarmerScreen2 = ({ route, navigation }) => {
   };
 
   return (
+    <ScrollView>
     <View style={styles.container}>
       <View style={styles.inputContainer}>
         <View style={[styles.inputGroup, styles.phoneInput]}>
@@ -187,6 +191,7 @@ const AddFarmerScreen2 = ({ route, navigation }) => {
         <Text style={{ fontSize: 18, color: "white" }}>Continue</Text>
       </TouchableOpacity>
     </View>
+    </ScrollView>
   );
 };
 
@@ -206,11 +211,12 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   phoneInput: {
-    flexBasis: "60%", // Takes 60% width of the row
+    flexBasis: "50%",
+  
   
   },
   networkInput: {
-    flexBasis: "25%",
+    flexBasis: "45%",
   },
   inputTitle: {
     marginLeft: 10,
@@ -220,7 +226,7 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   nameInput: {
-    height: 57,
+    height: hp('7'),
     borderWidth: 1,
     borderColor: "#FFFFFF",
     borderRadius: 4,
@@ -232,8 +238,8 @@ const styles = StyleSheet.create({
   greenButton: {
     backgroundColor: "#21893E",
     marginTop: 30,
-    height: 50,
-    marginHorizontal: 5,
+    height: hp('7'),
+    marginLeft: 10,
     borderWidth: 1,
     borderColor: "#D5D8DE",
     borderRadius: 4,
@@ -242,8 +248,8 @@ const styles = StyleSheet.create({
   },
   disabledButton: {
     marginTop: 30,
-    height: 50,
-    marginHorizontal: 5,
+    height: hp('7'),
+    marginLeft: 10,
     borderWidth: 1,
     borderColor: "#D5D8DE",
     borderRadius: 4,
@@ -252,7 +258,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   picker: {
-    height: 50,
+    height: hp('7'),
     width: "100%",
     borderColor: "#ccc",
     borderWidth: 1,
@@ -260,7 +266,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
   },
   ageInput: {
-    height: 57,
+    height: hp('7'),
     borderColor: "#FFFFFF",
     borderWidth: 1,
     borderRadius: 4,

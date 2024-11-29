@@ -1,11 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Modal, ImageBackground } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Modal, ImageBackground,ScrollView } from 'react-native';
 import { FontAwesome5, Ionicons } from '@expo/vector-icons';
 import { Divider } from 'react-native-elements';
 import { AuthContext } from '../../AuthContext';
-import AuthTokenStore from '../../AuthTokenStore';
-import AggregatorController from '../controllers/api/AggregatorController';
-import { usePushNotifications } from '../functions/useNotifications';
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
+
+
+
 
 const Sidebar = ({ navigation }) => {
   const { authContext } = useContext(AuthContext);
@@ -48,6 +49,7 @@ const Sidebar = ({ navigation }) => {
   ];
 
   return (
+    <ScrollView>
     <View style={styles.container}>
       <View style={styles.profileSection}>
         <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
@@ -124,6 +126,7 @@ const Sidebar = ({ navigation }) => {
         </View>
       </Modal>
     </View>
+    </ScrollView>
   );
 };
 
@@ -149,6 +152,7 @@ const styles = StyleSheet.create({
     fontSize: 5,
     paddingRight: 20,
     paddingLeft: 20,
+    marginVertical:10,
   },
   divider: {
     marginVertical: 15,
@@ -190,7 +194,7 @@ const styles = StyleSheet.create({
   },
   imageBackgroundContainer: {
     width: '100%',
-    height: 160,
+    height: wp('50'),
   },
   backgroundImage: {
     flex: 1,
@@ -245,10 +249,10 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: 14,
   },
   closeButton: {
-    marginTop: 5,
+    marginTop: 15,
     flexDirection: 'row',
     justifyContent: 'space-between',
     fontWeight: 'bold',

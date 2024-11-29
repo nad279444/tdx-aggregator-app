@@ -17,6 +17,9 @@ import { farmers } from "../../controllers/api/farmerList";
 import { communities } from "../../controllers/api/communities";
 import * as FileSystem from "expo-file-system";
 import NetInfo from '@react-native-community/netinfo';
+import { ScrollView } from "react-native-gesture-handler";
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
+
 
 const AddFarmerScreen3 = ({ route, navigation }) => {
   const [community, setCommunity] = useState("");
@@ -189,6 +192,7 @@ const AddFarmerScreen3 = ({ route, navigation }) => {
   };
 
   return (
+    <ScrollView>
     <View style={styles.container}>
       <View style={styles.inputContainer}>
         <View style={styles.inputGroup}>
@@ -232,7 +236,7 @@ const AddFarmerScreen3 = ({ route, navigation }) => {
             {frontImageUri ? (
               <Image source={{ uri: frontImageUri }} style={styles.imagePreview} />
             ) : (
-              <Ionicons name="camera" size={50} color="#ccc" />
+              <Ionicons name="camera" size={60} color="#ccc" />
             )}
           </View>
         </TouchableOpacity>
@@ -245,7 +249,7 @@ const AddFarmerScreen3 = ({ route, navigation }) => {
             {backImageUri ? (
               <Image source={{ uri: backImageUri }} style={styles.imagePreview} />
             ) : (
-              <Ionicons name="camera" size={50} color="#ccc" />
+              <Ionicons name="camera" size={60} color="#ccc" />
             )}
           </View>
         </TouchableOpacity>
@@ -266,6 +270,7 @@ const AddFarmerScreen3 = ({ route, navigation }) => {
         )}
       </TouchableOpacity>
     </View>
+    </ScrollView>
   );
 };
 
@@ -291,7 +296,7 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   nameInput: {
-    height: 60,
+    height: hp('7'),
     borderWidth: 1,
     borderColor: "#FFFFFF",
     borderRadius: 4,
@@ -303,7 +308,7 @@ const styles = StyleSheet.create({
   greenButton: {
     backgroundColor: "#21893E",
     marginTop: 30,
-    height: 50,
+    height: hp('7'),
     marginHorizontal: 12,
     borderWidth: 1,
     borderColor: "#D5D8DE",
@@ -313,7 +318,7 @@ const styles = StyleSheet.create({
   },
   disabledButton: {
     marginTop: 30,
-    height: 50,
+    height: hp('7'),
     marginHorizontal: 12,
     borderWidth: 1,
     borderColor: "#D5D8DE",
@@ -330,8 +335,8 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   imagePreview: {
-    width: 100,
-    height: 100,
+    width: wp('10'),
+    height: hp('10'),
     borderRadius: 8,
     backgroundColor: "#ddd",
   },

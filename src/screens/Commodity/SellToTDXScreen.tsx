@@ -9,6 +9,7 @@ import {
   Modal,
   FlatList,
   Image,
+  ScrollView as SC
   
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -20,6 +21,7 @@ import { autoCalculator } from "../../controllers/api/priceCalculator";
 import { silos } from "../../controllers/api/silos";
 import { ScrollView } from "react-native-gesture-handler";
 import NetInfo from '@react-native-community/netinfo';
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 
 
@@ -237,7 +239,7 @@ useEffect(() => {
           <View>
             <Text style={styles.marketItemText}>{item.name}</Text>
             <Text style={{ color: "#94E081", fontSize: 16 }}>
-              Last Updated: 2/4/2023
+              Last Updated: 2/4/2024
             </Text>
           </View>
           <View style={{ alignItems: "center" }}>
@@ -245,8 +247,8 @@ useEffect(() => {
               <Text style={styles.marketItemPrice}>High</Text>
               <View
                 style={{
-                  width: 45,
-                  height: 25,
+                  width: wp('11'),
+                  height: hp('3'),
                   backgroundColor: "green",
                   borderRadius: 5,
                   padding: 2,
@@ -262,8 +264,8 @@ useEffect(() => {
               <Text style={styles.marketItemPrice}>Low </Text>
               <View
                 style={{
-                  width: 45,
-                  height: 25,
+                  width: wp('11'),
+                  height: hp('3'),
                   backgroundColor: "#ECC63E",
                   borderRadius: 5,
                   padding: 2,
@@ -282,7 +284,9 @@ useEffect(() => {
   );
 
   return (
+  
     <View style={styles.container}>
+      
       <Text style={styles.commodityLabel}>Commodity</Text>
       <TouchableOpacity
         onPress={() => setModalVisible(true)}
@@ -346,7 +350,7 @@ useEffect(() => {
 
       <View
         style={{
-          height: 150,
+          height: hp('20'),
           backgroundColor: "#E1EFFF",
           borderRadius: 10,
           marginHorizontal: 12,
@@ -486,7 +490,9 @@ useEffect(() => {
           </View>
         </TouchableOpacity>
       </Modal>
+      
     </View>
+    
   );
 };
 
@@ -509,7 +515,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   commodityInput: {
-    height: 50,
+    height: hp('7'),
     marginHorizontal: 12,
     borderWidth: 1,
     borderColor: "#FFFFFF",
@@ -534,9 +540,8 @@ const styles = StyleSheet.create({
   },
   greenButton: {
     backgroundColor: "#21893E",
-
     marginTop: 30,
-    height: 50,
+    height: hp('7'),
     marginHorizontal: 12,
     borderWidth: 1,
     borderColor: "#D5D8DE",
@@ -545,7 +550,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   weight: {
-    height: 50,
+    height: hp('7'),
     borderWidth: 1,
     borderColor: "#FFFFFF",
     borderRadius: 4,
@@ -555,7 +560,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
   },
   bags: {
-    height: 50,
+    height: hp('7'),
     borderWidth: 1,
     borderColor: "#FFFFFF",
     borderRadius: 4,
@@ -576,7 +581,7 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 30,
-    height: 50,
+    height: hp('7'),
     marginHorizontal: 12,
     borderWidth: 1,
     borderColor: "#D5D8DE",
@@ -587,10 +592,10 @@ const styles = StyleSheet.create({
   },
   showPricesButton: {
     position: "absolute",
-    left: 110,
-    top: 120,
+    left: wp('27'),
+    top: hp('10'),
     marginTop: 20,
-    height: 50,
+    height: hp('6'),
     marginHorizontal: 12,
     borderWidth: 1,
     borderColor: "#53C4672E",

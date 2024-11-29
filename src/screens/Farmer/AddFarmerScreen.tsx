@@ -10,6 +10,9 @@ import {
 import { Picker } from "@react-native-picker/picker";
 import { Ionicons } from "@expo/vector-icons";
 import { DataContext } from "../../../DBContext";
+import { ScrollView } from "react-native-gesture-handler";
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
+
 
 const AddFarmerScreen = ({ route, navigation }) => {
   const [fullName, setFullName] = useState("");
@@ -98,6 +101,7 @@ const AddFarmerScreen = ({ route, navigation }) => {
   };
 
   return (
+    <ScrollView>
     <View style={styles.container}>
       <View style={styles.inputContainer}>
         <View style={styles.inputGroup}>
@@ -114,7 +118,7 @@ const AddFarmerScreen = ({ route, navigation }) => {
       {nameError ? (
         <Text style={{ color: "red", marginLeft: 10 }}>{nameError}</Text>
       ) : null}
-      <View style={[styles.inputContainer, { marginHorizontal: 10, marginBottom:20 }]}>
+      <View style={[styles.inputContainer, { marginHorizontal:10, marginBottom:20 }]}>
         <View style={styles.inputGroup}>
         <Text style={[styles.inputTitle,{marginLeft:0}]}>ID Card Type</Text>
           <Picker
@@ -141,6 +145,7 @@ const AddFarmerScreen = ({ route, navigation }) => {
         </View>
       </View>
       
+      
       <View style={{flexDirection:'row',justifyContent:'space-around'}}>
      
       </View>
@@ -157,6 +162,7 @@ const AddFarmerScreen = ({ route, navigation }) => {
         <Text style={{ fontSize: 18, color: "white" }}>Continue</Text>
       </TouchableOpacity>
     </View>
+    </ScrollView>
   );
 };
 
@@ -182,7 +188,7 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   nameInput: {
-    height: 60,
+    height: hp('7'),
     borderWidth: 1,
     borderColor: "#FFFFFF",
     borderRadius: 4,
@@ -194,7 +200,7 @@ const styles = StyleSheet.create({
   greenButton: {
     backgroundColor: "#21893E",
     marginTop: 30,
-    height: 50,
+    height: hp('7'),
     marginHorizontal: 10,
     borderWidth: 1,
     borderColor: "#D5D8DE",
@@ -204,7 +210,7 @@ const styles = StyleSheet.create({
   },
   disabledButton: {
     marginTop: 30,
-    height: 50,
+    height: hp('7'),
     marginHorizontal: 10,
     borderWidth: 1,
     borderColor: "#D5D8DE",
@@ -224,7 +230,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ddd",
   },
   picker: {
-    height: 50,
+    height:hp('7'),
     width: "100%",
     borderColor: "#ccc",
     borderWidth: 1,

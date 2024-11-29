@@ -1,6 +1,10 @@
 import React,{useEffect} from 'react'
 import {Text,View,StyleSheet,TouchableOpacity} from 'react-native'
 import {Ionicons} from '@expo/vector-icons'
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
 
 
 export default function CommunityPricesCard({location,date,onShowPrices}){
@@ -28,7 +32,9 @@ const styles = StyleSheet.create({
     flexDirection:'row',
     justifyContent:'space-between',
     paddingHorizontal:20,
-    paddingVertical:20
+    paddingVertical:20,
+  
+
     
    },
    Button: {

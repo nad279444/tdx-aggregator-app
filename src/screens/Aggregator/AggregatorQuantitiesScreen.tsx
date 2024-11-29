@@ -11,6 +11,12 @@ import AggregateBarChart from "../../_components/BarChart";
 import { orderqtystats } from "../../controllers/api/orders";
 import AggregatesCard from "../../_components/AggregatesCard";
 import NetInfo from '@react-native-community/netinfo';
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
+import { ScrollView } from "react-native-gesture-handler";
+
 
 export default function AggregatorQuantitiesScreen({ navigation }) {
   const [monthlyData, setMonthlyData] = useState([]);
@@ -65,7 +71,10 @@ export default function AggregatorQuantitiesScreen({ navigation }) {
         if (isConnected) {
             try {
                 setLoading(true);
-                await orderqtystats.fetchAndSync();
+                const timeout = new Promise((_,reject)=> setTimeout(()=> reject(new Error('Network Timed out')),10000))
+                const syncOperation = await orderqtystats.fetchAndSync();
+                await Promise.race([syncOperation,timeout])
+                
                 const localData = await orderqtystats.loadJsonFromFile();
                 const response = localData.data
                     setMonthlyData(response.monthly);
@@ -183,6 +192,7 @@ export default function AggregatorQuantitiesScreen({ navigation }) {
         </View>
       ) : (
         <>
+        <ScrollView>
           <View
             style={{
               justifyContent: "center",
@@ -240,6 +250,7 @@ export default function AggregatorQuantitiesScreen({ navigation }) {
               }
             />
           </View>
+          </ScrollView>
         </>
       )}
     </View>
@@ -262,7 +273,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 5,
     backgroundColor: "#ddd",
-    width: "31%",
+    width: wp('32'),
+    height: hp('5'),
     alignItems: "center",
   },
   selectedButton: {

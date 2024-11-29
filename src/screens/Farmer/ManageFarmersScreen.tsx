@@ -13,6 +13,7 @@ import { Avatar } from "react-native-elements";
 import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
 import { DataContext } from "../../../DBContext";
 import { farmers as farmersApi } from "../../controllers/api/farmerList";
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import NetInfo from '@react-native-community/netinfo';
 
 
@@ -38,6 +39,7 @@ const ManageFarmersScreen = ({ navigation }) => {
   const [hasMore, setHasMore] = useState(true);
   const { getFarmers } = useContext(DataContext);
   const [isOnline,setIsOnline] = useState(false)
+  const [timedOut, setTimedOut] = useState(false);
 
 
   useEffect(() => {
@@ -63,55 +65,65 @@ const ManageFarmersScreen = ({ navigation }) => {
     });
   }, [navigation]);
 
+  
   const handleNetworkChange = async (isConnected) => {
     setIsOnline(isConnected);
     if (isConnected) {
-        try {
-            setIsLoading(true);
-            await farmersApi.fetchAndSync();
-            const localData = await farmersApi.loadJsonFromFile();
-            if (localData) {
-                setFilteredFarmers(localData.data);
-            } else {
-                console.log("No local data available after sync.");
-            }
-        } catch (error) {
-            console.error("Error syncing data:", error);
-        } finally {
-            setIsLoading(false);
+      try {
+        setIsLoading(true);
+        const timeout = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Network operation timed out")), 10000) // 10s timeout
+        );
+        const syncOperation = farmersApi.fetchAndSync();
+
+        await Promise.race([syncOperation, timeout]); // Race the sync operation with the timeout
+
+        const localData = await farmersApi.loadJsonFromFile();
+        if (localData) {
+          setFilteredFarmers(localData.data);
+        } else {
+          console.log("No local data available after sync.");
         }
+      } catch (error) {
+        console.error("Error syncing data:", error);
+        // Ensure local data is loaded on failure
+        loadLocalData();
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      // Load local data when offline
+      loadLocalData();
     }
-};
+  };
+
+  const loadLocalData = async () => {
+    try {
+      const localData = await farmersApi.loadJsonFromFile();
+      if (localData) {
+        setFilteredFarmers(localData.data);
+      } else {
+        console.log("No local data available.");
+      }
+    } catch (error) {
+      console.error("Error loading data from local storage:", error);
+    }
+  };
+
   useEffect(() => {
-    const loadLocalData = async () => {
-        try {
-            const localData = await farmersApi.loadJsonFromFile();
-            if (localData) {
-                setFilteredFarmers(localData.data);
-            } else {
-                console.log("No local data available.");
-            }
-        } catch (error) {
-            console.error("Error loading data from local storage:", error);
-        }
-    };
-
-    handleNetworkChange(isOnline)
-
-    // Load local data immediately on component mount (offline-first)
+    // Load local data on component mount (offline-first)
     loadLocalData();
 
     // Listen for network status changes
-    const unsubscribe = NetInfo.addEventListener(state => {
-        handleNetworkChange(state.isConnected);
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      handleNetworkChange(state.isConnected);
     });
 
-    // Clean up the event listener
+    // Cleanup event listener
     return () => unsubscribe();
-}, []);
+  }, []);
 
 
-  
   const handleSearch = (text) => {
     setSearchQuery(text);
     
@@ -295,11 +307,11 @@ const styles = StyleSheet.create({
     borderColor: "rgba(0,0,0,0.2)",
     alignItems: "center",
     justifyContent: "center",
-    minWidth: 140,
+    width:  wp('42'),
     position: "absolute",
-    bottom: 40,
-    right: 20,
-    height: 50,
+    bottom: hp('5'),
+    right: wp('2'),
+    height: hp('7'),
     backgroundColor: "#000",
     borderRadius: 100,
     paddingHorizontal: 10,
